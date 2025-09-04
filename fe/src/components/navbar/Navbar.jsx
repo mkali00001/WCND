@@ -8,7 +8,6 @@ export default function Navbar() {
   const pathname = location.pathname;
 
   const navLinks = [
-    { label: "Home", to: "/" },
     { label: "Agenda", to: "/agenda" },
     { label: "Venue", to: "/venue" },
     // { label: "Register", href: "/register" },
@@ -55,12 +54,6 @@ export default function Navbar() {
             className="rounded-md px-2 py-1.5 text-sm font-medium text-[#2b2a28] transition-colors hover:text-[#a95551] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551]"
           >
             Login
-          </Link>
-          <Link
-            to="/dashboard"
-            className="rounded-md px-2 py-1.5 text-sm font-medium text-[#2b2a28] transition-colors hover:text-[#a95551] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551]"
-          >
-            Dashboard
           </Link>
           <Link
             to="/signup"

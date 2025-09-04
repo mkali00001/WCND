@@ -1,17 +1,41 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import ReCAPTCHA from "react-google-recaptcha";
+import axios from "axios";
 
 export default function Signup() {
-  function handleSubmit(e) {
+  const recaptchaRef = useRef(null);
+  const [captchaToken, setCaptchaToken] = useState(null);
+
+  async function handleSubmit(e) {
     e.preventDefault();
+    if (!captchaToken) {
+      alert("Please complete the CAPTCHA");
+      return;
+    }
+
     const fd = new FormData(e.currentTarget);
     const payload = {
       name: fd.get("name"),
       email: fd.get("email"),
       mobile: fd.get("mobile"),
+      captchaToken,
     };
-    // TODO: replace with your API call
-    console.log("Signup payload:", payload);
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/signup",
+        payload
+      );
+
+      alert(res.data.message);
+    } catch (err) {
+      alert(err.response?.data?.message || "Something went wrong");
+    }
+
+    // ✅ reset captcha after submit
+    recaptchaRef.current?.reset();
+    setCaptchaToken(null);
   }
 
   return (
@@ -28,7 +52,7 @@ export default function Signup() {
           </header>
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            {/* Name */}
+
             <div className="space-y-1">
               <label htmlFor="name" className="text-sm font-medium text-[#2b2a28]">
                 Name
@@ -44,7 +68,7 @@ export default function Signup() {
               />
             </div>
 
-            {/* Email */}
+
             <div className="space-y-1">
               <label htmlFor="email" className="text-sm font-medium text-[#2b2a28]">
                 Email
@@ -60,7 +84,7 @@ export default function Signup() {
               />
             </div>
 
-            {/* Mobile */}
+
             <div className="space-y-1">
               <label htmlFor="mobile" className="text-sm font-medium text-[#2b2a28]">
                 Mobile
@@ -76,9 +100,18 @@ export default function Signup() {
               />
             </div>
 
-            {/* Submit */}
+
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              onChange={(token) => setCaptchaToken(token)}
+              onExpired={() => setCaptchaToken(null)}
+            />
+
+
             <button
               type="submit"
+              disabled={!captchaToken}
               className="mt-2 inline-flex w-full items-center justify-center rounded-md bg-[#972620] px-4 py-2.5 text-sm font-semibold text-[#fefbfa] transition-colors hover:bg-[#a95551] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fefbfa]"
             >
               Create account

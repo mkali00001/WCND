@@ -18,14 +18,7 @@ export default function Footer() {
                     {/* Footer Nav */}
                     <nav aria-label="Footer navigation" className="md:order-none">
                         <ul className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-                            <li>
-                                <Link
-                                    to="/"
-                                    className="rounded-md px-1 py-1 text-sm font-medium text-[#2b2a28]/80 transition-colors hover:text-[#972620] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551]"
-                                >
-                                    Home
-                                </Link>
-                            </li>
+                          
                             <li>
                                 <Link
                                     to="/login"
@@ -40,14 +33,6 @@ export default function Footer() {
                                     className="rounded-md px-1 py-1 text-sm font-medium text-[#2b2a28]/80 transition-colors hover:text-[#972620] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551]"
                                 >
                                     Signup
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/dashboard"
-                                    className="rounded-md px-1 py-1 text-sm font-medium text-[#2b2a28]/80 transition-colors hover:text-[#972620] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551]"
-                                >
-                                    Dashboard
                                 </Link>
                             </li>
                         </ul>

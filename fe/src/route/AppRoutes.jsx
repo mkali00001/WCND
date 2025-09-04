@@ -1,15 +1,11 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-
-
 import Layout from "../outlet/Layout";
-import Home from "../components/home/Home";
 import Login from "../auth/Login";
 import Signup from "../auth/Signup";
-import Dashboard from "../components/dashboard/Dashboard";
-import OpenRoute from "./OpenRoute";
 import ProtectedRoute from "./ProtectedRoute";
+import Dashboard from "../../src/components/dashboard/Dashboard"
 import { useAuth } from "../context/AuthContext";
 
 const AppRoutes = () => {
@@ -18,15 +14,20 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route element={<OpenRoute />}>
-          <Route index element={<Home />} />
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
-        </Route>
+        {/* Open Routes */}
+        <Route index element={<Signup />} />
+        <Route path="signup" element={<Signup />} />
+        <Route path="login" element={<Login />} />
 
-        <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
-          <Route path="dashboard" element={<Dashboard />} />
-        </Route>
+        {/* Protected Routes */}
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
       </Route>
     </Routes>
   );

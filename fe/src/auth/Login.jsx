@@ -1,25 +1,36 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 
 export default function Login() {
+    const { fetchUserData, user} = useAuth();
   const navigate = useNavigate();
-  const { setIsLoggedIn } = useAuth();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email");
-    const password = formData.get("password");
+    try {
+      await axios.post("http://localhost:5000/api/login", formData, {
+        withCredentials: true
+      }
+      )
 
-    if (email === "mkali@gmail.com" && password === "123456") {
-      alert("Login successful!");
-      setIsLoggedIn(true);
-      navigate("/dashboard");
-    } else {
-      alert("Invalid email or password");
+      await fetchUserData()
+    }
+    catch(e){
+      console.log(e)
     }
   }
+
+  useEffect(() => {
+    if ( user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   return (
     <main className="bg-[#fefbfa] min-h-screen">
@@ -44,6 +55,13 @@ export default function Login() {
                 id="email"
                 name="email"
                 type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    email: e.target.value,
+                  })
+                }
                 required
                 autoComplete="email"
                 className="w-full rounded-md border border-[#2b2a28]/20 px-3 py-2 text-sm text-[#2b2a28] placeholder:text-[#2b2a28]/50 focus:outline-none focus:ring-2 focus:ring-[#a95551]"
@@ -68,6 +86,12 @@ export default function Login() {
                 id="password"
                 name="password"
                 type="password"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    password: e.target.value,
+                  })
+                }
                 required
                 autoComplete="current-password"
                 className="w-full rounded-md border border-[#2b2a28]/20 px-3 py-2 text-sm text-[#2b2a28] placeholder:text-[#2b2a28]/50 focus:outline-none focus:ring-2 focus:ring-[#a95551]"

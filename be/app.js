@@ -3,21 +3,20 @@ const cors = require("cors");
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 require('dotenv').config();
+const cookieParser = require('cookie-parser');
+
 
 const app = express();
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://conference-reg-wcnd.vercel.app"
-];
+// const allowedOrigins = [
+//   "http://localhost:5173",
+//   "https://conference-reg-wcnd.vercel.app"
+// ];
+app.use(cookieParser());
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  }
+    origin: process.env.ORIGIN,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
 }));
 
 // Middleware

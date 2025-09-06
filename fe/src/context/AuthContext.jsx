@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import axios from "axios";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 // 1. Context banao
 const AuthContext = createContext();
@@ -6,9 +7,31 @@ const AuthContext = createContext();
 // 2. Provider component banao
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+
+  const fetchUserData = async (token) => {
+
+    await axios.get("http://localhost:5000/api/me", { withCredentials: true })
+      .then((res) => { setUser(res.data) })
+      .catch((e) => {
+        setUser(null)
+      })
+  }
+
+
+
+  useEffect(() => {
+    fetchUserData()
+  }, [])
+
+  const logout = () => {
+    axios
+      .post(`http://localhost:5000/api/logout`, {}, { withCredentials: true })
+      .then(() => setUser(null));
+  };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+    <AuthContext.Provider value={{ fetchUserData, user, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import axios from "axios";
 
 const Dashboard = () => {
+
   const navigate = useNavigate();
-  const { setIsLoggedIn } = useAuth();
+  const { logout } = useAuth();
 
   const [user] = useState({
     isRegistered: true,
@@ -18,9 +20,12 @@ const Dashboard = () => {
     },
   });
 
-  function handleLogout() {
-    setIsLoggedIn(false);
-    navigate("/login");
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
   }
 
   return (

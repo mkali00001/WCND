@@ -9,7 +9,7 @@ import Dashboard from "../../src/components/dashboard/Dashboard"
 import { useAuth } from "../context/AuthContext";
 
 const AppRoutes = () => {
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
 
   return (
     <Routes>
@@ -23,7 +23,7 @@ const AppRoutes = () => {
         <Route
           path="dashboard"
           element={
-            <ProtectedRoute isLoggedIn={isLoggedIn}>
+            <ProtectedRoute user={user}>
               <Dashboard />
             </ProtectedRoute>
           }

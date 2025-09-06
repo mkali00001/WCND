@@ -43,7 +43,7 @@ router.get('/me', authMiddleware, async (req, res) => {
 router.post("/logout",(req,res)=>{
   res.clearCookie("auth_token", {
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: "lax",
     });
     return res.status(200).json({message:"Logged out"})

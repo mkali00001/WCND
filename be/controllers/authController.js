@@ -20,24 +20,24 @@ const signup = async (req, res) => {
     const { name, email, mobile, captchaToken } = req.body;
 
     // STEP 1: Captcha verify
-    // if (!captchaToken) {
-    //   return res.status(400).json({ message: 'Captcha token missing' });
-    // }
+    if (!captchaToken) {
+      return res.status(400).json({ message: 'Captcha token missing' });
+    }
 
-    // const verifyRes = await axios.post(
-    //   `https://www.google.com/recaptcha/api/siteverify`,
-    //   null, // no body, params used instead
-    //   {
-    //     params: {
-    //       secret: process.env.RECAPTCHA_SECRET,
-    //       response: captchaToken,
-    //     },
-    //   }
-    // );
+    const verifyRes = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify`,
+      null, // no body, params used instead
+      {
+        params: {
+          secret: process.env.RECAPTCHA_SECRET,
+          response: captchaToken,
+        },
+      }
+    );
 
-    // if (!verifyRes.data.success) {
-    //   return res.status(400).json({ message: 'Captcha verification failed' });
-    // }
+    if (!verifyRes.data.success) {
+      return res.status(400).json({ message: 'Captcha verification failed' });
+    }
 
     // STEP 2: Check if user already exists
     const existingUser = await User.findOne({ email });

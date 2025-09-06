@@ -28,8 +28,8 @@ const login = async (req, res) => {
     const token = generateToken(user._id, user.role)
     res.cookie("auth_token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 

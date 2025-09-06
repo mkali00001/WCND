@@ -24,7 +24,7 @@ export default function Signup() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/signup",
+        "https://conference-reg-wcnd-be.onrender.com/api/signup",
         payload
       );
 

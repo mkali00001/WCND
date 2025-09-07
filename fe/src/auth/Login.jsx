@@ -4,30 +4,33 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 
 export default function Login() {
-    const { fetchUserData, user} = useAuth();
+  const { fetchUserData, user } = useAuth();
   const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setLoading(true);
     try {
       await axios.post("https://conference-reg-wcnd-be.onrender.com/api/login", formData, {
-        withCredentials: true
-      }
-      )
+        withCredentials: true,
+      });
 
-      await fetchUserData()
-    }
-    catch(e){
-      console.log(e)
+      await fetchUserData();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false); 
     }
   }
 
   useEffect(() => {
-    if ( user) {
+    if (user) {
       navigate("/dashboard");
     }
   }, [user, navigate]);
@@ -99,16 +102,15 @@ export default function Login() {
               />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
-              className="mt-2 inline-flex w-full items-center justify-center rounded-md bg-[#972620] px-4 py-2.5 text-sm font-semibold text-[#fefbfa] transition-colors hover:bg-[#a95551] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551] focus-visible:ring-offset-2"
+              disabled={loading}
+              className="mt-2 inline-flex w-full items-center justify-center rounded-md bg-[#972620] px-4 py-2.5 text-sm font-semibold text-[#fefbfa] transition-colors hover:bg-[#a95551] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551] focus-visible:ring-offset-2 disabled:opacity-60"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
-          {/* Signup Link */}
           <p className="mt-6 text-center text-sm text-[#2b2a28]/70">
             Don’t have an account?{" "}
             <Link

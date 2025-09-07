@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function Signup() {
   const recaptchaRef = useRef(null);
@@ -28,9 +29,9 @@ export default function Signup() {
         payload
       );
 
-      alert(res.data.message);
+      toast.success(res.data.message);
     } catch (err) {
-      alert(err.response?.data?.message || "Something went wrong");
+      toast.error(err.response?.data?.message || "Something went wrong");
     }
 
     // ✅ reset captcha after submit

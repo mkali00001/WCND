@@ -9,7 +9,6 @@ import Dashboard from "../../src/components/dashboard/Dashboard"
 import { useAuth } from "../context/AuthContext";
 import RegistrationForm from "../components/registration/RegistrationForm";
 import ForgotPassword from "../auth/ResetPassword";
-import ConferencePortal from "../auth/ConferencePortal";
 
 const AppRoutes = () => {
   const { user } = useAuth();
@@ -23,8 +22,6 @@ const AppRoutes = () => {
         <Route path="login" element={<Login />} />
         <Route path="registration" element={<RegistrationForm />} />
         <Route path="/forgot-password" element={<ForgotPassword/>} />
-        <Route path="/dsh" element={<Dashboard/>} />
-        <Route path="/conport" element={<ConferencePortal/>} />
 
         {/* Protected Routes */}
         <Route

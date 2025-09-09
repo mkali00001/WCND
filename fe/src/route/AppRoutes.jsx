@@ -7,6 +7,8 @@ import Signup from "../auth/Signup";
 import ProtectedRoute from "./ProtectedRoute";
 import Dashboard from "../../src/components/dashboard/Dashboard"
 import { useAuth } from "../context/AuthContext";
+import RegistrationForm from "../components/registration/RegistrationForm";
+import ForgotPassword from "../auth/ResetPassword";
 
 const AppRoutes = () => {
   const { user } = useAuth();
@@ -18,6 +20,8 @@ const AppRoutes = () => {
         <Route index element={<Signup />} />
         <Route path="signup" element={<Signup />} />
         <Route path="login" element={<Login />} />
+        <Route path="registration" element={<RegistrationForm />} />
+        <Route path="/forgot-password" element={<ForgotPassword/>} />
 
         {/* Protected Routes */}
         <Route

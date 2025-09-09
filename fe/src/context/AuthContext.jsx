@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserData = async (token) => {
 
-    await axios.get("https://conference-reg-wcnd-be.onrender.com/api/me", { withCredentials: true })
+    await axios.get("https://conference-reg-wcnd-be.onrender.com:5000/api/me", { withCredentials: true })
       .then((res) => { setUser(res.data) })
       .catch((e) => {
         setUser(null)

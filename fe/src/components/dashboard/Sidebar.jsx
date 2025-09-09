@@ -16,10 +16,10 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePage, setAc
 
     const handleMenuClick = (label) => {
         setActivePage(label)
-        setSidebarOpen(false) 
+        setSidebarOpen(false)
 
         if (label === "Logout") {
-            logout()   
+            logout()
         }
     }
 
@@ -27,7 +27,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePage, setAc
         <>
             {/* Mobile overlay */}
             {sidebarOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
+                <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
             )}
 
             {/* Sidebar */}

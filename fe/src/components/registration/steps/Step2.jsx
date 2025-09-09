@@ -1,5 +1,3 @@
-"use client"
-
 const Step2 = ({ formData, handleInputChange }) => {
   return (
     <div className=" space-y-6 mb-[16px]">

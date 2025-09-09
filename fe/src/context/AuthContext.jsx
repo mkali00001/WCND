@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserData = async (token) => {
 
-    await axios.get("https://conference-reg-wcnd-be.onrender.com:5000/api/me", { withCredentials: true })
+    await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/me`, { withCredentials: true })
       .then((res) => { setUser(res.data) })
       .catch((e) => {
         setUser(null)
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     axios
-      .post(`https://conference-reg-wcnd-be.onrender.com/api/logout`, {}, { withCredentials: true })
+      .post(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/logout`, {}, { withCredentials: true })
       .then(() => setUser(null));
   };
 

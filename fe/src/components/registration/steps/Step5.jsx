@@ -1,5 +1,3 @@
-"use client"
-
 const Step5 = ({ formData, handleInputChange }) => {
   return (
     <div className="space-y-6">

@@ -1,6 +1,5 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const { generateToken } = require('../utils/jwt');
 require('dotenv').config();
 
@@ -25,30 +24,34 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = generateToken(user._id, user.role)
-    res.cookie("auth_token", token, {
+    // Generate JWT
+    const token = generateToken(user._id, user.role);
+
+    // Cookie options
+    const cookieOptions = {
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    })
+      secure: process.env.NODE_ENV === "production", // prod = true, dev = false
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+
+    // Set cookie
+    res.cookie("auth_token", token, cookieOptions);
 
     res.status(200).json({
       message: "Login successful",
-      token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         mobile: user.mobile,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 module.exports = { login };

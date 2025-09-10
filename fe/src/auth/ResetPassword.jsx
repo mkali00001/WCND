@@ -14,36 +14,28 @@ export default function ForgotPassword() {
     e.preventDefault()
     setLoading(true)
 
+    // Simulated API delay
     setTimeout(() => {
       setShowPopup(true)
       setLoading(false)
-    }, 1000) 
+    }, 1000)
   }
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
-      <section
-        className="
-          bg-white 
-          w-full max-w-[538px] 
-          px-6 sm:px-10 
-          py-8 sm:py-10 
-          lg:px-[40px] lg:py-[40px]
-          rounded-[20px] sm:rounded-[26px] 
-          border border-[#2b2a28]/20 shadow-sm
-        "
-      >
+    <main className="flex items-center justify-center min-h-screen bg-[#FAFAFA] px-4">
+      <section className="bg-white w-full max-w-[538px] rounded-[26px] border border-[#D6D6D6] px-8 py-10 shadow-sm">
         {/* Logo */}
-        <header className="flex justify-center mb-6">
+        <header className="flex justify-center mb-8">
           <img
             src={logo}
             alt="WCMD"
-            className="w-[180px] sm:w-[232px] h-auto"
+            className="w-[232px] h-[74px] object-contain"
           />
         </header>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          {/* Email Input */}
           <div>
             <input
               id="email"
@@ -52,9 +44,8 @@ export default function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              autoComplete="email"
-              placeholder="you@example.com"
-              className="h-[56px] sm:h-[66px] w-full rounded-[10px] border border-[#2b2a28]/30 px-3 py-2 text-sm text-[#2b2a28] placeholder:text-[#2b2a28]/40 focus:outline-none focus:ring-2 focus:ring-[#972620]"
+              placeholder="Enter your Email"
+              className="h-[66px] w-full rounded-[10px] border border-[#EAEAEA] px-4 text-base text-[#333] placeholder:text-[#333]/60 focus:outline-none focus:ring-2 focus:ring-[#972620]"
             />
           </div>
 
@@ -62,21 +53,19 @@ export default function ForgotPassword() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 inline-flex h-[56px] sm:h-[66px] w-full items-center justify-center rounded-[10px] bg-[#972620] px-4 py-2.5 text-sm font-semibold text-[#fefbfa] transition-colors hover:bg-[#a95551] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551] focus-visible:ring-offset-2 disabled:opacity-60"
+            className="h-[51px] w-full rounded-[10px] bg-[#972620] text-white font-medium shadow-lg border border-[#EAEAEA] transition-colors hover:bg-[#a95551] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551] disabled:opacity-60"
           >
-            {loading ? "Resetting Password..." : "Reset Password"}
+            {loading ? "Resetting..." : "Reset Password"}
           </button>
-        </form>
 
-        {/* Footer link */}
-        <div className="mt-4 flex justify-center">
+          {/* Secondary Button */}
           <Link
             to="/signup"
-            className="inline-flex h-[56px] sm:h-[66px] w-full items-center justify-center rounded-[10px] border border-[#972620] bg-white px-4 py-2.5 text-sm text-[#972620] transition-colors hover:bg-[#972620] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#972620]"
+            className="h-[51px] w-full flex items-center justify-center rounded-[10px] border border-[#972620] bg-white text-[#333] font-medium transition-colors hover:bg-[#972620] hover:text-white"
           >
-            New User &nbsp; <span className="font-semibold">Signup Now</span>
+            New User? <span className="ml-1 font-semibold">Signup now</span>
           </Link>
-        </div>
+        </form>
       </section>
 
       {/* Popup */}

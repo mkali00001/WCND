@@ -1,41 +1,45 @@
-import { CheckCircle } from "lucide-react"
-
 export default function EmailPopup({ email, onClose }) {
   return (
-    <div className="fixed inset-0 bg-gray-50/80 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
       <div
-        className="bg-white rounded-2xl shadow-lg p-8 text-center relative flex flex-col gap-6"
-        style={{ width: "445px" }}
+        className="bg-white rounded-[26px] border border-[#D6D6D6] flex flex-col items-center text-center relative"
+        style={{ width: "445px", height: "295px" }}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
-        >
-          ×
-        </button>
-
-        <div className="flex justify-center">
-          <div className="w-12 h-12 rounded-full border-2 border-[#972620] flex items-center justify-center">
-            <CheckCircle className="w-6 h-6 text-[#972620]" />
-          </div>
+        {/* Icon */}
+        <div className="mt-10 w-[66px] h-[66px] rounded-full bg-[#972620] flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-8 h-8 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={3}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
         </div>
 
-        <h2 className="text-xl font-semibold text-[#972620]">Check Your Email</h2>
-
-        <div>
-          <p className="text-gray-600 mb-2 leading-relaxed">
-            We've sent instructions to reset your password to:
+        {/* Title + Text */}
+        <div className="mt-4 px-6">
+          <h2 className="text-[#972620] font-bold text-[15px] leading-[22px] mb-2">
+            Check Your Email
+          </h2>
+          <p className="text-[#333] text-[15px] leading-[22px] font-normal">
+            We&apos;ve sent instructions to reset your password to:
+            <br />
+            <span className="font-medium">{email}</span>
           </p>
-          <p className="text-gray-800 font-medium">{email}</p>
         </div>
 
-        <p className="text-xs text-gray-500">
-          If you don't see the email in your inbox, please check your spam folder.
+        {/* Small Note */}
+        <p className="mt-2 text-[8px] text-[#333]">
+          If you don&apos;t see the email in your inbox, please check your spam folder.
         </p>
 
+        {/* Button */}
         <button
           onClick={onClose}
-          className="bg-[#972620] hover:bg-[#972620] text-white px-8 py-2 rounded-md w-full"
+          className="mt-4 w-[141px] h-[33px] bg-[#972620] text-white text-[11px] font-bold rounded-[10px] shadow-lg border border-[#EAEAEA] hover:bg-[#a95551] transition"
         >
           Return to Login
         </button>

@@ -33,20 +33,22 @@ router.get('/admin', authMiddleware, roleMiddleware(['admin']), (req, res) => {
 });
 
 router.get('/me', authMiddleware, async (req, res) => {
-    const user = await userModel.findById(req.user.id).select("name email mobile role")
+  const user = await userModel.findById(req.user.id).select("name email mobile role")
 
   res.status(200).json(
     user
   );
 });
 
-router.post("/logout",(req,res)=>{
+router.post("/logout", (req, res) => {
   res.clearCookie("auth_token", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-    });
-    return res.status(200).json({message:"Logged out"})
-})
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+  });
+
+  return res.status(200).json({ message: "Logged out" });
+});
+
 
 module.exports = router;

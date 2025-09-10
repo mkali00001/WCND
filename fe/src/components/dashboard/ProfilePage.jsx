@@ -28,21 +28,6 @@ export default function ProfilePage() {
         return <Announcement/>
       case "Help & Support":
         return <HelpSupport/>
-        return (
-          <div className="p-6 lg:p-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-gray-50 rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-                <div className="mb-4">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl text-gray-400">📄</span>
-                  </div>
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-2">{activePage}</h2>
-                  <p className="text-gray-600">This page is under development.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
       default:
         return <ProfileContent />
     }

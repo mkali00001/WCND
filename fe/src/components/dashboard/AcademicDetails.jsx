@@ -32,12 +32,6 @@ export default function AcademicDetails() {
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold text-gray-900">Academic Details</h3>
-        <button
-          onClick={handleSave}
-          className="px-4 py-2 bg-[#972620] text-white rounded-lg hover:bg-[#972620] transition-colors"
-        >
-          Save Changes
-        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -150,6 +144,13 @@ export default function AcademicDetails() {
           />
         </div>
       </div>
+
+      <button
+        onClick={handleSave}
+        className="px-4 py-2 mt-4 bg-[#972620] text-white rounded-lg hover:bg-[#972620] transition-colors"
+      >
+        Save Changes
+      </button>
     </div>
   )
 }

@@ -3,13 +3,17 @@
 import { useState } from "react"
 import PersonalInformation from "./PersonalInformation"
 import AcademicDetails from "./AcademicDetails"
+import { useAuth } from "../../context/AuthContext";
 
 export default function ProfileContent() {
+      const { user } = useAuth();
+
+  
   const [profileData, setProfileData] = useState({
-    name: "Name Here",
-    email: "useremail@gmail.com",
-    phone: "+91 8978765689",
-    alternatePhone: "+91 8978765689",
+    name: user.name,
+    email: user.email,
+    phone: user.mobile,
+    alternatePhone: user.alternatemobile || "NA",
   })
 
   const [isEditing, setIsEditing] = useState(false)

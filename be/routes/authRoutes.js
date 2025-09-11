@@ -5,7 +5,7 @@ const { login } = require('../controllers/loginController');
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
 const userModel = require('../models/userModel');
-const RegisteredUser = require('../models/registeredUserModel'); // ✅ Correct import name
+const RegisteredUser = require('../models/registeredUserModel');
 
 // Public Routes
 router.post('/signup', signup);

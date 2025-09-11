@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 const SuccessPage = () => {
     return (
         <div className="space-y-6 py-16">
@@ -23,12 +25,12 @@ const SuccessPage = () => {
             </p>
 
             {/* Go to Dashboard button */}
-            <button
-                onClick={() => alert("Redirecting to dashboard...")}
+            <Link
+                to={"/dashboard"}
                 className="px-6 py-2 bg-[#972620] text-white rounded-md hover:bg-[#972620]/90 transition-colors font-medium"
             >
                 Go to Dashboard
-            </button>
+            </Link>
 
         </div>
     )

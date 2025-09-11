@@ -18,18 +18,29 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(
+      const res = await axios.post(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/login`,
-        formData,
-        { withCredentials: true }
+        {
+          email: formData.email, // make sure keys match backend
+          password: formData.password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
       );
+
+      console.log("Login Success:", res.data);
       await fetchUserData();
     } catch (e) {
-      console.log(e);
+      console.error("Login Error:", e.response?.data || e.message);
     } finally {
       setLoading(false);
     }
   }
+
 
   useEffect(() => {
     if (user) {

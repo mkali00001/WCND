@@ -1,14 +1,16 @@
-"use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import PersonalInformation from "./PersonalInformation"
 import AcademicDetails from "./AcademicDetails"
 import { useAuth } from "../../context/AuthContext";
+import axios from "axios";
 
 export default function ProfileContent() {
-      const { user } = useAuth();
+  const { user } = useAuth();
+  const [registration, setRegistration] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false)
 
-  
+
   const [profileData, setProfileData] = useState({
     name: user.name,
     email: user.email,
@@ -16,7 +18,28 @@ export default function ProfileContent() {
     alternatePhone: user.alternatemobile || "NA",
   })
 
-  const [isEditing, setIsEditing] = useState(false)
+  useEffect(() => {
+    const fetchRegistration = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/my-registration`, {
+          withCredentials: true,
+        });
+        console.log(res.data)
+        setRegistration(res.data);
+      } catch (err) {
+        console.error("Error fetching registration:", err.response?.data || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRegistration();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+
+  if (!registration) return <p>No registration data found</p>;
+
 
   const handleEditProfile = () => {
     setIsEditing(!isEditing)
@@ -133,8 +156,8 @@ export default function ProfileContent() {
         )}
       </div>
 
-      <PersonalInformation />
-      <AcademicDetails />
+      <PersonalInformation regdata={registration} />
+      <AcademicDetails regdata={registration}/>
     </div>
   )
 }

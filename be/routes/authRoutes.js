@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { signup } = require('../controllers/authController');
 const { login } = require('../controllers/loginController');
-const authMiddleware = require('../middleware/authMiddleware'); // JWT verify
-const roleMiddleware = require('../middleware/roleMiddleware'); // Role check
+const authMiddleware = require('../middleware/authMiddleware');
+const roleMiddleware = require('../middleware/roleMiddleware');
 const userModel = require('../models/userModel');
+const RegisteredUser = require('../models/registeredUserModel'); // ✅ Correct import name
 
 // Public Routes
 router.post('/signup', signup);
@@ -14,7 +15,7 @@ router.post('/login', login);
 router.get('/profile', authMiddleware, (req, res) => {
   res.status(200).json({
     message: 'Welcome to your profile',
-    user: req.user, // { id, role } middleware se milega
+    user: req.user,
   });
 });
 
@@ -28,16 +29,122 @@ router.get('/dashboard', authMiddleware, (req, res) => {
 // Admin-only Route
 router.get('/admin', authMiddleware, roleMiddleware(['admin']), (req, res) => {
   res.json({
-    message: 'Welcome Admin 👑',
+    message: 'Welcome Admin',
   });
 });
 
 router.get('/me', authMiddleware, async (req, res) => {
-  const user = await userModel.findById(req.user.id).select("name email mobile role")
+  const user = await userModel.findById(req.user.id).select("name email mobile role");
+  res.status(200).json(user);
+});
 
-  res.status(200).json(
-    user
-  );
+router.post('/register', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Check if user already registered
+    const existingRegistration = await RegisteredUser.findOne({ user: userId });
+    if (existingRegistration) {
+      return res.status(400).json({ error: 'User already registered' });
+    }
+
+    const {
+      guidelinesAccepted,
+      humanBeingAccepted,
+      registrationType,
+      atPresent,
+      authorPresenter,
+      participation,
+      presentation,
+      modeOfParticipation,
+      title,
+      firstName,
+      lastName,
+      pronunciation,
+      gender,
+      dateOfBirth,
+      nationality,
+      website,
+      professionalPhone,
+      personalPhone,
+      passportNo,
+      incomeCategory,
+      designation,
+      affiliation,
+      department,
+      university,
+      cityName,
+      stateProvince,
+      zipCode,
+      countryName,
+      alternativeEmail,
+      motherTongue,
+      abstractMessage,
+      abstractConfirmation,
+      finalMessage,
+      finalConfirmation
+    } = req.body;
+
+    const registeredUser = new RegisteredUser({
+      user: userId,
+      guidelinesAccepted,
+      humanBeingAccepted,
+      registrationType,
+      atPresent,
+      authorPresenter,
+      participation,
+      presentation,
+      modeOfParticipation,
+      title,
+      firstName,
+      lastName,
+      pronunciation,
+      gender,
+      dateOfBirth,
+      nationality,
+      website,
+      professionalPhone,
+      personalPhone,
+      passportNo,
+      incomeCategory,
+      designation,
+      affiliation,
+      department,
+      university,
+      cityName,
+      stateProvince,
+      zipCode,
+      countryName,
+      alternativeEmail,
+      motherTongue,
+      abstractMessage,
+      abstractConfirmation,
+      finalMessage,
+      finalConfirmation
+    });
+
+    await registeredUser.save();
+
+    res.status(201).json({ message: 'Registration saved', registeredUser });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.get("/my-registration", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const registration = await RegisteredUser.findOne({ user: userId });
+
+    if (!registration) {
+      return res.status(404).json({ error: "No registration found for this user" });
+    }
+
+    res.status(200).json(registration);
+  } catch (err) {
+    res.status(500).json({ error: "Server error", details: err.message });
+  }
 });
 
 router.post("/logout", (req, res) => {
@@ -49,6 +156,5 @@ router.post("/logout", (req, res) => {
 
   return res.status(200).json({ message: "Logged out" });
 });
-
 
 module.exports = router;

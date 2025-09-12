@@ -14,12 +14,30 @@ export default function ForgotPassword() {
     e.preventDefault()
     setLoading(true)
 
-    // Simulated API delay
-    setTimeout(() => {
-      setShowPopup(true)
+    try {
+      const res = await fetch(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        alert(data.message || "Something went wrong")
+      } else {
+        setShowPopup(true)
+      }
+    } catch (err) {
+      console.error("Error:", err)
+      alert("Server error, try again later")
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
+
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-[#FAFAFA] px-4">

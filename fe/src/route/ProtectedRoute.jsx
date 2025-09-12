@@ -1,10 +1,19 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-function ProtectedRoute({ user, children }) {
+function ProtectedRoute({ children }) {
+  const { user } = useAuth();
+  const location = useLocation();
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
+
+  if (!user.isRegistered && location.pathname !== "/registration") {
+    return <Navigate to="/registration" replace />;
+  }
+
   return children;
 }
 

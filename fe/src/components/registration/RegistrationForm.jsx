@@ -8,6 +8,7 @@ import Step5 from "./steps/Step5"
 import SuccessPage from "./steps/SuccessPage"
 import logo from "../../assets/logo.jpg"
 import axios from "axios"
+import { useAuth } from "../../context/AuthContext"
 // ConferencePortal
 const ConferencePortal = ({ onRegister }) => {
   return (
@@ -52,6 +53,7 @@ const ConferencePortal = ({ onRegister }) => {
 const RegistrationForm = () => {
   const [currentStep, setCurrentStep] = useState(0)
   const [isCompleted, setIsCompleted] = useState(false)
+  const { fetchUserData } = useAuth()  
 
   const [formData, setFormData] = useState({
     guidelinesAccepted: false,
@@ -121,6 +123,7 @@ const RegistrationForm = () => {
       )
 
       console.log("Response from server:", response.data)
+      await fetchUserData()
       setIsCompleted(true) 
     } catch (error) {
       console.error("Error submitting form:", error.response?.data || error.message)

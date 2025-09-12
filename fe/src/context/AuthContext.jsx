@@ -9,14 +9,16 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
 
-  const fetchUserData = async (token) => {
-
-    await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/me`, { withCredentials: true })
-      .then((res) => { setUser(res.data) })
-      .catch((e) => {
-        setUser(null)
-      })
-  }
+  const fetchUserData = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/me`, { withCredentials: true });
+      setUser(res.data);
+      return res.data;
+    } catch (err) {
+      setUser(null);
+      return null;
+    }
+  };
 
 
 

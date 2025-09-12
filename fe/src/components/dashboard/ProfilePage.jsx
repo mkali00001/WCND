@@ -17,15 +17,15 @@ export default function ProfilePage() {
       case "My Profile":
         return <ProfileContent />
       case "Dashboard":
-        return <DashboardContent/>
+        return <DashboardContent />
       case "Payments":
-        return <Payement/>
+        return <Payement />
       case "Paper Submission":
-        return <PaperSub/>
+        return <PaperSub />
       case "Announcements":
-        return <Announcement/>
+        return <Announcement />
       case "Help & Support":
-        return <HelpSupport/>
+        return <HelpSupport />
       default:
         return <ProfileContent />
     }
@@ -33,15 +33,23 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Fixed Header */}
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-      <div className="flex px-16">
+
+      {/* Layout wrapper */}
+      <div className="flex">
+        {/* Sidebar */}
         <Sidebar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           activePage={activePage}
           setActivePage={setActivePage}
         />
-        <main className="flex-1 lg:ml-64 pt-16">{renderPageContent()}</main>
+
+        {/* Main Content */}
+        <main className="flex-1 lg:ml-64 pt-[88px] px-8">
+          {renderPageContent()}
+        </main>
       </div>
     </div>
   )

@@ -2,12 +2,13 @@ import { useEffect, useState } from "react"
 import logo from "../../assets/logo.jpg"
 import { useAuth } from "../../context/AuthContext"
 import { User, HelpCircle, LogOut, KeyRound } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 export default function Header({ sidebarOpen, setSidebarOpen }) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [username, setUsername] = useState("")
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (user?.name) {
@@ -16,8 +17,8 @@ export default function Header({ sidebarOpen, setSidebarOpen }) {
   }, [user])
 
   const handleLogout = () => {
-    console.log("User logout initiated")
-    alert("Logout functionality would be implemented here")
+   logout()
+    navigate("/login")
     setUserDropdownOpen(false)
   }
 
@@ -40,7 +41,7 @@ export default function Header({ sidebarOpen, setSidebarOpen }) {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white px-8 z-40">
+    <header className="fixed top-0 left-0 right-0 px-2 z-40">
       <div className="flex items-center justify-between px-4 py-3">
         {/* Left section */}
         <div className="flex items-center gap-4">
@@ -66,7 +67,7 @@ export default function Header({ sidebarOpen, setSidebarOpen }) {
         <div className="relative">
           <button
             onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-            className="flex items-center gap-3 hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors"
+            className="flex items-center gap-3 hover:bg-gray-50 rounded-lg px-2 py-2 transition-colors"
           >
             <span className="text-gray-700 hidden sm:inline">Hi, {username}</span>
             <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">

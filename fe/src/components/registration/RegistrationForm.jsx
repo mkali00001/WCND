@@ -11,8 +11,9 @@ import axios from "axios"
 import { useAuth } from "../../context/AuthContext"
 // ConferencePortal
 const ConferencePortal = ({ onRegister }) => {
+  const { logout } = useAuth()
   return (
-    <div className="w-full py-[60px]">
+    <div className="w-full py-[40px]">
       <div className=" p-16 text-center max-w-4xl">
         <h1 className="text-4xl font-bold mb-8" style={{ color: "#972620" }}>
           Welcome to the Conference Portal!
@@ -37,9 +38,9 @@ const ConferencePortal = ({ onRegister }) => {
 
         {/* Links */}
         <div className="space-y-3">
-          <p className="underline cursor-pointer text-[#972620] hover:text-[#a95551]">
+          <button onClick={logout} className="underline cursor-pointer text-[#972620] hover:text-[#a95551]">
             Logout!
-          </p>
+          </button>
           <p className="underline cursor-pointer text-[#333333] hover:text-[#a95551]">
             Explore more about WND World Congress!
           </p>
@@ -53,7 +54,7 @@ const ConferencePortal = ({ onRegister }) => {
 const RegistrationForm = () => {
   const [currentStep, setCurrentStep] = useState(0)
   const [isCompleted, setIsCompleted] = useState(false)
-  const { fetchUserData } = useAuth()  
+  const { fetchUserData, user, logout } = useAuth()
 
   const [formData, setFormData] = useState({
     guidelinesAccepted: false,
@@ -92,14 +93,46 @@ const RegistrationForm = () => {
     finalConfirmation: false,
   })
 
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
+  const [errors, setErrors] = useState({})
+
+const handleInputChange = (field, value) => {
+  setFormData((prev) => ({
+    ...prev,
+    [field]: value,
+  }))
+
+  setErrors((prevErrors) => {
+    if (prevErrors[field]) {
+      return {
+        ...prevErrors,
+        [field]: value.trim() ? "" : prevErrors[field],
+      }
+    }
+    return prevErrors
+  })
+}
+
 
   const handleNext = () => {
+    const stepRequirements = {
+      2: ["firstName", "lastName", "dateOfBirth", "nationality", "professionalPhone", "passportNo", "incomeCategory"],
+      3: ["designation", "affiliation", "department", "university", "cityName", "countryName", "stateProvince", "zipCode"],
+    }
+
+    const requiredFields = stepRequirements[currentStep] || []
+    const missing = requiredFields.filter((field) => !formData[field]?.trim())
+
+    if (missing.length > 0) {
+      // errors set karo
+      const newErrors = {}
+      missing.forEach((field) => {
+        newErrors[field] = "This field is required"
+      })
+      setErrors(newErrors)
+      return
+    }
+
+    setErrors({})
     if (currentStep < 5) setCurrentStep(currentStep + 1)
   }
 
@@ -112,19 +145,19 @@ const RegistrationForm = () => {
       console.log("Submitting Data:", formData)
 
       const response = await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/register`,   
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/register`,
         formData,
         {
           headers: {
             "Content-Type": "application/json",
           },
-          withCredentials: true, 
+          withCredentials: true,
         }
       )
 
       console.log("Response from server:", response.data)
       await fetchUserData()
-      setIsCompleted(true) 
+      setIsCompleted(true)
     } catch (error) {
       console.error("Error submitting form:", error.response?.data || error.message)
       alert(error.response?.data?.error || "Something went wrong!")
@@ -138,9 +171,9 @@ const RegistrationForm = () => {
       case 1:
         return <Step1 formData={formData} handleInputChange={handleInputChange} />
       case 2:
-        return <Step2 formData={formData} handleInputChange={handleInputChange} />
+        return <Step2 formData={formData} handleInputChange={handleInputChange} errors={errors} />
       case 3:
-        return <Step3 formData={formData} handleInputChange={handleInputChange} />
+        return <Step3 formData={formData} handleInputChange={handleInputChange} errors={errors} />
       case 4:
         return <Step4 formData={formData} handleInputChange={handleInputChange} />
       case 5:
@@ -153,7 +186,7 @@ const RegistrationForm = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="pt-6 sm:pt-8 lg:pt-[40px]">
+      <div className="pt-6 sm:pt-8 lg:pt-[20px]">
         <div className="max-w-[1148px] mx-auto px-4 sm:px-8 flex items-center justify-between">
           <div className="flex items-center">
             <img
@@ -163,7 +196,7 @@ const RegistrationForm = () => {
             />
           </div>
           <div className="flex items-center space-x-2">
-            <span className="text-gray-700 hidden sm:block">Hi, Username</span>
+            <span className="text-gray-700 hidden sm:block">Hi, {user.name}</span>
             <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
               <svg
                 className="w-5 h-5 text-white"
@@ -182,7 +215,7 @@ const RegistrationForm = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[1148px] mx-auto px-4 sm:px-8 py-8 sm:py-12 md:py-20 lg:py-[100px]">
+      <div className="max-w-[1148px] mx-auto px-4 sm:px-8 py-8 sm:py-12 md:py-20 lg:py-[30px]">
         <div className="bg-white border border-[#C3C3C3] rounded-2xl sm:rounded-3xl lg:rounded-4xl w-full">
           {/* Stepper hide on portal */}
           {currentStep > 0 && (

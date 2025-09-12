@@ -1,6 +1,6 @@
 const ProgressIndicator = ({ currentStep, isCompleted }) => {
   return (
-    <div className="mb-8 sm:mb-12 lg:mb-[96px] mt-8 sm:mt-12 lg:mt-[112px]">
+    <div className="mb-8 sm:mb-12 lg:mb-[20px] mt-8 sm:mt-12 lg:mt-[112px]">
       <div className="relative h-[24px] sm:h-[28px] lg:h-[32px]">
         {/* Background line */}
         <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-300 -translate-y-1/2" />

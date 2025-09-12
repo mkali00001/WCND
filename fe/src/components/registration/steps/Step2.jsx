@@ -1,4 +1,4 @@
-const Step2 = ({ formData, handleInputChange }) => {
+const Step2 = ({ formData, handleInputChange, errors }) => {
   return (
     <div className=" space-y-6 mb-[16px]">
       {/* Heading */}
@@ -137,28 +137,36 @@ const Step2 = ({ formData, handleInputChange }) => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            First Name
+            First Name <span className="text-red-600">*</span>
           </label>
           <input
             type="text"
+            required
             placeholder="Eg. John"
             value={formData.firstName}
             onChange={(e) => handleInputChange("firstName", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
           />
+          {errors?.firstName && (
+            <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+          )}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Last Name
+            Last Name <span className="text-red-600">*</span>
           </label>
           <input
+            required
             type="text"
             placeholder="Eg. Doe"
             value={formData.lastName}
             onChange={(e) => handleInputChange("lastName", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
           />
+          {errors?.lastName && (
+            <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+          )}
         </div>
       </div>
 
@@ -200,29 +208,37 @@ const Step2 = ({ formData, handleInputChange }) => {
         {/* Date of Birth */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date of Birth
+            Date of Birth <span className="text-red-600">*</span>
           </label>
           <input
+            required
             type="text"
             placeholder="Choose your Date of Birth"
             value={formData.dateOfBirth}
             onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
           />
+          {errors?.dateOfBirth && (
+            <p className="text-red-500 text-xs mt-1">{errors.dateOfBirth}</p>
+          )}
         </div>
 
         {/* Nationality */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Nationality
+            Nationality <span className="text-red-600">*</span>
           </label>
           <input
+            required
             type="text"
             placeholder="Eg. Indian"
             value={formData.nationality}
             onChange={(e) => handleInputChange("nationality", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
           />
+          {errors?.nationality && (
+            <p className="text-red-500 text-xs mt-1">{errors.nationality}</p>
+          )}
         </div>
 
         {/* Website */}
@@ -242,9 +258,10 @@ const Step2 = ({ formData, handleInputChange }) => {
         {/* Professional Phone */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Professional Phone No.
+            Professional Phone No. <span className="text-red-600">*</span>
           </label>
           <input
+            required
             type="text"
             placeholder="With country/area code"
             value={formData.professionalPhone}
@@ -253,6 +270,9 @@ const Step2 = ({ formData, handleInputChange }) => {
             }
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
           />
+          {errors?.professionalPhone && (
+            <p className="text-red-500 text-xs mt-1">{errors.professionalPhone}</p>
+          )}
         </div>
 
         {/* Personal Phone */}
@@ -274,15 +294,19 @@ const Step2 = ({ formData, handleInputChange }) => {
         {/* Passport No */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Passport No.
+            Passport No. <span className="text-red-600">*</span>
           </label>
           <input
+            required
             type="text"
             placeholder="XXXXXXXX"
             value={formData.passportNo}
             onChange={(e) => handleInputChange("passportNo", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
           />
+          {errors?.passportNo && (
+            <p className="text-red-500 text-xs mt-1">{errors.passportNo}</p>
+          )}
         </div>
       </div>
 

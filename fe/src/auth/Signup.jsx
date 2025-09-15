@@ -10,7 +10,7 @@ export default function Signup() {
   const [captchaInput, setCaptchaInput] = useState("")
   const [showModal, setShowModal] = useState(false)
   const [userEmail, setUserEmail] = useState("")
-  const [loading, setLoading] = useState(false) // 👈 loading state
+  const [loading, setLoading] = useState(false)
 
   // Captcha fetch
   const fetchCaptcha = async () => {
@@ -45,20 +45,19 @@ export default function Signup() {
     }
 
     try {
-      setLoading(true) // 👈 start loading
+      setLoading(true)
       const res = await axios.post(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/signup`,
         payload,
         { withCredentials: true }
       )
-      console.log(res.data)
       setUserEmail(payload.email)
       setShowModal(true)
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong")
-      fetchCaptcha() // refresh captcha on error
+      fetchCaptcha() 
     } finally {
-      setLoading(false) // 👈 stop loading
+      setLoading(false)
       setCaptchaInput("")
     }
   }

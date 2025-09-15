@@ -9,23 +9,8 @@ const RegisteredUser = require('../models/registeredUserModel');
 const User = require('../models/userModel');
 const { forgotPassword } = require('../controllers/forgotPasswordController');
 const { changePassword } = require('../controllers/changePasswordController');
-const { customAlphabet } = require("nanoid");
-const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const { getCaptcha } = require("../controllers/captchaController");
 
-const nanoid = customAlphabet(alphabet, 8);
-
-async function generateUniqueRegistrationId() {
-  let registrationId;
-  let exists = true;
-
-  while (exists) {
-    registrationId = "REG" + nanoid().toUpperCase(); // e.g. REG4X9KQZ
-    exists = await RegisteredUser.findOne({ registrationId });
-  }
-
-  return registrationId;
-}
 // Public Routes
 router.get("/captcha", getCaptcha);
 router.post('/signup', signup);
@@ -57,7 +42,7 @@ router.get('/me', authMiddleware, async (req, res) => {
   try {
     const user = await userModel
       .findById(req.user.id)
-      .select("name email mobile role isRegistered");
+      .select("name email mobile role isRegistered registrationId");
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -82,12 +67,8 @@ router.post("/register", authMiddleware, async (req, res) => {
 
     const formData = req.body;
 
-    // generate unique registrationId
-    const registrationId = await generateUniqueRegistrationId();
-
     const registeredUser = new RegisteredUser({
       user: userId,
-      registrationId, // auto-generated here
       ...formData,
     });
 

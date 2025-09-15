@@ -3,9 +3,9 @@ const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
 const { generateToken } = require('../utils/jwt');
+const { nanoid } = require('nanoid');
 require('dotenv').config();
 
-// Nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -27,7 +27,6 @@ const signup = async (req, res) => {
       res.clearCookie("captcha_text");
       return res.status(400).json({ message: "Captcha verification failed" });
     }
-    // captcha verified — clear cookie
     res.clearCookie("captcha_text");
 
     // --- check existing user ---
@@ -40,13 +39,16 @@ const signup = async (req, res) => {
     const plainPassword = uuidv4().slice(0, 8);
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
+    // --- generate registrationId ---
+    const registrationId = "REG" + nanoid(8).toUpperCase();
     // --- create user ---
     const user = new User({
       name,
       email,
       mobile,
       password: hashedPassword,
-      role: "user"
+      role: "user",
+      registrationId
     });
     await user.save();
 
@@ -56,9 +58,10 @@ const signup = async (req, res) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: "Your Login Credentials",
-        text: `Hello ${name},\n\nYour account has been created.\nEmail: ${email}\nPassword: ${plainPassword}\n\nPlease login and change your password.`
+        text: `Hello ${name},\n\nYour account has been created.\nRegistration ID: ${registrationId}\nEmail: ${email}\nPassword: ${plainPassword}\n\nPlease login and change your password.`
       });
     } catch (mailError) {
+      console.error("Email send error:", mailError);
     }
 
     // --- create JWT cookie ---
@@ -67,14 +70,16 @@ const signup = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    return res
-      .status(201)
-      .json({ message: "User registered successfully & credentials sent to email" });
+    return res.status(201).json({
+      message: "User registered successfully & credentials sent to email",
+      registrationId
+    });
 
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: "Server error" });
   }
 };

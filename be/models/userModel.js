@@ -6,7 +6,8 @@ const userSchema = new mongoose.Schema({
   mobile: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, default: 'user' },
-  isRegistered: { type: Boolean, default: false }
+  isRegistered: { type: Boolean, default: false },
+  registrationId: { type: String, unique: true } 
 });
 
 module.exports = mongoose.model('User', userSchema);

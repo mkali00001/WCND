@@ -415,7 +415,7 @@ const Step2 = ({
                     </div>
                   </div>
                   {/* Auto fields  */}
-                  {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                     <p>
                       <strong>Accompanying Person Fee:</strong>
                     </p>
@@ -426,7 +426,7 @@ const Step2 = ({
                       <strong>Delegate Registration ID:</strong>{" "}
                       {formData.registrationId || "Auto-generated"}
                     </p>
-                  </div> */}
+                  </div>
                 </div>
               )
             })}

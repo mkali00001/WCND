@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/me`, { withCredentials: true });
       setUser(res.data);
+      console.log(res.data)
       return res.data;
     } catch (err) {
       setUser(null);

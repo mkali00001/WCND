@@ -70,7 +70,7 @@ const RegistrationForm = () => {
     participantType: "Domestic",
     country: "",
     otherCountry: "",
-    fullName: "",
+    fullName: user.name || "",
     pronunciation: "",
     title: "",
     languagePreference: "",
@@ -93,7 +93,7 @@ const RegistrationForm = () => {
     accompanying: "no",
     accompanyingCount: 1,
     accompanyingPersons: [],
-    // registrationId: "REG12345",
+    registrationId: user?.registrationId || "", 
 
     // Step3: Academic + Participation
     designation: "",
@@ -105,18 +105,18 @@ const RegistrationForm = () => {
     registrationType: "",
 
     // Step4: Accommodation / Travel / Visa / Dietary
-    accommodationRequired: "",     
-  arrivalDateTime: "",         
-  departureDateTime: "",        
-  travelAssistanceRequired: "",  
-  requireVisaSupport: "",      
-  nearestEmbassyConsulate: "",   
-  dietaryPreference: "",        
-  allergies: "",                 
-  allergyDetails: "",            
-  travelInsuranceStatus: "",      
-  healthConditions: "",
-  willingForFieldTrips: "",    
+    accommodationRequired: "",
+    arrivalDateTime: "",
+    departureDateTime: "",
+    travelAssistanceRequired: "",
+    requireVisaSupport: "",
+    nearestEmbassyConsulate: "",
+    dietaryPreference: "",
+    allergies: "",
+    allergyDetails: "",
+    travelInsuranceStatus: "",
+    healthConditions: "",
+    willingForFieldTrips: "",
 
     // Step5: Payment & Declarations
     feeCategory: "",
@@ -421,7 +421,7 @@ const RegistrationForm = () => {
                     {currentStep === 5 ? (
                       <button
                         onClick={handleSubmit}
-                        disabled={!formData.valuesAffirmation} 
+                        disabled={!formData.valuesAffirmation}
                         className="px-5 sm:px-6 py-2 bg-[#972620] text-white rounded-md hover:bg-[#972620] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                       >
                         Submit & Pay

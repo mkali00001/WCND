@@ -156,8 +156,28 @@ export default function ProfileContent() {
         )}
       </div>
 
-      <PersonalInformation regdata={registration} />
-      <AcademicDetails regdata={registration}/>
+      <PersonalInformation regdata={{
+        title: registration.title || "",
+        firstName: registration.fullName?.split(" ")[0] || "",
+        lastName: registration.fullName?.split(" ").slice(1).join(" ") || "",
+        gender: registration.gender || "",
+        dateOfBirth: registration.dateOfBirth || "",
+        nationality: registration.nationality || "",
+        website: registration.website || "",
+        passportNo: registration.passportNo || "",
+        incomeCategory: registration.feeCategory || "",
+      }} />
+      <AcademicDetails regdata={{
+        designation: registration.designation || "",
+        affiliation: registration.sponsoringOrganizationDetails || "", 
+        university: registration.institution || "",
+        department: registration.department || "",
+        state: registration.state || "", 
+        zipCode: registration.zipCode || "", 
+        country: registration.country || "",
+        alternativeEmail: registration.altEmail || "",
+        motherTongue: registration.motherTongue || "",
+      }} />
     </div>
   )
 }

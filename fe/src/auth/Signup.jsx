@@ -1,20 +1,38 @@
-import { useState, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import ReCAPTCHA from "react-google-recaptcha"
 import logo from "../assets/logo.jpg"
 import axios from "axios"
 import { toast } from "react-toastify"
+import { RefreshCcw } from "lucide-react"
 
 export default function Signup() {
-  const recaptchaRef = useRef(null)
-  const [captchaToken, setCaptchaToken] = useState(null)
+  const [captchaSvg, setCaptchaSvg] = useState("")
+  const [captchaInput, setCaptchaInput] = useState("")
   const [showModal, setShowModal] = useState(false)
   const [userEmail, setUserEmail] = useState("")
+  const [loading, setLoading] = useState(false) // 👈 loading state
+
+  // Captcha fetch
+  const fetchCaptcha = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/captcha`,
+        { withCredentials: true }
+      )
+      setCaptchaSvg(res.data)
+    } catch (err) {
+      toast.error("Failed to load captcha")
+    }
+  }
+
+  useEffect(() => {
+    fetchCaptcha()
+  }, [])
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!captchaToken) {
-      toast.error("Please complete the CAPTCHA")
+    if (!captchaInput) {
+      toast.error("Please enter the captcha")
       return
     }
 
@@ -23,10 +41,11 @@ export default function Signup() {
       name: fd.get("name"),
       email: fd.get("email"),
       mobile: fd.get("mobile"),
-      captchaToken,
+      captchaInput,
     }
 
     try {
+      setLoading(true) // 👈 start loading
       const res = await axios.post(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/signup`,
         payload,
@@ -37,10 +56,11 @@ export default function Signup() {
       setShowModal(true)
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong")
+      fetchCaptcha() // refresh captcha on error
+    } finally {
+      setLoading(false) // 👈 stop loading
+      setCaptchaInput("")
     }
-
-    recaptchaRef.current?.reset()
-    setCaptchaToken(null)
   }
 
   const closeModal = () => {
@@ -103,16 +123,36 @@ export default function Signup() {
               className="h-[66px] w-full rounded-[10px] border border-[#EAEAEA] px-4 text-base text-[#333] placeholder:text-[#B0A9A9] focus:outline-none focus:ring-2 focus:ring-[#972620]"
             />
 
-            {/* reCAPTCHA */}
-            {/* <div className="border border-[#EAEAEA] rounded-[10px] px-4 h-[66px] flex items-center"> */}
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-              onChange={(token) => setCaptchaToken(token)}
-              onExpired={() => setCaptchaToken(null)}
-            />
-            {/* <span className="ml-3 text-sm text-[#B0A9A9]">I’m not a robot</span> */}
-            {/* </div> */}
+            {/* Captcha */}
+ 
+
+            {/* Captcha */}
+            <div className="flex items-center gap-2">
+              {/* Captcha SVG */}
+              <div
+                dangerouslySetInnerHTML={{ __html: captchaSvg }}
+                className="flex-shrink-0"
+              />
+
+              {/* Captcha Input */}
+              <input
+                type="text"
+                value={captchaInput}
+                onChange={(e) => setCaptchaInput(e.target.value)}
+                placeholder="Enter captcha"
+                className="h-[50px] flex-1 rounded-[10px] border border-[#EAEAEA] px-4"
+              />
+
+              {/* Reload Icon Button */}
+              <button
+                type="button"
+                onClick={fetchCaptcha}
+                className="p-2 rounded-[10px] border border-[#972620] text-[#972620] hover:bg-[#972620] hover:text-white transition-colors"
+              >
+                <RefreshCcw className="w-5 h-5" />
+              </button>
+            </div>
+
 
             {/* Terms & Conditions */}
             <div className="flex items-center gap-2">
@@ -129,10 +169,13 @@ export default function Signup() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={!captchaToken}
-              className="h-[51px] w-full rounded-[10px] bg-[#972620] text-white font-medium hover:bg-[#a95551] transition-colors"
+              disabled={loading} 
+              className={`h-[51px] w-full rounded-[10px] text-white font-medium transition-colors ${loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#972620] hover:bg-[#a95551]"
+                }`}
             >
-              Signup
+              {loading ? "Signing up…" : "Signup"}
             </button>
 
             {/* Secondary Button */}
@@ -147,7 +190,6 @@ export default function Signup() {
       </main>
 
       {/* Modal */}
-
       {showModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-xl border border-[#EAEAEA]">
@@ -170,12 +212,9 @@ export default function Signup() {
               </div>
             </div>
 
-            {/* Title */}
             <h2 className="text-xl font-semibold text-[#972620] mb-3">
               Check Your Email
             </h2>
-
-            {/* Description */}
             <p className="text-gray-600 mb-2">
               We've sent instructions to reset your password to:
             </p>
@@ -186,7 +225,6 @@ export default function Signup() {
               If you don't see the email in your inbox, please check your spam folder.
             </p>
 
-            {/* Button */}
             <Link
               to="/login"
               onClick={closeModal}
@@ -197,8 +235,6 @@ export default function Signup() {
           </div>
         </div>
       )}
-
-
     </>
   )
 }

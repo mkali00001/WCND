@@ -1,89 +1,81 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid'); 
+const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
-const axios = require('axios');
 const { generateToken } = require('../utils/jwt');
 require('dotenv').config();
 
-// transporter
+// Nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "kaif.tryidoltech@gmail.com",
-    pass: "aszs hilz ojyy jurj" 
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
 const signup = async (req, res) => {
   try {
-    const { name, email, mobile, captchaToken } = req.body;
+    const { name, email, mobile, captchaInput } = req.body;
 
-    // STEP 1: Captcha verify
-    if (!captchaToken) {
-      return res.status(400).json({ message: 'Captcha token missing' });
+    // --- CAPTCHA verification (cookie-based) ---
+    const storedCaptcha = req.cookies?.captcha_text;
+    if (!storedCaptcha) {
+      return res.status(400).json({ message: "Captcha missing or expired" });
     }
-
-    const verifyRes = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify`,
-      null, // no body, params used instead
-      {
-        params: {
-          secret: process.env.RECAPTCHA_SECRET,
-          response: captchaToken,
-        },
-      }
-    );
-
-    if (!verifyRes.data.success) {
-      return res.status(400).json({ message: 'Captcha verification failed' });
+    if (!captchaInput || captchaInput.trim() !== storedCaptcha) {
+      res.clearCookie("captcha_text");
+      return res.status(400).json({ message: "Captcha verification failed" });
     }
+    // captcha verified — clear cookie
+    res.clearCookie("captcha_text");
 
-    // STEP 2: Check if user already exists
+    // --- check existing user ---
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: "User already exists" });
     }
 
-    // Generate random password
+    // --- generate password ---
     const plainPassword = uuidv4().slice(0, 8);
-
-    // Encrypt password
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
-    // Save user
+    // --- create user ---
     const user = new User({
       name,
       email,
       mobile,
       password: hashedPassword,
-      role: 'user'
+      role: "user"
     });
     await user.save();
 
-    // Send mail with credentials
-    await transporter.sendMail({
-      from: "kaif.tryidoltech@gmail.com",
-      to: email,
-      subject: "Your Login Credentials",
-      text: `Hello ${name},\n\nYour account has been created.\nEmail: ${email}\nPassword: ${plainPassword}\n\nLogin link: http://localhost:5173/login`
-    });
-    console.log(user)
-    const token = generateToken(user._id, user.role)
-    res.cookie("auth_token",token,{
-      httpOnly:true,
-      secure:false,
-      sameSite:"lax",
-      maxAge:7*24*60*60*1000
-    })
+    // --- send email ---
+    try {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Your Login Credentials",
+        text: `Hello ${name},\n\nYour account has been created.\nEmail: ${email}\nPassword: ${plainPassword}\n\nPlease login and change your password.`
+      });
+    } catch (mailError) {
+    }
 
-    res.status(201).json({
-      message: 'User registered successfully & credentials sent to email'
+    // --- create JWT cookie ---
+    const token = generateToken(user._id, user.role);
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
+
+    return res
+      .status(201)
+      .json({ message: "User registered successfully & credentials sent to email" });
 
   } catch (error) {
-    console.error('Signup error:', error.response?.data || error.message);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 

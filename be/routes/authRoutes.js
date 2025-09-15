@@ -9,8 +9,25 @@ const RegisteredUser = require('../models/registeredUserModel');
 const User = require('../models/userModel');
 const { forgotPassword } = require('../controllers/forgotPasswordController');
 const { changePassword } = require('../controllers/changePasswordController');
+const { customAlphabet } = require("nanoid");
+const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const { getCaptcha } = require("../controllers/captchaController");
 
+const nanoid = customAlphabet(alphabet, 8);
+
+async function generateUniqueRegistrationId() {
+  let registrationId;
+  let exists = true;
+
+  while (exists) {
+    registrationId = "REG" + nanoid().toUpperCase(); // e.g. REG4X9KQZ
+    exists = await RegisteredUser.findOne({ registrationId });
+  }
+
+  return registrationId;
+}
 // Public Routes
+router.get("/captcha", getCaptcha);
 router.post('/signup', signup);
 router.post('/login', login);
 
@@ -53,98 +70,41 @@ router.get('/me', authMiddleware, async (req, res) => {
 });
 
 
-router.post('/register', authMiddleware, async (req, res) => {
+router.post("/register", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Check if user already registered
-    const existingRegistration = await RegisteredUser.findOne({ user: userId });
-    if (existingRegistration) {
-      return res.status(400).json({ error: 'User already registered' });
+    // Check if already registered
+    const existing = await RegisteredUser.findOne({ user: userId });
+    if (existing) {
+      return res.status(400).json({ error: "User already registered" });
     }
 
-    const {
-      guidelinesAccepted,
-      humanBeingAccepted,
-      registrationType,
-      atPresent,
-      authorPresenter,
-      participation,
-      presentation,
-      modeOfParticipation,
-      title,
-      firstName,
-      lastName,
-      pronunciation,
-      gender,
-      dateOfBirth,
-      nationality,
-      website,
-      professionalPhone,
-      personalPhone,
-      passportNo,
-      incomeCategory,
-      designation,
-      affiliation,
-      department,
-      university,
-      cityName,
-      stateProvince,
-      zipCode,
-      countryName,
-      alternativeEmail,
-      motherTongue,
-      abstractMessage,
-      abstractConfirmation,
-      finalMessage,
-      finalConfirmation
-    } = req.body;
+    const formData = req.body;
+
+    // generate unique registrationId
+    const registrationId = await generateUniqueRegistrationId();
 
     const registeredUser = new RegisteredUser({
       user: userId,
-      guidelinesAccepted,
-      humanBeingAccepted,
-      registrationType,
-      atPresent,
-      authorPresenter,
-      participation,
-      presentation,
-      modeOfParticipation,
-      title,
-      firstName,
-      lastName,
-      pronunciation,
-      gender,
-      dateOfBirth,
-      nationality,
-      website,
-      professionalPhone,
-      personalPhone,
-      passportNo,
-      incomeCategory,
-      designation,
-      affiliation,
-      department,
-      university,
-      cityName,
-      stateProvince,
-      zipCode,
-      countryName,
-      alternativeEmail,
-      motherTongue,
-      abstractMessage,
-      abstractConfirmation,
-      finalMessage,
-      finalConfirmation
+      registrationId, // auto-generated here
+      ...formData,
     });
 
     await registeredUser.save();
     await User.findByIdAndUpdate(userId, { isRegistered: true });
-    res.status(201).json({ message: 'Registration saved', registeredUser });
+
+    res.status(201).json({
+      message: "Registration successful",
+      registeredUser,
+    });
   } catch (err) {
+    console.error("Registration Error:", err);
     res.status(400).json({ error: err.message });
   }
 });
+
+
 
 router.get("/my-registration", authMiddleware, async (req, res) => {
   try {

@@ -1,56 +1,44 @@
-const Step1 = ({ formData, handleInputChange }) => {
+const Step1 = ({ formData, handleInputChange, errors }) => {
   return (
-    <div className="space-y-6 mb-4 sm:mb-6">
-      {/* Intro text */}
-      <div>
-        <h2 className="text-lg sm:text-xl font-semibold text-[#972620] mb-4">
-          Dear, world citizens!
-        </h2>
-        <p className="text-gray-700 mb-2 text-sm sm:text-base leading-relaxed">
-          Welcome to the abstract/paper/proposal submission application for WND World Congress 2026.
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold text-[#972620]">Welcome — Guidelines & Declaration</h2>
+
+      <div className="text[#CCCCCC]0">
+        <p className="mb-2">
+          Welcome to the World Congress of Natural Democracy 2026 India. Please read the guidelines and thematic
+          sections before submitting your abstract/paper/proposal.
         </p>
-        <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
-          To participate in the World Congress of Natural Democracy 2025, please complete your registration. 
-          Once registered, you'll unlock access to paper submissions, updates, and all event details directly from your dashboard.
+        <p className="mb-2">
+          After registration you will get access to paper submission, updates and event details via your dashboard.
         </p>
       </div>
 
-      {/* Checkboxes */}
       <div className="space-y-4">
-        <label className="flex items-start sm:items-center gap-3">
+        <label className="flex items-start gap-3">
           <input
             type="checkbox"
             checked={formData.guidelinesAccepted}
-            onChange={(e) =>
-              handleInputChange("guidelinesAccepted", e.target.checked)
-            }
-            className="w-4 h-4 sm:w-5 sm:h-5 text-[#972620] border-gray-300 rounded focus:ring-[#972620] accent-[#972620] mt-1 sm:mt-0"
+            onChange={(e) => handleInputChange("guidelinesAccepted", e.target.checked)}
+            className="w-5 h-5 accent-[#972620] border border[#CCCCCC] focus:border[#CCCCCC] focus:ring[#CCCCCC]"
           />
-          <span className="text-xs sm:text-sm text-gray-700 leading-relaxed">
-            I have read the circular regarding Guidelines/Thematic Sections and Dates
-            for Abstracts/Papers/Proposals for WND World Congress 2026.
+          <span className="text-sm">
+            I have read the circular regarding Guidelines/Thematic Sections and Dates for Abstracts/Papers/Proposals for WCND World Congress 2026.
           </span>
         </label>
+        {errors?.guidelinesAccepted && <p className="text-red-500 text-xs">{errors.guidelinesAccepted}</p>}
 
-        <label className="flex items-start sm:items-center gap-3">
+        <label className="flex items-start gap-3">
           <input
             type="checkbox"
             checked={formData.humanBeingAccepted}
-            onChange={(e) =>
-              handleInputChange("humanBeingAccepted", e.target.checked)
-            }
-            className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-[#972620] border-gray-300 rounded focus:ring-[#972620] accent-[#972620] mt-1 sm:mt-0"
+            onChange={(e) => handleInputChange("humanBeingAccepted", e.target.checked)}
+            className="w-5 h-5 accent-[#972620] border border[#CCCCCC] focus:border[#CCCCCC] focus:ring[#CCCCCC]"
           />
-          <span className="text-xs sm:text-sm text-gray-700 leading-relaxed">
-            I realize and admit that I am a human being and a respected member of this
-            universe. I am born on this planet earth; I am naturally dependent on this
-            universe and this earth for the primary condition of my birth and for the
-            basic needs of my life. Therefore, I have a responsibility to think and act
-            about this universe and this whole planet as an earth/world citizen
-            (naturally) and human being; rising above social, religious and political
-            boundaries.
+          <span className="text-sm">
+            I realize and admit that I am a human being and a respected member of this universe. I understand my responsibilities as a world citizen.
           </span>
         </label>
+        {errors?.humanBeingAccepted && <p className="text-red-500 text-xs">{errors.humanBeingAccepted}</p>}
       </div>
     </div>
   )

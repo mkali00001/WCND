@@ -1,146 +1,149 @@
 const Step3 = ({ formData, handleInputChange, errors }) => {
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-[#972620] mb-6">Academic Details</h2>
+      <h2 className="text-xl font-semibold text-[#972620]">
+        Academic / Professional Profile & Participation
+      </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Designation <span className="text-red-600">*</span></label>
+          <label className="block text-sm mb-1">
+            Current Position / Designation <span className="text-red-600">*</span>
+          </label>
           <input
-            type="text"
-            placeholder="Enter your Designation"
             value={formData.designation}
             onChange={(e) => handleInputChange("designation", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
           />
           {errors?.designation && (
-            <p className="text-red-500 text-xs mt-1">{errors.designation}</p>
+            <p className="text-red-500 text-xs">{errors.designation}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Affiliation <span className="text-red-600">*</span></label>
+          <label className="block text-sm mb-1">
+            University / Organization <span className="text-red-600">*</span>
+          </label>
           <input
-            type="text"
-            placeholder="Enter your Affiliation"
-            value={formData.affiliation}
-            onChange={(e) => handleInputChange("affiliation", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
+            value={formData.institution}
+            onChange={(e) => handleInputChange("institution", e.target.value)}
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
           />
-          {errors?.affiliation && (
-            <p className="text-red-500 text-xs mt-1">{errors.affiliation}</p>
+          {errors?.institution && (
+            <p className="text-red-500 text-xs">{errors.institution}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Department/Centre <span className="text-red-600">*</span></label>
+          <label className="block text-sm mb-1">Department / Faculty (optional)</label>
           <input
-            type="text"
-            placeholder="Enter Department/Centre"
             value={formData.department}
             onChange={(e) => handleInputChange("department", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
           />
-          {errors?.department && (
-            <p className="text-red-500 text-xs mt-1">{errors.department}</p>
-          )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">University / Institution/ Organization <span className="text-red-600">*</span></label>
-          <input
-            type="text"
-            placeholder="Enter University / Institution/ Organization"
-            value={formData.university}
-            onChange={(e) => handleInputChange("university", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
-          />
-          {errors?.university && (
-            <p className="text-red-500 text-xs mt-1">{errors.university}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">City Name <span className="text-red-600">*</span></label>
-          <input
-            type="text"
-            placeholder="Enter city name"
-            value={formData.cityName}
-            onChange={(e) => handleInputChange("cityName", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
-          />
-          {errors?.cityName && (
-            <p className="text-red-500 text-xs mt-1">{errors.cityName}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">State / Province <span className="text-red-600">*</span></label>
-          <input
-            type="text"
-            placeholder="Enter state / province name"
-            value={formData.stateProvince}
-            onChange={(e) => handleInputChange("stateProvince", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
-          />
-          {errors?.stateProvince && (
-            <p className="text-red-500 text-xs mt-1">{errors.stateProvince}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">ZIP / Postal Code <span className="text-red-600">*</span></label>
-          <input
-            type="text"
-            placeholder="Enter ZIP / Postal Code"
-            value={formData.zipCode}
-            onChange={(e) => handleInputChange("zipCode", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
-          />
-          {errors?.zipCode && (
-            <p className="text-red-500 text-xs mt-1">{errors.zipCode}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Country Name</label>
+          <label className="block text-sm mb-1">
+            Highest Academic Qualification <span className="text-red-600">*</span>
+          </label>
           <select
-            value={formData.countryName}
-            onChange={(e) => handleInputChange("countryName", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#972620]"
+            value={formData.qualification}
+            onChange={(e) => handleInputChange("qualification", e.target.value)}
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
           >
-            <option>India</option>
-            <option>USA</option>
-            <option>UK</option>
-            <option>Canada</option>
-            <option>Australia</option>
+            <option value="">-- Select --</option>
+            <option>UG</option>
+            <option>PG</option>
+            <option>PhD</option>
+            <option>Postdoc</option>
+            <option>Assistant Professor</option>
+            <option>Associate Professor</option>
+            <option>Professor</option>
+            <option>Researcher</option>
+            <option>Other</option>
+          </select>
+          {errors?.qualification && (
+            <p className="text-red-500 text-xs">{errors.qualification}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm mb-1">ORCID / Researcher ID (optional)</label>
+          <input
+            value={formData.orcid}
+            onChange={(e) => handleInputChange("orcid", e.target.value)}
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm mb-1">
+            Previous International Conference Participation (optional)
+          </label>
+          <textarea
+            value={formData.prevConference}
+            onChange={(e) => handleInputChange("prevConference", e.target.value)}
+            rows={3}
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+          ></textarea>
+        </div>
+      </div>
+
+      {/* Participation Type */}
+      <div className="mt-4">
+        <label className="block text-sm mb-1">
+          Registration Type <span className="text-red-600">*</span>
+        </label>
+        <select
+          value={formData.registrationType}
+          onChange={(e) => handleInputChange("registrationType", e.target.value)}
+          className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+        >
+          <option value="">-- Select Registration Type --</option>
+          <option>Delegate</option>
+          <option>Paper Presentation</option>
+          <option>Panelist</option>
+          <option>Poster Presenter</option>
+          <option>Attendee</option>
+          <option>Student (UG/PG)</option>
+        </select>
+        {errors?.registrationType && (
+          <p className="text-red-500 text-xs">{errors.registrationType}</p>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        <div>
+          <label className="block text-sm mb-1">
+            Author/Presenter Role <span className="text-red-600">*</span>
+          </label>
+          <select
+            value={formData.authorPresenter}
+            onChange={(e) => handleInputChange("authorPresenter", e.target.value)}
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+          >
+            <option value="">-- Select --</option>
+            <option>Main Author</option>
+            <option>Co-Author</option>
+            <option>Presenter</option>
           </select>
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Alternative Email Address</label>
-          <input
-            type="email"
-            placeholder="someone@gmail.com"
-            value={formData.alternativeEmail}
-            onChange={(e) => handleInputChange("alternativeEmail", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Mother Tongue</label>
-          <input
-            type="text"
-            placeholder="Eg. Hindi"
-            value={formData.motherTongue}
-            onChange={(e) => handleInputChange("motherTongue", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
+          <label className="block text-sm mb-1">
+            Mode of Participation <span className="text-red-600">*</span>
+          </label>
+          <select
+            value={formData.modeOfParticipation}
+            onChange={(e) =>
+              handleInputChange("modeOfParticipation", e.target.value)
+            }
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+          >
+            <option value="">-- Select --</option>
+            <option>I will be physically present at the WND World Congress</option>
+            <option>Virtual Participation</option>
+          </select>
         </div>
       </div>
     </div>

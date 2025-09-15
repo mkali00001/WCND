@@ -9,20 +9,21 @@ import SuccessPage from "./steps/SuccessPage"
 import logo from "../../assets/logo.jpg"
 import axios from "axios"
 import { useAuth } from "../../context/AuthContext"
-// ConferencePortal
+
+// Conference Portal (Landing Page Before Registration Starts)
 const ConferencePortal = ({ onRegister }) => {
   const { logout } = useAuth()
   return (
     <div className="w-full py-[40px]">
-      <div className=" p-16 text-center max-w-4xl">
+      <div className="p-16 text-center max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold mb-8" style={{ color: "#972620" }}>
           Welcome to the Conference Portal!
         </h1>
 
         <p className="text-gray-700 text-lg leading-relaxed mb-10">
-          To participate in the World Congress of Natural Democracy 2025,
+          To participate in the World Congress of Natural Democracy 2026,
           please complete your registration. Once registered, you'll unlock
-          access to paper submissions, updates, and all event details directly
+          access to submissions, updates, and all event details directly
           from your dashboard.
         </p>
 
@@ -38,7 +39,10 @@ const ConferencePortal = ({ onRegister }) => {
 
         {/* Links */}
         <div className="space-y-3">
-          <button onClick={logout} className="underline cursor-pointer text-[#972620] hover:text-[#a95551]">
+          <button
+            onClick={logout}
+            className="underline cursor-pointer text-[#972620] hover:text-[#a95551]"
+          >
             Logout!
           </button>
           <p className="underline cursor-pointer text-[#333333] hover:text-[#a95551]">
@@ -54,87 +58,235 @@ const ConferencePortal = ({ onRegister }) => {
 const RegistrationForm = () => {
   const [currentStep, setCurrentStep] = useState(0)
   const [isCompleted, setIsCompleted] = useState(false)
-  const { fetchUserData, user, logout } = useAuth()
+  const { fetchUserData, user } = useAuth()
 
+  // Extended formData (as per official document)
   const [formData, setFormData] = useState({
+    // Step1: Guidelines
     guidelinesAccepted: false,
     humanBeingAccepted: false,
-    registrationType: "Individual",
-    atPresent: "Teacher/Professor/Faculty",
-    authorPresenter: "Main Author",
-    participation: "Paper Presentation/Contributed Paper",
-    presentation: "Oral Presentation",
-    modeOfParticipation: "I will be physically present at the WND World Congress",
-    title: "Mr.",
-    firstName: "",
-    lastName: "",
+
+    // Step2: Personal Info
+    participantType: "Domestic",
+    country: "",
+    otherCountry: "",
+    fullName: "",
     pronunciation: "",
-    gender: "Male",
+    title: "",
+    languagePreference: "",
+    gender: "",
     dateOfBirth: "",
     nationality: "",
-    website: "",
-    professionalPhone: "",
-    personalPhone: "",
-    passportNo: "",
-    incomeCategory: "Lower Income",
-    designation: "",
-    affiliation: "",
-    department: "",
-    university: "",
-    cityName: "",
-    stateProvince: "",
-    zipCode: "",
-    countryName: "Eg. India",
-    alternativeEmail: "",
     motherTongue: "",
-    abstractMessage: "",
-    abstractConfirmation: false,
-    finalMessage: "",
-    finalConfirmation: false,
+    passportNo: "",
+    passportExpiry: "",
+    govtId: "",
+    email: "",
+    phone: "",
+    altPhone: "",
+    address: "",
+    website: "",
+    altEmail: "",
+    emergencyName: "",
+    emergencyRelation: "",
+    emergencyPhone: "",
+    accompanying: "no",
+    accompanyingCount: 1,
+    accompanyingPersons: [],
+    // registrationId: "REG12345",
+
+    // Step3: Academic + Participation
+    designation: "",
+    institution: "",
+    department: "",
+    qualification: "",
+    orcid: "",
+    prevConference: "",
+    registrationType: "",
+
+    // Step4: Accommodation / Travel / Visa / Dietary
+    accommodationRequired: "",     
+  arrivalDateTime: "",         
+  departureDateTime: "",        
+  travelAssistanceRequired: "",  
+  requireVisaSupport: "",      
+  nearestEmbassyConsulate: "",   
+  dietaryPreference: "",        
+  allergies: "",                 
+  allergyDetails: "",            
+  travelInsuranceStatus: "",      
+  healthConditions: "",
+  willingForFieldTrips: "",    
+
+    // Step5: Payment & Declarations
+    feeCategory: "",
+    paymentMode: "",
+    billingInvoiceDetails: "",
+    sponsorship: "Self-funded",
+    sponsoringOrganizationDetails: "",
+
+    agreeCodeOfConduct: false,
+    confirmEmergencyContactCorrect: false,
+    valuesAffirmation: false,
   })
 
   const [errors, setErrors] = useState({})
 
-const handleInputChange = (field, value) => {
-  setFormData((prev) => ({
-    ...prev,
-    [field]: value,
-  }))
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => {
+      let updated = { ...prev, [field]: value }
 
-  setErrors((prevErrors) => {
-    if (prevErrors[field]) {
-      return {
-        ...prevErrors,
-        [field]: value.trim() ? "" : prevErrors[field],
+      // Special handling for accompanying toggle
+      if (field === "accompanying") {
+        if (value === "yes") {
+          updated.accompanyingCount = prev.accompanyingCount || 1
+          if (!prev.accompanyingPersons || prev.accompanyingPersons.length === 0) {
+            updated.accompanyingPersons = [
+              {
+                fullName: "",
+                passportId: "",
+                nationality: "",
+                relation: "",
+                relationOther: "",
+                dob: "",
+                contact: "",
+                specialReq: "",
+              },
+            ]
+          }
+        } else {
+          updated.accompanyingCount = 0
+          updated.accompanyingPersons = []
+        }
       }
-    }
-    return prevErrors
-  })
-}
+
+      // handling for accompanyingCount
+      if (field === "accompanyingCount") {
+        const count = Number(value)
+        let persons = [...prev.accompanyingPersons]
+
+        while (persons.length < count) {
+          persons.push({
+            fullName: "",
+            passportId: "",
+            nationality: "",
+            relation: "",
+            relationOther: "",
+            dob: "",
+            contact: "",
+            specialReq: "",
+          })
+        }
+
+        persons = persons.slice(0, count)
+
+        updated.accompanyingPersons = persons
+      }
+
+      return updated
+    })
+
+    setErrors((prevErrors) => {
+      if (prevErrors[field]) {
+        return {
+          ...prevErrors,
+          [field]: value ? "" : prevErrors[field],
+        }
+      }
+      return prevErrors
+    })
+  }
+
 
 
   const handleNext = () => {
-    const stepRequirements = {
-      2: ["firstName", "lastName", "dateOfBirth", "nationality", "professionalPhone", "passportNo", "incomeCategory"],
-      3: ["designation", "affiliation", "department", "university", "cityName", "countryName", "stateProvince", "zipCode"],
+    let stepRequirements = {
+      2: [
+        "fullName",
+        "title",
+        "dateOfBirth",
+        "gender",
+        "nationality",
+        "email",
+        "phone",
+        "emergencyName",
+        "emergencyPhone",
+      ],
+      3: ["designation", "institution", "qualification", "registrationType"],
+      4: [
+        "accommodationRequired",
+        "travelAssistanceRequired",
+        "dietaryPreference",
+        "travelInsuranceStatus",
+        "willingForFieldTrips",
+      ],
+      5: ["feeCategory", "paymentMode", "sponsorship", "agreeCodeOfConduct", "confirmEmergencyContactCorrect", "valuesAffirmation"],
+
     }
 
-    const requiredFields = stepRequirements[currentStep] || []
-    const missing = requiredFields.filter((field) => !formData[field]?.trim())
+    // Step 2 International participants must provide country + passport
+    if (currentStep === 2 && formData.participantType === "International") {
+      stepRequirements[2].push("country", "passportNo", "passportExpiry")
+    }
 
-    if (missing.length > 0) {
-      // errors set karo
-      const newErrors = {}
-      missing.forEach((field) => {
+    // Step 2 Domestic participants must provide govt ID
+    if (currentStep === 2 && formData.participantType === "Domestic") {
+      stepRequirements[2].push("govtId")
+    }
+
+    // Step 2 If bringing accompanying persons, validate them
+    if (currentStep === 2 && formData.accompanying === "yes") {
+      if (!formData.accompanyingCount || formData.accompanyingCount < 1) {
+        alert("Please select number of accompanying persons.")
+        return
+      }
+      for (let i = 0; i < formData.accompanyingCount; i++) {
+        const person = formData.accompanyingPersons?.[i]
+        if (
+          !person ||
+          !person.fullName ||
+          !person.passportId ||
+          !person.nationality ||
+          !person.relation ||
+          !person.dob
+        ) {
+          alert(`Please complete details for accompanying person ${i + 1}`)
+          return
+        }
+      }
+    }
+
+    // Step 4 International participants & visa support
+    if (currentStep === 4 && formData.participantType === "International") {
+      stepRequirements[4].push("requireVisaSupport")
+      if (formData.requireVisaSupport === "Yes") {
+        stepRequirements[4].push("nearestEmbassyConsulate")
+      }
+    }
+
+    // Step 4 Allergies check
+    if (currentStep === 4 && formData.allergies === "Yes") {
+      stepRequirements[4].push("allergyDetails")
+    }
+
+    let newErrors = {}
+    for (let field of stepRequirements[currentStep] || []) {
+      if (!formData[field]) {
         newErrors[field] = "This field is required"
-      })
-      setErrors(newErrors)
-      return
+      }
     }
 
-    setErrors({})
-    if (currentStep < 5) setCurrentStep(currentStep + 1)
+    setErrors(newErrors)
+
+    if (Object.keys(newErrors).length === 0) {
+      setCurrentStep((prev) => prev + 1)
+    } else {
+      alert("Please fill all required fields before proceeding.")
+    }
   }
+
+
+
 
   const handlePrevious = () => {
     if (currentStep > 0) setCurrentStep(currentStep - 1)
@@ -143,19 +295,15 @@ const handleInputChange = (field, value) => {
   const handleSubmit = async () => {
     try {
       console.log("Submitting Data:", formData)
-
       const response = await axios.post(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/register`,
         formData,
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
       )
-
-      console.log("Response from server:", response.data)
+      console.log("Response:", response.data)
       await fetchUserData()
       setIsCompleted(true)
     } catch (error) {
@@ -163,21 +311,55 @@ const handleInputChange = (field, value) => {
       alert(error.response?.data?.error || "Something went wrong!")
     }
   }
+
+  const addAccompanyingPerson = () => {
+    setFormData((prev) => ({
+      ...prev,
+      accompanyingPersons: [
+        ...prev.accompanyingPersons,
+        { fullName: "", age: "", relation: "" },
+      ],
+    }))
+  }
+
+  const updateAccompanyingPerson = (index, field, value) => {
+    const updated = [...formData.accompanyingPersons]
+    updated[index][field] = value
+    setFormData((prev) => ({
+      ...prev,
+      accompanyingPersons: updated,
+    }))
+  }
+
+  const removeAccompanyingPerson = (index) => {
+    const updated = [...formData.accompanyingPersons]
+    updated.splice(index, 1)
+    setFormData((prev) => ({
+      ...prev,
+      accompanyingPersons: updated,
+    }))
+  }
+
   const renderCurrentStep = () => {
-    if (currentStep === 0) {
-      return <ConferencePortal onRegister={() => setCurrentStep(1)} />
-    }
+    if (currentStep === 0) return <ConferencePortal onRegister={() => setCurrentStep(1)} />
     switch (currentStep) {
       case 1:
         return <Step1 formData={formData} handleInputChange={handleInputChange} />
       case 2:
-        return <Step2 formData={formData} handleInputChange={handleInputChange} errors={errors} />
+        return <Step2
+          formData={formData}
+          handleInputChange={handleInputChange}
+          errors={errors}
+          addAccompanyingPerson={addAccompanyingPerson}
+          updateAccompanyingPerson={updateAccompanyingPerson}
+          removeAccompanyingPerson={removeAccompanyingPerson}
+        />
       case 3:
         return <Step3 formData={formData} handleInputChange={handleInputChange} errors={errors} />
       case 4:
-        return <Step4 formData={formData} handleInputChange={handleInputChange} />
+        return <Step4 formData={formData} handleInputChange={handleInputChange} errors={errors} />
       case 5:
-        return <Step5 formData={formData} handleInputChange={handleInputChange} />
+        return <Step5 formData={formData} handleInputChange={handleInputChange} errors={errors} />
       default:
         return <ConferencePortal onRegister={() => setCurrentStep(1)} />
     }
@@ -189,20 +371,12 @@ const handleInputChange = (field, value) => {
       <div className="pt-6 sm:pt-8 lg:pt-[20px]">
         <div className="max-w-[1148px] mx-auto px-4 sm:px-8 flex items-center justify-between">
           <div className="flex items-center">
-            <img
-              src={logo}
-              alt="World Congress of Natural Democracy"
-              className="h-10 sm:h-12"
-            />
+            <img src={logo} alt="WCND 2026" className="h-10 sm:h-12" />
           </div>
           <div className="flex items-center space-x-2">
-            <span className="text-gray-700 hidden sm:block">Hi, {user.name}</span>
+            <span className="text-gray-700 hidden sm:block">Hi, {user?.name}</span>
             <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-              <svg
-                className="w-5 h-5 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
+              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
@@ -217,14 +391,14 @@ const handleInputChange = (field, value) => {
       {/* Main Content */}
       <div className="max-w-[1148px] mx-auto px-4 sm:px-8 py-8 sm:py-12 md:py-20 lg:py-[30px]">
         <div className="bg-white border border-[#C3C3C3] rounded-2xl sm:rounded-3xl lg:rounded-4xl w-full">
-          {/* Stepper hide on portal */}
+          {/* Progress Indicator */}
           {currentStep > 0 && (
             <div className="px-4 sm:px-8 md:px-16 lg:px-[140px]">
               <ProgressIndicator currentStep={currentStep} isCompleted={isCompleted} />
             </div>
           )}
 
-          {/* Steps / Portal */}
+          {/* Step Content */}
           <div className="px-4 sm:px-8 md:px-16 lg:px-[140px]">
             {isCompleted ? (
               <SuccessPage />
@@ -232,7 +406,7 @@ const handleInputChange = (field, value) => {
               <>
                 {renderCurrentStep()}
 
-                {/* Buttons only if in stepper */}
+                {/* Navigation Buttons */}
                 {currentStep > 0 && (
                   <div className="flex flex-wrap justify-start gap-3 sm:gap-4 mt-6 sm:mt-8 mb-12 lg:mb-[100px]">
                     {currentStep > 1 && (
@@ -247,18 +421,10 @@ const handleInputChange = (field, value) => {
                     {currentStep === 5 ? (
                       <button
                         onClick={handleSubmit}
-                        disabled={!formData.finalConfirmation}
+                        disabled={!formData.valuesAffirmation} 
                         className="px-5 sm:px-6 py-2 bg-[#972620] text-white rounded-md hover:bg-[#972620] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                       >
                         Submit & Pay
-                      </button>
-                    ) : currentStep === 4 ? (
-                      <button
-                        onClick={handleNext}
-                        disabled={!formData.abstractConfirmation}
-                        className="px-5 sm:px-6 py-2 bg-[#972620] text-white rounded-md hover:bg-[#972620] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                      >
-                        Submit
                       </button>
                     ) : (
                       <button
@@ -280,7 +446,6 @@ const handleInputChange = (field, value) => {
         </div>
       </div>
     </div>
-
   )
 }
 

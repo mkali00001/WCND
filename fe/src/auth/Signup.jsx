@@ -229,7 +229,7 @@ export default function Signup() {
               Check Your Email
             </h2>
             <p className="text-gray-600 mb-2">
-              We've sent instructions to reset your password to:
+              We have sent login credentials to
             </p>
             <p className="font-medium text-[#2b2a28] mb-4 break-words">
               {userEmail}

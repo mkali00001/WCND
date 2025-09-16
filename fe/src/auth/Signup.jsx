@@ -1,93 +1,113 @@
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import logo from "../assets/logo.jpg"
-import axios from "axios"
-import { toast } from "react-toastify"
-import { RefreshCcw } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import logo from "../assets/logo.jpg";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { RefreshCcw } from "lucide-react";
 
 export default function Signup() {
-  const [captchaSvg, setCaptchaSvg] = useState("")
-  const [captchaInput, setCaptchaInput] = useState("")
-  const [showModal, setShowModal] = useState(false)
-  const [userEmail, setUserEmail] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [captchaSvg, setCaptchaSvg] = useState("");
+  const [captchaInput, setCaptchaInput] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [acceptedTnC, setAcceptedTnC] = useState(false);
 
-  // Captcha fetch
+  // --- Fetch captcha ---
   const fetchCaptcha = async () => {
     try {
       const res = await axios.get(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/captcha`,
         { withCredentials: true }
-      )
-      setCaptchaSvg(res.data)
+      );
+      setCaptchaSvg(res.data);
     } catch (err) {
-      toast.error("Failed to load captcha")
+      toast.error("Failed to load captcha");
     }
-  }
+  };
 
   useEffect(() => {
-    fetchCaptcha()
-  }, [])
+    fetchCaptcha();
+  }, []);
 
+  // --- Form submit ---
   async function handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
+
+    const fd = new FormData(e.currentTarget);
+    const name = fd.get("name")?.trim();
+    const email = fd.get("email")?.trim();
+    const mobile = fd.get("mobile")?.trim();
+
+    // --- Validation ---
+    if (!name) {
+      toast.error("Please enter your full name");
+      return;
+    }
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    if (!mobile) {
+      toast.error("Please enter your phone number");
+      return;
+    }
     if (!captchaInput) {
-      toast.error("Please enter the captcha")
-      return
+      toast.error("Please enter the captcha");
+      return;
+    }
+    if (!acceptedTnC) {
+      toast.error("Please accept the Terms & Conditions to continue");
+      return;
     }
 
-    const fd = new FormData(e.currentTarget)
-    const payload = {
-      name: fd.get("name"),
-      email: fd.get("email"),
-      mobile: fd.get("mobile"),
-      captchaInput,
-    }
+    const payload = { name, email, mobile, captchaInput };
 
     try {
-      setLoading(true)
+      setLoading(true);
       const res = await axios.post(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/signup`,
         payload,
         { withCredentials: true }
-      )
-      setUserEmail(payload.email)
-      setShowModal(true)
+      );
+      setUserEmail(email);
+      setShowModal(true);
+      toast.success("Signup successful! Please check your email.");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong")
-      fetchCaptcha() 
+      toast.error(err.response?.data?.message || "Something went wrong");
+      fetchCaptcha();
     } finally {
-      setLoading(false)
-      setCaptchaInput("")
+      setLoading(false);
+      setCaptchaInput("");
     }
   }
 
+
   const closeModal = () => {
-    setShowModal(false)
-    setUserEmail("")
-  }
+    setShowModal(false);
+    setUserEmail("");
+  };
 
   return (
     <>
       <main className="flex items-center justify-center min-h-screen bg-[#FAFAFA] px-4">
-        <section
-          className="
-            bg-white 
-            w-full max-w-[538px] 
-            px-8 py-10 
-            rounded-[26px] 
-            border border-[#D6D6D6]
-            shadow-sm
-          "
-        >
+        <section className="bg-white w-full max-w-[538px] px-8 py-10 rounded-[26px] border border-[#D6D6D6] shadow-sm">
           {/* Logo */}
-          <header className="flex justify-center mb-10">
+          <header className="flex justify-center mb-4">
             <img
               src={logo || "/placeholder.svg"}
               alt="WCMD"
               className="w-[232px] h-[74px] object-contain"
             />
           </header>
+          <div className="flex flex-col items-center justify-center text-center px-4 mb-2">
+            <h1 className="text-sm md:text-sm font-bold text-[#972620] ">
+              Welcome to the World Congress of Natural Democracy 2026 India
+            </h1>
+            <p className="text-xs md:text-xs text-gray-600 max-w-2xl">
+              Your details will be securely stored and used only for official congress communication.
+            </p>
+          </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
@@ -123,17 +143,11 @@ export default function Signup() {
             />
 
             {/* Captcha */}
- 
-
-            {/* Captcha */}
             <div className="flex items-center gap-2">
-              {/* Captcha SVG */}
               <div
                 dangerouslySetInnerHTML={{ __html: captchaSvg }}
                 className="flex-shrink-0"
               />
-
-              {/* Captcha Input */}
               <input
                 type="text"
                 value={captchaInput}
@@ -141,8 +155,6 @@ export default function Signup() {
                 placeholder="Enter captcha"
                 className="h-[50px] flex-1 rounded-[10px] border border-[#EAEAEA] px-4"
               />
-
-              {/* Reload Icon Button */}
               <button
                 type="button"
                 onClick={fetchCaptcha}
@@ -152,26 +164,29 @@ export default function Signup() {
               </button>
             </div>
 
-
             {/* Terms & Conditions */}
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
+                checked={acceptedTnC}
+                onChange={(e) => setAcceptedTnC(e.target.checked)}
                 className="w-[21px] h-[21px] border border-[#D6D6D6] rounded-[5px]"
               />
               <span className="text-sm text-[#333]">
                 Agree to our{" "}
-                <span className="underline">Terms and Conditions</span>
+                <span className="underline cursor-pointer">
+                  Terms and Conditions
+                </span>
               </span>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading} 
-              className={`h-[51px] w-full rounded-[10px] text-white font-medium transition-colors ${loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[#972620] hover:bg-[#a95551]"
+              disabled={loading || !acceptedTnC}
+              className={`h-[51px] w-full rounded-[10px] text-white font-medium transition-colors ${loading || !acceptedTnC
+                ? "bg-[#ce7d79] cursor-not-allowed"
+                : "bg-[#972620] hover:bg-[#982019]"
                 }`}
             >
               {loading ? "Signing up…" : "Signup"}
@@ -192,7 +207,6 @@ export default function Signup() {
       {showModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-xl border border-[#EAEAEA]">
-            {/* Checkmark */}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 border-2 border-[#972620] rounded-full flex items-center justify-center bg-white">
                 <svg
@@ -235,5 +249,5 @@ export default function Signup() {
         </div>
       )}
     </>
-  )
+  );
 }

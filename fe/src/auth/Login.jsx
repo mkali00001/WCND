@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import logo from "../assets/logo.jpg";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const { fetchUserData, user } = useAuth();
@@ -21,7 +22,7 @@ export default function Login() {
       const res = await axios.post(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/login`,
         {
-          email: formData.email, // make sure keys match backend
+          email: formData.email,
           password: formData.password,
         },
         {
@@ -36,6 +37,7 @@ export default function Login() {
       await fetchUserData();
     } catch (e) {
       console.error("Login Error:", e.response?.data || e.message);
+      toast.error(e.response?.data?.message || e.message);
     } finally {
       setLoading(false);
     }
@@ -52,13 +54,21 @@ export default function Login() {
     <main className="flex items-center justify-center min-h-screen bg-[#FAFAFA] px-4">
       <section className="bg-white w-full max-w-[538px] rounded-[26px] border border-[#D6D6D6] px-8 py-10 shadow-sm">
         {/* Logo */}
-        <header className="flex justify-center mb-8">
+        <header className="flex justify-center mb-4">
           <img
             src={logo}
             alt="WCMD"
             className="w-[232px] h-[74px] object-contain"
           />
         </header>
+        <div className="flex flex-col items-center justify-center text-center px-4 mb-2">
+            <h1 className="text-sm md:text-sm font-bold text-[#972620] ">
+              Welcome to the World Congress of Natural Democracy 2026 India
+            </h1>
+            <p className="text-xs md:text-xs text-gray-600 max-w-2xl">
+              Your details will be securely stored and used only for official congress communication.
+            </p>
+          </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
@@ -106,7 +116,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 h-[51px] w-full rounded-[10px] bg-[#972620] text-white font-medium shadow-lg border border-[#EAEAEA] transition-colors hover:bg-[#a95551] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551] disabled:opacity-60"
+            className="mt-2 h-[51px] w-full rounded-[10px] bg-[#972620] text-white font-medium border border-[#EAEAEA] transition-colors hover:bg-[#a95551] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a95551] disabled:opacity-60"
           >
             {loading ? "Logging in..." : "Login"}
           </button>

@@ -9,6 +9,7 @@ import SuccessPage from "./steps/SuccessPage"
 import logo from "../../assets/logo.jpg"
 import axios from "axios"
 import { useAuth } from "../../context/AuthContext"
+import { toast } from "react-toastify"
 
 // Conference Portal (Landing Page Before Registration Starts)
 const ConferencePortal = ({ onRegister }) => {
@@ -237,7 +238,7 @@ const RegistrationForm = () => {
     // Step 2 If bringing accompanying persons, validate them
     if (currentStep === 2 && formData.accompanying === "yes") {
       if (!formData.accompanyingCount || formData.accompanyingCount < 1) {
-        alert("Please select number of accompanying persons.")
+        toast.error("Please select number of accompanying persons.")
         return
       }
       for (let i = 0; i < formData.accompanyingCount; i++) {
@@ -250,7 +251,7 @@ const RegistrationForm = () => {
           !person.relation ||
           !person.dob
         ) {
-          alert(`Please complete details for accompanying person ${i + 1}`)
+          toast.error(`Please complete details for accompanying person ${i + 1}`)
           return
         }
       }
@@ -281,7 +282,7 @@ const RegistrationForm = () => {
     if (Object.keys(newErrors).length === 0) {
       setCurrentStep((prev) => prev + 1)
     } else {
-      alert("Please fill all required fields before proceeding.")
+      toast.error("Please fill all required fields before proceeding.")
     }
   }
 
@@ -308,7 +309,7 @@ const RegistrationForm = () => {
       setIsCompleted(true)
     } catch (error) {
       console.error("Error submitting form:", error.response?.data || error.message)
-      alert(error.response?.data?.error || "Something went wrong!")
+      toast.error(error.response?.data?.error || "Something went wrong!")
     }
   }
 

@@ -81,12 +81,12 @@ const Step3 = ({ formData, handleInputChange, errors }) => {
           <label className="block text-sm mb-1">
             Previous International Conference Participation (optional)
           </label>
-          <textarea
+          <input
             value={formData.prevConference}
             onChange={(e) => handleInputChange("prevConference", e.target.value)}
             rows={3}
             className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
-          ></textarea>
+          ></input>
         </div>
       </div>
 

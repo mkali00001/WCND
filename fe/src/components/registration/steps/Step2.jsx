@@ -50,6 +50,7 @@ const Step2 = ({
       )}
 
       {/* Name */}
+      {/* Name Row (3 inputs) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm mb-1">Title *</label>
@@ -66,8 +67,8 @@ const Step2 = ({
             <option>Prof.</option>
             <option>Mx.</option>
           </select>
-          {errors?.title && <p className="text-red-500 text-xs">{errors.title}</p>}
         </div>
+
         <div>
           <label className="block text-sm mb-1">Full Name *</label>
           <input
@@ -76,8 +77,8 @@ const Step2 = ({
             className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
             placeholder="Your full name"
           />
-          {errors?.fullName && <p className="text-red-500 text-xs">{errors.fullName}</p>}
         </div>
+
         <div>
           <label className="block text-sm mb-1">Pronunciation (optional)</label>
           <input
@@ -87,6 +88,7 @@ const Step2 = ({
           />
         </div>
       </div>
+
 
       <div>
         <label className="block text-sm mb-1">Gender *</label>
@@ -105,7 +107,7 @@ const Step2 = ({
 
       {/* DOB + Nationality */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
+        <div className="w-full">
           <label className="block text-sm mb-1">Date of Birth *</label>
           <DatePicker
             selected={formData.dateOfBirth ? new Date(formData.dateOfBirth) : null}
@@ -120,7 +122,8 @@ const Step2 = ({
             yearDropdownItemNumber={100}
           />
         </div>
-        <div>
+
+        <div className="w-full">
           <label className="block text-sm mb-1">Nationality *</label>
           <input
             value={formData.nationality}
@@ -128,7 +131,8 @@ const Step2 = ({
             className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
-        <div>
+
+        <div className="w-full">
           <label className="block text-sm mb-1">Mother Tongue</label>
           <input
             value={formData.motherTongue}
@@ -177,8 +181,8 @@ const Step2 = ({
       )}
 
       {/* Contact */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="w-full">
           <label className="block text-sm mb-1">Email *</label>
           <input
             type="email"
@@ -187,25 +191,8 @@ const Step2 = ({
             className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
-      
-        <div>
-          <label className="block text-sm mb-1">Phone *</label>
-          <input
-            value={formData.phone}
-            onChange={(e) => handleInputChange("phone", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Alt Phone</label>
-          <input
-            value={formData.altPhone}
-            onChange={(e) => handleInputChange("altPhone", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
-          />
-        </div>
 
-          <div className="mt-4">
+        <div className="w-full">
           <label className="block text-sm mb-1">Alternate Email</label>
           <input
             type="email"
@@ -215,7 +202,28 @@ const Step2 = ({
             className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
+
+        <div className="w-full">
+          <label className="block text-sm mb-1">Phone *</label>
+          <input
+            value={formData.phone}
+            onChange={(e) => handleInputChange("phone", e.target.value)}
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
+          />
+        </div>
+
+        <div className="w-full">
+          <label className="block text-sm mb-1">Alt Phone</label>
+          <input
+            value={formData.altPhone}
+            onChange={(e) => handleInputChange("altPhone", e.target.value)}
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
+          />
+        </div>
+
+
       </div>
+
 
       <div>
         <label className="block text-sm mb-1">Address *</label>

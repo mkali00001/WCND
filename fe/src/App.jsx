@@ -10,16 +10,7 @@ const App = () => {
     <AuthProvider>
       <Router>
         <AppRoutes />
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          pauseOnHover
-          draggable
-          theme="light"
-        />
+        <ToastContainer position="top-right" autoClose={5000} />
       </Router>
     </AuthProvider>
   );

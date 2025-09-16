@@ -76,7 +76,7 @@ const Step4 = ({ formData, handleInputChange, errors }) => {
       </div>
 
       {/* Dietary & Health */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm mb-1">Dietary Preference <span className="text-red-600">*</span></label>
           <select value={formData.dietaryPreference} onChange={(e) => handleInputChange("dietaryPreference", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg">
@@ -89,7 +89,19 @@ const Step4 = ({ formData, handleInputChange, errors }) => {
           {errors?.dietaryPreference && <p className="text-red-500 text-xs">{errors.dietaryPreference}</p>}
         </div>
 
+        
+
         <div>
+          <label className="block text-sm mb-1">Travel / Health Insurance Status <span className="text-red-600">*</span></label>
+          <select value={formData.travelInsuranceStatus} onChange={(e) => handleInputChange("travelInsuranceStatus", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg">
+            <option value="">-- Select --</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
           <label className="block text-sm mb-1">Do you have any allergies?</label>
           <div className="flex gap-4">
             <label className="flex items-center gap-2">
@@ -104,19 +116,9 @@ const Step4 = ({ formData, handleInputChange, errors }) => {
           {formData.allergies === "Yes" && <textarea value={formData.allergyDetails} onChange={(e) => handleInputChange("allergyDetails", e.target.value)} rows={2} className="w-full px-3 py-2 border rounded-lg mt-2" placeholder="Please specify allergies"></textarea>}
         </div>
 
-        <div>
-          <label className="block text-sm mb-1">Travel / Health Insurance Status <span className="text-red-600">*</span></label>
-          <select value={formData.travelInsuranceStatus} onChange={(e) => handleInputChange("travelInsuranceStatus", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg">
-            <option value="">-- Select --</option>
-            <option>Yes</option>
-            <option>No</option>
-          </select>
-        </div>
-      </div>
-
       <div>
         <label className="block text-sm mb-1">Health Conditions (optional)</label>
-        <textarea value={formData.healthConditions} onChange={(e) => handleInputChange("healthConditions", e.target.value)} rows={3} className="w-full px-3 py-2 border border-[#CCCCCC] rounded"></textarea>
+        <textarea value={formData.healthConditions} onChange={(e) => handleInputChange("healthConditions", e.target.value)} rows={3} className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"></textarea>
       </div>
 
       <div className="flex items-center gap-3">

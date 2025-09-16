@@ -20,11 +20,11 @@ const Step4 = ({ formData, handleInputChange, errors }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
             <div>
               <label className="block text-sm mb-1">Arrival Date & Time</label>
-              <input type="datetime-local" value={formData.arrivalDateTime} onChange={(e) => handleInputChange("arrivalDateTime", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded" />
+              <input type="datetime-local" value={formData.arrivalDateTime} onChange={(e) => handleInputChange("arrivalDateTime", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg" />
             </div>
             <div>
               <label className="block text-sm mb-1">Departure Date & Time</label>
-              <input type="datetime-local" value={formData.departureDateTime} onChange={(e) => handleInputChange("departureDateTime", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded" />
+              <input type="datetime-local" value={formData.departureDateTime} onChange={(e) => handleInputChange("departureDateTime", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg" />
             </div>
           </div>
         )}
@@ -62,7 +62,7 @@ const Step4 = ({ formData, handleInputChange, errors }) => {
           {formData.requireVisaSupport === "Yes" && (
             <div className="mt-3">
               <label className="block text-sm mb-1">Nearest Indian Embassy / Consulate <span className="text-red-600">*</span></label>
-              <input value={formData.nearestEmbassyConsulate} onChange={(e) => handleInputChange("nearestEmbassyConsulate", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded" />
+              <input value={formData.nearestEmbassyConsulate} onChange={(e) => handleInputChange("nearestEmbassyConsulate", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg" />
               {errors?.nearestEmbassyConsulate && <p className="text-red-500 text-xs">{errors.nearestEmbassyConsulate}</p>}
             </div>
           )}
@@ -72,14 +72,14 @@ const Step4 = ({ formData, handleInputChange, errors }) => {
       {/* Accessibility & Special Requirements */}
       <div>
         <label className="block text-sm mb-1">Accessibility / Special Requirements (optional)</label>
-        <textarea value={formData.accessibilityRequirements} onChange={(e) => handleInputChange("accessibilityRequirements", e.target.value)} rows={3} className="w-full px-3 py-2 border border-[#CCCCCC] rounded"></textarea>
+        <textarea value={formData.accessibilityRequirements} onChange={(e) => handleInputChange("accessibilityRequirements", e.target.value)} rows={3} className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"></textarea>
       </div>
 
       {/* Dietary & Health */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm mb-1">Dietary Preference <span className="text-red-600">*</span></label>
-          <select value={formData.dietaryPreference} onChange={(e) => handleInputChange("dietaryPreference", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded">
+          <select value={formData.dietaryPreference} onChange={(e) => handleInputChange("dietaryPreference", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg">
             <option value="">-- Select --</option>
             <option>Vegetarian</option>
             <option>Non-Vegetarian</option>
@@ -101,12 +101,12 @@ const Step4 = ({ formData, handleInputChange, errors }) => {
               <span>Yes</span>
             </label>
           </div>
-          {formData.allergies === "Yes" && <textarea value={formData.allergyDetails} onChange={(e) => handleInputChange("allergyDetails", e.target.value)} rows={2} className="w-full px-3 py-2 border rounded mt-2" placeholder="Please specify allergies"></textarea>}
+          {formData.allergies === "Yes" && <textarea value={formData.allergyDetails} onChange={(e) => handleInputChange("allergyDetails", e.target.value)} rows={2} className="w-full px-3 py-2 border rounded-lg mt-2" placeholder="Please specify allergies"></textarea>}
         </div>
 
         <div>
           <label className="block text-sm mb-1">Travel / Health Insurance Status <span className="text-red-600">*</span></label>
-          <select value={formData.travelInsuranceStatus} onChange={(e) => handleInputChange("travelInsuranceStatus", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded">
+          <select value={formData.travelInsuranceStatus} onChange={(e) => handleInputChange("travelInsuranceStatus", e.target.value)} className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg">
             <option value="">-- Select --</option>
             <option>Yes</option>
             <option>No</option>

@@ -43,7 +43,7 @@ const Step2 = ({
             value={formData.country}
             onChange={(e) => handleInputChange("country", e.target.value)}
             placeholder="Country name"
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
           {errors?.country && <p className="text-red-500 text-xs">{errors.country}</p>}
         </div>
@@ -56,7 +56,7 @@ const Step2 = ({
           <select
             value={formData.title}
             onChange={(e) => handleInputChange("title", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           >
             <option value="">-- Select Title --</option>
             <option>Mr.</option>
@@ -73,7 +73,7 @@ const Step2 = ({
           <input
             value={formData.fullName}
             onChange={(e) => handleInputChange("fullName", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
             placeholder="Your full name"
           />
           {errors?.fullName && <p className="text-red-500 text-xs">{errors.fullName}</p>}
@@ -83,7 +83,7 @@ const Step2 = ({
           <input
             value={formData.pronunciation}
             onChange={(e) => handleInputChange("pronunciation", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
       </div>
@@ -93,7 +93,7 @@ const Step2 = ({
         <select
           value={formData.gender}
           onChange={(e) => handleInputChange("gender", e.target.value)}
-          className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+          className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
         >
           <option value="">-- Select Gender --</option>
           <option value="Male">Male</option>
@@ -114,7 +114,7 @@ const Step2 = ({
             }
             dateFormat="dd/MM/yyyy"
             placeholderText="Select your date of birth"
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
             showYearDropdown
             scrollableYearDropdown
             yearDropdownItemNumber={100}
@@ -125,7 +125,7 @@ const Step2 = ({
           <input
             value={formData.nationality}
             onChange={(e) => handleInputChange("nationality", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
         <div>
@@ -133,7 +133,7 @@ const Step2 = ({
           <input
             value={formData.motherTongue}
             onChange={(e) => handleInputChange("motherTongue", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
       </div>
@@ -146,7 +146,7 @@ const Step2 = ({
             <input
               value={formData.passportNo}
               onChange={(e) => handleInputChange("passportNo", e.target.value)}
-              className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+              className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
             />
           </div>
           <div>
@@ -158,7 +158,7 @@ const Step2 = ({
               }
               dateFormat="dd/MM/yyyy"
               placeholderText="Select expiry date"
-              className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+              className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
               showMonthDropdown
               showYearDropdown
               scrollableYearDropdown
@@ -171,7 +171,7 @@ const Step2 = ({
           <input
             value={formData.govtId}
             onChange={(e) => handleInputChange("govtId", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
       )}
@@ -184,15 +184,16 @@ const Step2 = ({
             type="email"
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
+      
         <div>
           <label className="block text-sm mb-1">Phone *</label>
           <input
             value={formData.phone}
             onChange={(e) => handleInputChange("phone", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
         <div>
@@ -200,7 +201,18 @@ const Step2 = ({
           <input
             value={formData.altPhone}
             onChange={(e) => handleInputChange("altPhone", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
+          />
+        </div>
+
+          <div className="mt-4">
+          <label className="block text-sm mb-1">Alternate Email</label>
+          <input
+            type="email"
+            value={formData.altEmail}
+            onChange={(e) => handleInputChange("altEmail", e.target.value)}
+            placeholder="Enter your alternate email"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
       </div>
@@ -211,7 +223,7 @@ const Step2 = ({
           value={formData.address}
           onChange={(e) => handleInputChange("address", e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+          className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
         />
       </div>
 
@@ -222,7 +234,7 @@ const Step2 = ({
           <input
             value={formData.emergencyName}
             onChange={(e) => handleInputChange("emergencyName", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
         <div>
@@ -230,7 +242,7 @@ const Step2 = ({
           <input
             value={formData.emergencyRelation}
             onChange={(e) => handleInputChange("emergencyRelation", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
         <div>
@@ -238,7 +250,7 @@ const Step2 = ({
           <input
             value={formData.emergencyPhone}
             onChange={(e) => handleInputChange("emergencyPhone", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
       </div>
@@ -293,7 +305,7 @@ const Step2 = ({
               <select
                 value={formData.accompanyingCount || 1}
                 onChange={(e) => handleInputChange("accompanyingCount", Number(e.target.value))}
-                className="w-40 px-3 py-2 border border-[#CCCCCC] rounded"
+                className="w-40 px-3 py-2 border border-[#CCCCCC] rounded-lg"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -303,7 +315,7 @@ const Step2 = ({
             {/* Person Details */}
             {(formData.accompanyingPersons || []).slice(0, formData.accompanyingCount || 1).map((person, index) => {
               return (
-                <div key={index} className="p-4 border border-[#CCCCCC] rounded-lg space-y-4">
+                <div key={index} className="p-4 border border-[#CCCCCC] rounded-lg-lg space-y-4">
                   <h3 className="font-medium">
                     {index === 0 ? "1st Accompanying Person" : "2nd Accompanying Person"}
                   </h3>
@@ -317,7 +329,7 @@ const Step2 = ({
                         onChange={(e) =>
                           updateAccompanyingPerson(index, "fullName", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
                       />
                     </div>
 
@@ -329,7 +341,7 @@ const Step2 = ({
                         onChange={(e) =>
                           updateAccompanyingPerson(index, "passportId", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
                       />
                     </div>
 
@@ -341,7 +353,7 @@ const Step2 = ({
                         onChange={(e) =>
                           updateAccompanyingPerson(index, "nationality", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
                       />
                     </div>
 
@@ -352,7 +364,7 @@ const Step2 = ({
                         onChange={(e) =>
                           updateAccompanyingPerson(index, "relation", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
                       >
                         <option value="">-- Select Relation --</option>
                         <option value="Spouse">Spouse</option>
@@ -370,7 +382,7 @@ const Step2 = ({
                           onChange={(e) =>
                             updateAccompanyingPerson(index, "relationOther", e.target.value)
                           }
-                          className="mt-2 px-3 py-2 border border-[#CCCCCC] rounded w-full"
+                          className="mt-2 px-3 py-2 border border-[#CCCCCC] rounded-lg w-full"
                         />
                       )}
                     </div>
@@ -384,7 +396,7 @@ const Step2 = ({
                         }
                         dateFormat="dd/MM/yyyy"
                         placeholderText="Select DOB"
-                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
                         showYearDropdown
                         scrollableYearDropdown
                         yearDropdownItemNumber={100}
@@ -399,7 +411,7 @@ const Step2 = ({
                         onChange={(e) =>
                           updateAccompanyingPerson(index, "contact", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
                       />
                     </div>
 
@@ -410,7 +422,7 @@ const Step2 = ({
                         onChange={(e) =>
                           updateAccompanyingPerson(index, "specialReq", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+                        className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
                       />
                     </div>
                   </div>

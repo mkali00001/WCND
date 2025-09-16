@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 
 export default function AcademicDetails({ regdata }) {
@@ -79,7 +77,7 @@ export default function AcademicDetails({ regdata }) {
           <input
             type="text"
             placeholder="Enter state / province name"
-            value={regdata.stateProvince}
+            value={regdata.state}
             onChange={(e) => handleInputChange("state", e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#972620] focus:border-[#972620] outline-none"
           />
@@ -101,7 +99,7 @@ export default function AcademicDetails({ regdata }) {
           <input
             type="text"
             placeholder="Eg. India"
-            value={regdata.countryName}
+            value={regdata.country}
             onChange={(e) => handleInputChange("country", e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#972620] focus:border-[#972620] outline-none"
           />

@@ -13,7 +13,7 @@ const Step3 = ({ formData, handleInputChange, errors }) => {
           <input
             value={formData.designation}
             onChange={(e) => handleInputChange("designation", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
           {errors?.designation && (
             <p className="text-red-500 text-xs">{errors.designation}</p>
@@ -27,7 +27,7 @@ const Step3 = ({ formData, handleInputChange, errors }) => {
           <input
             value={formData.institution}
             onChange={(e) => handleInputChange("institution", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
           {errors?.institution && (
             <p className="text-red-500 text-xs">{errors.institution}</p>
@@ -39,7 +39,7 @@ const Step3 = ({ formData, handleInputChange, errors }) => {
           <input
             value={formData.department}
             onChange={(e) => handleInputChange("department", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
 
@@ -50,7 +50,7 @@ const Step3 = ({ formData, handleInputChange, errors }) => {
           <select
             value={formData.qualification}
             onChange={(e) => handleInputChange("qualification", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           >
             <option value="">-- Select --</option>
             <option>UG</option>
@@ -73,7 +73,7 @@ const Step3 = ({ formData, handleInputChange, errors }) => {
           <input
             value={formData.orcid}
             onChange={(e) => handleInputChange("orcid", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           />
         </div>
 
@@ -85,7 +85,7 @@ const Step3 = ({ formData, handleInputChange, errors }) => {
             value={formData.prevConference}
             onChange={(e) => handleInputChange("prevConference", e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           ></textarea>
         </div>
       </div>
@@ -98,7 +98,7 @@ const Step3 = ({ formData, handleInputChange, errors }) => {
         <select
           value={formData.registrationType}
           onChange={(e) => handleInputChange("registrationType", e.target.value)}
-          className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+          className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
         >
           <option value="">-- Select Registration Type --</option>
           <option>Delegate</option>
@@ -121,7 +121,7 @@ const Step3 = ({ formData, handleInputChange, errors }) => {
           <select
             value={formData.authorPresenter}
             onChange={(e) => handleInputChange("authorPresenter", e.target.value)}
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           >
             <option value="">-- Select --</option>
             <option>Main Author</option>
@@ -138,7 +138,7 @@ const Step3 = ({ formData, handleInputChange, errors }) => {
             onChange={(e) =>
               handleInputChange("modeOfParticipation", e.target.value)
             }
-            className="w-full px-3 py-2 border border-[#CCCCCC] rounded"
+            className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
           >
             <option value="">-- Select --</option>
             <option>I will be physically present at the WND World Congress</option>

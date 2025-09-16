@@ -17,7 +17,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Layout />}>
         {/* Open Routes */}
         <Route element={<OpenRoute />}>
-          <Route index element={<Signup />} />
+          <Route index element={<Login />} />
           <Route path="signup" element={<Signup />} />
           <Route path="login" element={<Login />} />
           <Route path="forgot-password" element={<ForgotPassword />} />

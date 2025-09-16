@@ -10,6 +10,8 @@ const User = require('../models/userModel');
 const { forgotPassword } = require('../controllers/forgotPasswordController');
 const { changePassword } = require('../controllers/changePasswordController');
 const { getCaptcha } = require("../controllers/captchaController");
+const { uploadProfileImage } = require('../controllers/userController');
+const upload = require('../middleware/multer');
 
 // Public Routes
 router.get("/captcha", getCaptcha);
@@ -42,7 +44,7 @@ router.get('/me', authMiddleware, async (req, res) => {
   try {
     const user = await userModel
       .findById(req.user.id)
-      .select("name email mobile role isRegistered registrationId");
+      .select("name email mobile role isRegistered registrationId profileImage");
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -120,5 +122,12 @@ router.post("/logout", (req, res) => {
 
   return res.status(200).json({ message: "Logged out" });
 });
+
+router.post(
+  "/upload-profile",
+  authMiddleware,
+  upload.single("profileImage"),
+  uploadProfileImage
+);
 
 module.exports = router;

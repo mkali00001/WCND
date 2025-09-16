@@ -20,6 +20,7 @@ const signup = async (req, res) => {
 
     // --- CAPTCHA verification (cookie-based) ---
     const storedCaptcha = req.cookies?.captcha_text;
+    console.log(storedCaptcha)
     if (!storedCaptcha) {
       return res.status(400).json({ message: "Captcha missing or expired" });
     }

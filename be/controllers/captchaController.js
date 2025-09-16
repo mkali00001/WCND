@@ -11,7 +11,7 @@ const getCaptcha = (req, res) => {
 
   res.cookie("captcha_text", captcha.text, {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "none",
     secure: process.env.NODE_ENV === "production", 
     maxAge: 5 * 60 * 1000, 
   });

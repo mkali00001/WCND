@@ -10,6 +10,7 @@ import Dashboard from "../../src/components/dashboard/Dashboard";
 import RegistrationForm from "../components/registration/RegistrationForm";
 import ForgotPassword from "../auth/ResetPassword";
 import ChangePasswordCard from "../components/changePassword/ChangePasswordCard";
+import Access from "../auth/Access";
 
 const AppRoutes = () => {
   return (
@@ -17,7 +18,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Layout />}>
         {/* Open Routes */}
         <Route element={<OpenRoute />}>
-          <Route index element={<Login />} />
+          <Route index element={<Access />} />
           <Route path="signup" element={<Signup />} />
           <Route path="login" element={<Login />} />
           <Route path="forgot-password" element={<ForgotPassword />} />

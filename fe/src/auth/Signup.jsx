@@ -100,14 +100,6 @@ export default function Signup() {
               className="w-[232px] h-[74px] object-contain"
             />
           </header>
-          <div className="flex flex-col items-center justify-center text-center px-4 mb-2">
-            <h1 className="text-sm md:text-sm font-bold text-[#972620] ">
-              Welcome to the World Congress of Natural Democracy 2026 India
-            </h1>
-            <p className="text-xs md:text-xs text-gray-600 max-w-2xl">
-              Your details will be securely stored and used only for official congress communication.
-            </p>
-          </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>

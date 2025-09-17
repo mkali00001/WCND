@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import logo from "../assets/logo.jpg"
 import EmailPopup from "../components/popups/EmailPopup"
+import { toast } from "react-toastify"
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("")
@@ -26,13 +27,13 @@ export default function ForgotPassword() {
       const data = await res.json()
 
       if (!res.ok) {
-        alert(data.message || "Something went wrong")
+        toast.error(data.message || "Something went wrong")
       } else {
         setShowPopup(true)
       }
     } catch (err) {
       console.error("Error:", err)
-      alert("Server error, try again later")
+      toast.error("Server error, try again later")
     } finally {
       setLoading(false)
     }

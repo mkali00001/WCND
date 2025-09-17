@@ -32,7 +32,6 @@ export default function ForgotPassword() {
         setShowPopup(true)
       }
     } catch (err) {
-      console.error("Error:", err)
       toast.error("Server error, try again later")
     } finally {
       setLoading(false)

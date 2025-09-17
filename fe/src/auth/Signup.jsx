@@ -72,7 +72,6 @@ export default function Signup() {
       );
       setUserEmail(email);
       setShowModal(true);
-      toast.success("Signup successful! Please check your email.");
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
       fetchCaptcha();

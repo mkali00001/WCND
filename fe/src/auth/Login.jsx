@@ -33,10 +33,8 @@ export default function Login() {
         }
       );
 
-      console.log("Login Success:", res.data);
       await fetchUserData();
     } catch (e) {
-      console.error("Login Error:", e.response?.data || e.message);
       toast.error(e.response?.data?.message || e.message);
     } finally {
       setLoading(false);

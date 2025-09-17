@@ -26,7 +26,7 @@ const signup = async (req, res) => {
     }
     if (!captchaInput || captchaInput.trim() !== storedCaptcha) {
       res.clearCookie("captcha_text");
-      return res.status(400).json({ message: "Captcha verification failed" });
+      return res.status(400).json({ message: "Captcha verification failed! Please enter valid captcha" });
     }
     res.clearCookie("captcha_text");
 

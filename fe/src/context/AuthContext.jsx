@@ -1,10 +1,8 @@
 import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-// 1. Context banao
 const AuthContext = createContext();
 
-// 2. Provider component banao
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true)
@@ -45,5 +43,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// 3. Custom hook banao use karne ke liye (optional but easy)
 export const useAuth = () => useContext(AuthContext);

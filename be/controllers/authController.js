@@ -45,7 +45,7 @@ const signup = async (req, res) => {
     // --- create user ---
     const user = new User({
       name,
-      email,
+      email : email.toLowerCase(),
       mobile,
       password: hashedPassword,
       role: "user",

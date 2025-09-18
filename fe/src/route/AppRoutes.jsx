@@ -5,13 +5,14 @@ import Layout from "../outlet/Layout";
 import Login from "../auth/Login";
 import OpenRoute from "./OpenRoute";
 import Signup from "../auth/Signup";
-import {ProtectedRoute} from "./ProtectedRoute";
+import { ProtectedRoute } from "./ProtectedRoute";
 import Dashboard from "../../src/components/dashboard/Dashboard";
 import RegistrationForm from "../components/registration/RegistrationForm";
 import ForgotPassword from "../auth/ResetPassword";
 import ChangePasswordCard from "../components/changePassword/ChangePasswordCard";
 import Access from "../auth/Access";
 import AdminDashboard from "../components/adminDashboard/AdminDashboard";
+import VerifyEmail from "../components/verifyemail/VerifyEmail";
 
 const AppRoutes = () => {
   return (
@@ -56,6 +57,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="verify-email"
+          element={
+            <ProtectedRoute>
+              <VerifyEmail />
             </ProtectedRoute>
           }
         />

@@ -12,11 +12,13 @@ const { changePassword } = require('../controllers/changePasswordController');
 const { getCaptcha } = require("../controllers/captchaController");
 const { uploadProfileImage } = require('../controllers/userController');
 const upload = require('../middleware/multer');
+const { emailVerification } = require('../controllers/emailVerificationController');
 
 // Public Routes
 router.get("/captcha", getCaptcha);
 router.post('/signup', signup);
 router.post('/login', login);
+router.post('/email-verify', emailVerification)
 
 // Protected Route (only logged-in users)
 router.get('/profile', authMiddleware, (req, res) => {
@@ -44,7 +46,7 @@ router.get('/me', authMiddleware, async (req, res) => {
   try {
     const user = await userModel
       .findById(req.user.id)
-      .select("name email mobile role isRegistered registrationId profileImage");
+      .select("name email mobile role isRegistered registrationId profileImage isVerified");
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });

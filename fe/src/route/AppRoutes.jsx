@@ -5,12 +5,13 @@ import Layout from "../outlet/Layout";
 import Login from "../auth/Login";
 import OpenRoute from "./OpenRoute";
 import Signup from "../auth/Signup";
-import ProtectedRoute from "./ProtectedRoute";
+import {ProtectedRoute} from "./ProtectedRoute";
 import Dashboard from "../../src/components/dashboard/Dashboard";
 import RegistrationForm from "../components/registration/RegistrationForm";
 import ForgotPassword from "../auth/ResetPassword";
 import ChangePasswordCard from "../components/changePassword/ChangePasswordCard";
 import Access from "../auth/Access";
+import AdminDashboard from "../components/adminDashboard/AdminDashboard";
 
 const AppRoutes = () => {
   return (
@@ -46,6 +47,15 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <ChangePasswordCard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />

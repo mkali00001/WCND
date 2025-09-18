@@ -7,17 +7,22 @@ const AuthContext = createContext();
 // 2. Provider component banao
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null);
 
   const fetchUserData = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/me`, { withCredentials: true });
       setUser(res.data);
+      setLoading(false)
       console.log(res.data)
       return res.data;
     } catch (err) {
       setUser(null);
       return null;
+    }
+    finally{
+      setLoading(false)
     }
   };
 
@@ -34,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ fetchUserData, user, logout }}>
+    <AuthContext.Provider value={{ fetchUserData, user, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -21,7 +21,7 @@ export default function AdminDashboard() {
 
   const renderPageContent = () => {
     switch (activePage) {
-      case "Users":
+      case "User Management":
         return <Users />
       case "Dashboard":
         return <Dashboard />
@@ -40,12 +40,9 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Fixed Header */}
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      {/* Layout wrapper */}
       <div className="flex">
-        {/* Sidebar */}
         <Sidebar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
@@ -53,7 +50,6 @@ export default function AdminDashboard() {
           setActivePage={setActivePage}
         />
 
-        {/* Main Content */}
         <main className="flex-1 lg:ml-64 pt-[88px] px-8">
           {renderPageContent()}
         </main>

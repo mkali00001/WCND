@@ -62,20 +62,14 @@ const signup = async (req, res) => {
         html: `
     <p>Dear Participant,</p>
     <p>Welcome to the <strong>World Congress of Natural Democracy 2026 India</strong>.</p>
-    <p>To complete your registration, please verify your email address by clicking the secure link below:</p>
-    <p>
-      <a href="${verificationLink}" style="display:inline-block;padding:10px 20px;background:#007BFF;color:#fff;text-decoration:none;border-radius:5px;">
-        Verify My WCND Account
-      </a>
-    </p>
+   
 
     <h4>Your Login Credentials</h4>
     <p><strong>Email:</strong> ${email}</p>
     <p><strong>Password:</strong> ${plainPassword}</p>
 
     <h4>Security Note</h4>
-    <p>This verification link and password will expire within 24 hours.</p>
-    <p>If you did not initiate this registration, please disregard this message.</p>
+    
     <br/>
     <p>We look forward to your active participation in the inaugural <strong>World Congress of Natural Democracy</strong> — a historic global gathering.</p>
     <p>Warm regards,<br/>WCND 2026 India Secretariat</p>

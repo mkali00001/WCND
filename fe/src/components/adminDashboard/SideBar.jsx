@@ -6,7 +6,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePage, setAc
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard" },
-    { icon: User, label: "Users" },
+    { icon: User, label: "User Management" },
     { icon: CreditCard, label: "Payments" },
     { icon: FileText, label: "Paper Submission" },
     { icon: Megaphone, label: "Announcements" },
@@ -25,7 +25,6 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePage, setAc
 
   return (
     <>
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/30 backdrop-blur-sm z-20 lg:hidden"
@@ -33,7 +32,6 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePage, setAc
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
           fixed top-[88px] left-0 z-30 w-64 h-[calc(100vh-88px)] bg-white

@@ -18,7 +18,7 @@ const forgotPassword = async (req, res) => {
     const { email } = req.body;
 
     // Step 1: check user exist
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email:email.toLowerCase() });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

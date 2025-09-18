@@ -12,6 +12,8 @@ import ForgotPassword from "../auth/ResetPassword";
 import ChangePasswordCard from "../components/changePassword/ChangePasswordCard";
 import Access from "../auth/Access";
 import AdminDashboard from "../components/adminDashboard/AdminDashboard";
+import VerifyEmail from "../components/emailVerification/VerifyEmail";
+import ResendVerification from "../components/emailVerification/ResendVerification";
 
 const AppRoutes = () => {
   return (
@@ -23,6 +25,8 @@ const AppRoutes = () => {
           <Route path="signup" element={<Signup />} />
           <Route path="login" element={<Login />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="verify-email/:token" element={<VerifyEmail/>}/>
+          <Route path="resend-verification" element={<ResendVerification/>}/>
         </Route>
 
         {/* Protected Routes */}

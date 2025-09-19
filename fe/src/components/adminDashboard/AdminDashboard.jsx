@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
-import Sidebar from "./Sidebar"
 import Users from "./Users";
 import Dashboard from "./Dashboard";
 import Payment from "./Payment";
@@ -9,6 +8,7 @@ import PaperSubmission from "./PaperSubmission";
 import Announcement from "./Announcement";
 import HelpSupport from "./HelpSupport";
 import Header from "./Header";
+import Sidebar from "./Sidebar";
 
 export default function AdminDashboard() {
   const { user } = useAuth();

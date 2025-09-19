@@ -50,7 +50,7 @@ export default function AdminDashboard() {
           setActivePage={setActivePage}
         />
 
-        <main className="flex-1 lg:ml-64 pt-[88px] px-8">
+        <main className="flex-1 lg:ml-64 pt-[88px] lg:px-8">
           {renderPageContent()}
         </main>
       </div>

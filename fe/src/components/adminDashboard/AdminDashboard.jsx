@@ -11,7 +11,8 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
+  const { user, users } = useAuth();
+  // console.log(users)
   if (user?.role !== "admin") {
     return <Navigate to="/dashboard" />
   }
@@ -22,19 +23,19 @@ export default function AdminDashboard() {
   const renderPageContent = () => {
     switch (activePage) {
       case "User Management":
-        return <Users />
+        return <Users users={users} />
       case "Dashboard":
-        return <Dashboard />
+        return <Dashboard users={users} />
       case "Payments":
-        return <Payment/>
+        return <Payment users={users}/>
       case "Paper Submission":
-        return <PaperSubmission />
+        return <PaperSubmission users={users}/>
       case "Announcements":
-        return <Announcement />
+        return <Announcement users={users}/>
       case "Help & Support":
-        return <HelpSupport />
+        return <HelpSupport users={users}/>
       default:
-        return <Dashboard />
+        return <Dashboard users={users}/>
     }
   }
 

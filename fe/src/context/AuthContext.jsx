@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([])
 
   const fetchUserData = async () => {
     try {
@@ -24,10 +25,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const fetchUsers = async () => {
+  try {
+    const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/users`, { withCredentials: true });
+    setUsers(res.data);
+    console.log(res.data);
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    setUsers(null);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
 
   useEffect(() => {
     fetchUserData()
+  }, [])
+
+  useEffect(() => {
+    fetchUsers()
   }, [])
 
   const logout = () => {
@@ -37,7 +58,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ fetchUserData, user, logout, loading }}>
+    <AuthContext.Provider value={{ fetchUserData, user, logout, loading, fetchUsers, users }}>
       {children}
     </AuthContext.Provider>
   );

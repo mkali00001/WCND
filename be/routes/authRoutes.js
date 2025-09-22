@@ -13,12 +13,25 @@ const { getCaptcha } = require("../controllers/captchaController");
 const { uploadProfileImage } = require('../controllers/userController');
 const upload = require('../middleware/multer');
 const { emailVerification } = require('../controllers/emailVerificationController');
+const { createPayment, getPayments } = require('../controllers/paymentController');
+const { users } = require('../controllers/usersController');
+const { deleteUser } = require('../controllers/deleteUser');
+const { editUser } = require('../controllers/editUser');
 
 // Public Routes
 router.get("/captcha", getCaptcha);
 router.post('/signup', signup);
 router.post('/login', login);
+
 router.post('/email-verify', emailVerification)
+
+router.patch('/edit-user/:id', authMiddleware, roleMiddleware(['admin']), editUser)
+router.get("/users", authMiddleware, roleMiddleware(['admin']), users)
+router.delete("/delete-user/:id", authMiddleware, roleMiddleware(['admin']), deleteUser)
+
+
+router.post('/create-payment', authMiddleware, createPayment)
+router.get('/get-payment', authMiddleware,  getPayments)
 
 // Protected Route (only logged-in users)
 router.get('/profile', authMiddleware, (req, res) => {

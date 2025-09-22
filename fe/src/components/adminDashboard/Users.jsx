@@ -1,58 +1,55 @@
 import React, { useState } from "react";
 import { Eye, Edit, RefreshCw, XCircle, X, Users as UsersIcon } from "lucide-react";
+import axios from "axios";
 
-const UserManagement = () => {
+const UserManagement = ({ users }) => {
+  const [userList, setUserList] = useState(users); // Make users editable
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({});
 
-  const users = [
-    {
-      id: "U001",
-      name: "John Doe",
-      email: "john@example.com",
-      phone: "+1234567890",
-      country: "USA",
-      registrationStatus: "Paid",
-      paymentStatus: "Success",
-      createdAt: "2023-09-01",
-      lastLogin: "2023-09-10",
-    },
-    {
-      id: "U002",
-      name: "Jane Smith",
-      email: "jane@example.com",
-      phone: "+9876543210",
-      country: "UK",
-      registrationStatus: "Pending",
-      paymentStatus: "Pending",
-      createdAt: "2023-09-05",
-      lastLogin: "2023-09-12",
-    },
-    {
-      id: "U003",
-      name: "Mike Johnson",
-      email: "mike@example.com",
-      phone: "+1122334455",
-      country: "Canada",
-      registrationStatus: "Paid",
-      paymentStatus: "Failed",
-      createdAt: "2023-08-28",
-      lastLogin: "2023-09-11",
-    },
-    {
-      id: "U004",
-      name: "Sarah Wilson",
-      email: "sarah@example.com",
-      phone: "+5566778899",
-      country: "Australia",
-      registrationStatus: "Pending",
-      paymentStatus: "Success",
-      createdAt: "2023-09-03",
-      lastLogin: "2023-09-13",
-    },
-  ];
+  const handleView = (user) => {
+    setSelectedUser(user);
+    setIsEditing(false);
+  };
+  const handleClose = () => {
+    setSelectedUser(null);
+    setIsEditing(false);
+  };
 
-  const handleView = (user) => setSelectedUser(user);
-  const handleClose = () => setSelectedUser(null);
+  const handleEditClick = (user) => {
+    setSelectedUser(user);
+    setEditForm({ ...user });
+    setIsEditing(true);
+  };
+
+  const handleChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = () => {
+    setUserList(userList.map(u => u._id === editForm._id ? editForm : u));
+    setSelectedUser(editForm);
+    setIsEditing(false);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      try {
+        await axios.delete(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/delete-user/${id}`, {
+        withCredentials: true,
+      });
+
+        setUserList((prevList) => prevList.filter((u) => u._id !== id));
+        if (selectedUser?._id === id) setSelectedUser(null);
+
+        console.log(`Deleted user: ${id}`);
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        alert("Failed to delete user. Please try again.");
+      }
+    }
+  };
 
   const getStatusColor = (status, type) => {
     const statusMap = {
@@ -117,14 +114,23 @@ const UserManagement = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
-                  {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                  {userList.map((user) => (
+                    <tr key={user._id} className="hover:bg-slate-50 transition-colors">
                       {/* User Info */}
                       <td className="px-4 lg:px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold text-xs lg:text-sm">
-                            {user.name.split(' ').map(n => n[0]).join('')}
+                          <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold text-xs lg:text-sm overflow-hidden">
+                            {user.profileImage ? (
+                              <img
+                                src={user.profileImage}
+                                alt={user.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span>{user.name.split(' ').map(n => n[0]).join('')}</span>
+                            )}
                           </div>
+
                           <div className="min-w-0">
                             <div className="text-sm font-semibold text-slate-900 truncate">
                               {user.name}
@@ -132,7 +138,6 @@ const UserManagement = () => {
                             <div className="text-xs text-slate-500">
                               {user.id}
                             </div>
-                            {/* Show email on mobile when contact column is hidden */}
                             <div className="text-xs text-slate-500 md:hidden truncate">
                               {user.email}
                             </div>
@@ -140,13 +145,13 @@ const UserManagement = () => {
                         </div>
                       </td>
 
-                      {/* Contact - Hidden on mobile */}
+                      {/* Contact */}
                       <td className="px-4 lg:px-6 py-4 hidden md:table-cell">
                         <div className="text-sm text-slate-900">{user.email}</div>
                         <div className="text-xs text-slate-500">{user.phone}</div>
                       </td>
 
-                      {/* Country - Hidden on mobile/tablet */}
+                      {/* Country */}
                       <td className="px-4 lg:px-6 py-4 hidden lg:table-cell">
                         <span className="text-sm text-slate-900">{user.country}</span>
                       </td>
@@ -163,7 +168,7 @@ const UserManagement = () => {
                         </div>
                       </td>
 
-                      {/* Activity - Hidden on mobile/tablet */}
+                      {/* Activity */}
                       <td className="px-4 lg:px-6 py-4 hidden lg:table-cell">
                         <div className="text-sm text-slate-900">{user.createdAt}</div>
                         <div className="text-xs text-slate-500">Last: {user.lastLogin}</div>
@@ -179,21 +184,23 @@ const UserManagement = () => {
                           >
                             <Eye size={16} />
                           </button>
-                          <button 
+                          <button
+                            onClick={() => handleEditClick(user)}
                             className="p-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 transition-colors"
                             title="Edit User"
                           >
                             <Edit size={16} />
                           </button>
-                          <button 
+                          <button
                             className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors hidden sm:block"
                             title="Refresh"
                           >
                             <RefreshCw size={16} />
                           </button>
-                          <button 
+                          <button
                             className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors hidden sm:block"
                             title="Delete User"
+                            onClick={() => handleDelete(user._id)}
                           >
                             <XCircle size={16} />
                           </button>
@@ -211,7 +218,7 @@ const UserManagement = () => {
         {selectedUser && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div className="bg-white border border-slate-200 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              {/* Modal Header */}
+              {/* Header */}
               <div className="flex items-center justify-between p-4 lg:p-6 border-b border-slate-200">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
@@ -219,7 +226,7 @@ const UserManagement = () => {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-slate-900">
-                      User Details
+                      {isEditing ? "Edit User" : "User Details"}
                     </h2>
                     <p className="text-sm text-slate-500">
                       {selectedUser.name} ({selectedUser.id})
@@ -234,87 +241,95 @@ const UserManagement = () => {
                 </button>
               </div>
 
-              {/* Modal Content */}
+              {/* Content */}
               <div className="p-4 lg:p-6 space-y-6">
-                {/* Personal Info */}
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                    Personal Information
-                  </h3>
+                {isEditing ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
+                    <div>
                       <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Name</label>
-                      <p className="text-sm text-slate-900 font-medium">{selectedUser.name}</p>
+                      <input name="name" value={editForm.name} onChange={handleChange} className="border p-2 w-full rounded" />
                     </div>
-                    <div className="space-y-1">
+                    <div>
                       <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Email</label>
-                      <p className="text-sm text-slate-900">{selectedUser.email}</p>
+                      <input name="email" value={editForm.email} onChange={handleChange} className="border p-2 w-full rounded" />
                     </div>
-                    <div className="space-y-1">
+                    <div>
                       <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Phone</label>
-                      <p className="text-sm text-slate-900">{selectedUser.phone}</p>
+                      <input name="phone" value={editForm.phone} onChange={handleChange} className="border p-2 w-full rounded" />
                     </div>
-                    <div className="space-y-1">
+                    <div>
                       <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Country</label>
-                      <p className="text-sm text-slate-900">{selectedUser.country}</p>
+                      <input name="country" value={editForm.country} onChange={handleChange} className="border p-2 w-full rounded" />
                     </div>
-                  </div>
-                </div>
-
-                {/* Status Info */}
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                    Status & Payment
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
+                    <div>
                       <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Registration Status</label>
-                      <span className={`inline-flex px-3 py-2 rounded-lg text-sm font-medium border ${getStatusColor(selectedUser.registrationStatus, 'registration')}`}>
-                        {selectedUser.registrationStatus}
-                      </span>
+                      <select name="registrationStatus" value={editForm.registrationStatus} onChange={handleChange} className="border p-2 w-full rounded">
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                      </select>
                     </div>
-                    <div className="space-y-1">
+                    <div>
                       <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Payment Status</label>
-                      <span className={`inline-flex px-3 py-2 rounded-lg text-sm font-medium border ${getStatusColor(selectedUser.paymentStatus, 'payment')}`}>
-                        {selectedUser.paymentStatus}
-                      </span>
+                      <select name="paymentStatus" value={editForm.paymentStatus} onChange={handleChange} className="border p-2 w-full rounded">
+                        <option value="Success">Success</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Failed">Failed</option>
+                      </select>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    {/* Personal Info */}
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900 mb-3">Personal Information</h3>
+                      <p><strong>Name:</strong> {selectedUser.name}</p>
+                      <p><strong>Email:</strong> {selectedUser.email}</p>
+                      <p><strong>Phone:</strong> {selectedUser.phone}</p>
+                      <p><strong>Country:</strong> {selectedUser.country}</p>
+                    </div>
 
-                {/* Activity Info */}
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                    Activity & Submissions
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Account Created</label>
-                      <p className="text-sm text-slate-900">{selectedUser.createdAt}</p>
+                    {/* Status Info */}
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900 mb-3">Status & Payment</h3>
+                      <p><strong>Registration Status:</strong> {selectedUser.registrationStatus}</p>
+                      <p><strong>Payment Status:</strong> {selectedUser.paymentStatus}</p>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Last Login</label>
-                      <p className="text-sm text-slate-900">{selectedUser.lastLogin}</p>
+
+                    {/* Activity */}
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900 mb-3">Activity & Submissions</h3>
+                      <p><strong>Account Created:</strong> {selectedUser.createdAt}</p>
+                      <p><strong>Last Login:</strong> {selectedUser.lastLogin}</p>
+                      <p><strong>Paper Submissions:</strong> No submissions yet.</p>
                     </div>
-                    <div className="space-y-1 sm:col-span-2">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Paper Submissions</label>
-                      <p className="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
-                        No submissions yet. User has not submitted any papers for review.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
 
-              {/* Modal Footer */}
+              {/* Footer */}
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 p-4 lg:p-6 border-t border-slate-200">
-                <button className="flex-1 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 font-medium py-2 px-4 rounded-lg transition-colors">
-                  Edit User
-                </button>
+                {isEditing ? (
+                  <button
+                    onClick={handleSave}
+                    className="flex-1 bg-green-50 text-green-600 hover:bg-green-100 font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleEditClick(selectedUser)}
+                    className="flex-1 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    Edit User
+                  </button>
+                )}
                 <button className="flex-1 bg-green-50 text-green-600 hover:bg-green-100 font-medium py-2 px-4 rounded-lg transition-colors">
                   Send Email
                 </button>
-                <button className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2 px-4 rounded-lg transition-colors">
+                <button
+                  onClick={() => handleDelete(selectedUser._id)}
+                  className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2 px-4 rounded-lg transition-colors"
+                >
                   Deactivate
                 </button>
               </div>

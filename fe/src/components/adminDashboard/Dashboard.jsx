@@ -1,9 +1,10 @@
 import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 
-const Dashboard = () => {
+const Dashboard = ({users}) => {
+  console.log(users.length)
   const kpis = [
-    { title: "Total Users", value: 1200 },
+    { title: "Total Users", value: users.length}, 
     { title: "Paid Users", value: 450 },
     { title: "Pending Users", value: 100 },
     { title: "Failed Payments", value: 35 },

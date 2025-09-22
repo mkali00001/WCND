@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Eye, Edit, RefreshCw, XCircle, X, Users as UsersIcon } from "lucide-react";
+import { Eye, Edit, RefreshCw, XCircle, X, Users as UsersIcon, Loader2 } from "lucide-react";
 import axios from "axios";
 
 const UserManagement = ({ users }) => {
@@ -8,13 +8,42 @@ const UserManagement = ({ users }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
 
+  // State for modal data
+  const [registrationData, setRegistrationData] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState(null);
+  const [modalPage, setModalPage] = useState(1);
+
+  const fetchRegistrationData = async (userId) => {
+    setDetailLoading(true);
+    setDetailError(null);
+    setRegistrationData(null);
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/users-registration/${userId}`,
+        { withCredentials: true }
+      );
+      setRegistrationData(res.data);
+      console.log(res.data);
+    } catch (err) {
+      setDetailError(err.response?.data?.error || "Could not load registration details.");
+      console.error("Error fetching registration data:", err);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
   const handleView = (user) => {
     setSelectedUser(user);
     setIsEditing(false);
+    setModalPage(1); // Reset to first page on open
+    fetchRegistrationData(user._id);
   };
+
   const handleClose = () => {
     setSelectedUser(null);
     setIsEditing(false);
+    setRegistrationData(null);
   };
 
   const handleEditClick = (user) => {
@@ -37,8 +66,8 @@ const UserManagement = ({ users }) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         await axios.delete(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/delete-user/${id}`, {
-        withCredentials: true,
-      });
+          withCredentials: true,
+        });
 
         setUserList((prevList) => prevList.filter((u) => u._id !== id));
         if (selectedUser?._id === id) setSelectedUser(null);
@@ -229,7 +258,7 @@ const UserManagement = ({ users }) => {
                       {isEditing ? "Edit User" : "User Details"}
                     </h2>
                     <p className="text-sm text-slate-500">
-                      {selectedUser.name} ({selectedUser.id})
+                      {selectedUser.name} 
                     </p>
                   </div>
                 </div>
@@ -279,29 +308,122 @@ const UserManagement = ({ users }) => {
                   </div>
                 ) : (
                   <>
-                    {/* Personal Info */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900 mb-3">Personal Information</h3>
-                      <p><strong>Name:</strong> {selectedUser.name}</p>
-                      <p><strong>Email:</strong> {selectedUser.email}</p>
-                      <p><strong>Phone:</strong> {selectedUser.phone}</p>
-                      <p><strong>Country:</strong> {selectedUser.country}</p>
-                    </div>
+                    {detailLoading && (
+                      <div className="flex justify-center items-center p-10">
+                        <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+                      </div>
+                    )}
+                    {detailError && (
+                      <div className="p-4 text-center text-red-600 bg-red-50 rounded-lg">
+                        {detailError}
+                      </div>
+                    )}
+                    {registrationData && (
+                      <div className="space-y-4 text-sm">
+                        {/* Modal Pagination */}
+                        <div className="flex border-b">
+                          <button onClick={() => setModalPage(1)} className={`px-4 py-2 text-sm font-medium ${modalPage === 1 ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500'}`}>Personal</button>
+                          <button onClick={() => setModalPage(2)} className={`px-4 py-2 text-sm font-medium ${modalPage === 2 ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500'}`}>Academic</button>
+                          <button onClick={() => setModalPage(3)} className={`px-4 py-2 text-sm font-medium ${modalPage === 3 ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500'}`}>Logistics</button>
+                          <button onClick={() => setModalPage(4)} className={`px-4 py-2 text-sm font-medium ${modalPage === 4 ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500'}`}>Payment</button>
+                        </div>
 
-                    {/* Status Info */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900 mb-3">Status & Payment</h3>
-                      <p><strong>Registration Status:</strong> {selectedUser.registrationStatus}</p>
-                      <p><strong>Payment Status:</strong> {selectedUser.paymentStatus}</p>
-                    </div>
+                        {/* Page 1: Personal Info */}
+                        {modalPage === 1 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                            <p><strong>ID:</strong> {registrationData.registrationId}</p>
+                            <p><strong>Full Name:</strong> {registrationData.fullName}</p>
+                            <p><strong>Title:</strong> {registrationData.title}</p>
+                            <p><strong>Pronunciation:</strong> {registrationData.pronunciation || 'N/A'}</p>
+                            <p><strong>Gender:</strong> {registrationData.gender}</p>
+                            <p><strong>Email:</strong> {registrationData.email}</p>
+                            <p><strong>Alternate Email:</strong> {registrationData.altEmail || 'N/A'}</p>
+                            <p><strong>Phone:</strong> {registrationData.phone}</p>
+                            <p><strong>Alternate Phone:</strong> {registrationData.altPhone || 'N/A'}</p>
+                            <p><strong>Nationality:</strong> {registrationData.nationality}</p>
+                            <p><strong>Country:</strong> {registrationData.country}</p>
+                            <p><strong>Participant Type:</strong> {registrationData.participantType}</p>
+                            <p><strong>Mother Tongue:</strong> {registrationData.motherTongue}</p>
+                            <p><strong>Website:</strong> {registrationData.website || 'N/A'}</p>
+                            <p><strong>Date of Birth:</strong> {new Date(registrationData.dateOfBirth).toLocaleDateString()}</p>
+                            {registrationData.participantType === 'International' ? (
+                              <><p><strong>Passport No:</strong> {registrationData.passportNo}</p><p><strong>Passport Expiry:</strong> {new Date(registrationData.passportExpiry).toLocaleDateString()}</p></>
+                            ) : (
+                              <p><strong>Govt ID:</strong> {registrationData.govtId}</p>
+                            )}
+                            <p className="sm:col-span-2"><strong>Address:</strong> {registrationData.address}</p>
+                            <div className="sm:col-span-2 pt-2 border-t mt-2">
+                              <h4 className="font-semibold text-slate-800 mb-1">Emergency Contact</h4>
+                              <p><strong>Name:</strong> {registrationData.emergencyName}</p>
+                              <p><strong>Relation:</strong> {registrationData.emergencyRelation}</p>
+                              <p><strong>Phone:</strong> {registrationData.emergencyPhone}</p>
+                            </div>
+                          </div>
+                        )}
 
-                    {/* Activity */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900 mb-3">Activity & Submissions</h3>
-                      <p><strong>Account Created:</strong> {selectedUser.createdAt}</p>
-                      <p><strong>Last Login:</strong> {selectedUser.lastLogin}</p>
-                      <p><strong>Paper Submissions:</strong> No submissions yet.</p>
-                    </div>
+                        {/* Page 2: Academic & Participation */}
+                        {modalPage === 2 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                            <p><strong>Designation:</strong> {registrationData.designation}</p>
+                            <p><strong>Qualification:</strong> {registrationData.qualification}</p>
+                            <p className="sm:col-span-2"><strong>Institution:</strong> {registrationData.institution}</p>
+                            <p><strong>Department:</strong> {registrationData.department}</p>
+                            <p><strong>ORCID:</strong> {registrationData.orcid || 'N/A'}</p>
+                            <p><strong>Registration Type:</strong> {registrationData.registrationType}</p>
+                            <p><strong>Previous Conference:</strong> {registrationData.prevConference}</p>
+                          </div>
+                        )}
+
+                        {/* Page 3: Logistics */}
+                        {modalPage === 3 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                            <p><strong>Accommodation:</strong> {registrationData.accommodationRequired}</p>
+                            <p><strong>Travel Assistance:</strong> {registrationData.travelAssistanceRequired}</p>
+                            <p><strong>Visa Support:</strong> {registrationData.requireVisaSupport}</p>
+                            <p><strong>Dietary Preference:</strong> {registrationData.dietaryPreference}</p>
+                            <p><strong>Health Conditions:</strong> {registrationData.healthConditions || 'N/A'}</p>
+                            <p><strong>Allergies:</strong> {registrationData.allergies === 'Yes' ? registrationData.allergyDetails : 'No'}</p>
+                            <p><strong>Travel Insurance:</strong> {registrationData.travelInsuranceStatus}</p>
+                            <p><strong>Willing for Field Trips:</strong> {registrationData.willingForFieldTrips}</p>
+                            {registrationData.requireVisaSupport === 'Yes' && (
+                               <p className="sm:col-span-2"><strong>Nearest Embassy:</strong> {registrationData.nearestEmbassyConsulate}</p>
+                            )}
+                            <p className="sm:col-span-2 pt-2 border-t mt-2"><strong>Arrival:</strong> {registrationData.arrivalDateTime ? new Date(registrationData.arrivalDateTime).toLocaleString() : 'N/A'}</p>
+                            <p className="sm:col-span-2"><strong>Departure:</strong> {registrationData.departureDateTime ? new Date(registrationData.departureDateTime).toLocaleString() : 'N/A'}</p>
+                            <p><strong>Arrival Date&Time:</strong> {registrationData.arrivalDateTime}</p>
+                            <p><strong>Departure Date&Time:</strong> {registrationData.departureDateTime}</p>
+                          </div>
+                        )}
+
+                        {/* Page 4: Payment & Accompanying */}
+                        {modalPage === 4 && (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                              <p><strong>Fee Category:</strong> {registrationData.feeCategory}</p>
+                              <p><strong>Payment Mode:</strong> {registrationData.paymentMode}</p>
+                              <p><strong>Sponsorship:</strong> {registrationData.sponsorship}</p>
+                              <p><strong>Billing Invoice Details:</strong> {registrationData.billingInvoiceDetails}</p>
+                              {registrationData.sponsorship !== 'Self-funded' && (
+                                <p className="sm:col-span-2"><strong>Sponsoring Org:</strong> {registrationData.sponsoringOrganizationDetails}</p>
+                              )}
+                              
+                            </div>
+                            {registrationData.accompanyingPersons?.length > 0 && (
+                              <div className="pt-2 border-t">
+                                <h4 className="font-semibold text-slate-800 mb-1">Accompanying Person(s)</h4>
+                                {registrationData.accompanyingPersons.map((person, i) => (
+                                  <div key={i} className="mt-2 p-2 border rounded-md bg-slate-50">
+                                    <p><strong>Name:</strong> {person.fullName}</p>
+                                    <p><strong>Relation:</strong> {person.relation}</p>
+                                    <p><strong>Nationality:</strong> {person.nationality}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </>
                 )}
               </div>

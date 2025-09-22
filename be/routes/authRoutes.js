@@ -13,10 +13,14 @@ const { getCaptcha } = require("../controllers/captchaController");
 const { uploadProfileImage } = require('../controllers/userController');
 const upload = require('../middleware/multer');
 const { emailVerification } = require('../controllers/emailVerificationController');
-const { createPayment, getPayments } = require('../controllers/paymentController');
-const { users } = require('../controllers/usersController');
+const { createPayment, getPayments, createOrder, recordPayment, get_payment_status } = require('../controllers/paymentController');
+const { users, users_registration_data } = require('../controllers/usersController');
 const { deleteUser } = require('../controllers/deleteUser');
 const { editUser } = require('../controllers/editUser');
+
+
+
+
 
 // Public Routes
 router.get("/captcha", getCaptcha);
@@ -27,9 +31,14 @@ router.post('/email-verify', emailVerification)
 
 router.patch('/edit-user/:id', authMiddleware, roleMiddleware(['admin']), editUser)
 router.get("/users", authMiddleware, roleMiddleware(['admin']), users)
+router.get("/users-registration/:id", authMiddleware, roleMiddleware(['admin']), users_registration_data)
 router.delete("/delete-user/:id", authMiddleware, roleMiddleware(['admin']), deleteUser)
+router.get("/paymentstatus",authMiddleware, roleMiddleware(['admin']), get_payment_status)
 
 
+
+router.post("/create-order",authMiddleware,createOrder)
+router.post("/record-payment",authMiddleware,recordPayment)
 router.post('/create-payment', authMiddleware, createPayment)
 router.get('/get-payment', authMiddleware,  getPayments)
 

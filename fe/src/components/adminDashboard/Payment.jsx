@@ -1,88 +1,42 @@
-import React, { useState } from "react";
-import { CreditCard, Search, Filter, X, Eye, MoreVertical } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { CreditCard, Search, Filter, X, Eye, Loader2 } from "lucide-react";
+import axios from "axios";
 
 const Payment = () => {
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
   const [userFilter, setUserFilter] = useState("");
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  const payments = [
-    {
-      id: "P001",
-      userId: "U001",
-      name: "John Doe",
-      email: "john@example.com",
-      orderId: "order_123",
-      paymentId: "pay_456",
-      amount: 150,
-      currency: "USD",
-      status: "Success",
-      method: "Card",
-      date: "2023-09-10 14:20",
-    },
-    {
-      id: "P002",
-      userId: "U002",
-      name: "Jane Smith",
-      email: "jane@example.com",
-      orderId: "order_789",
-      paymentId: "pay_987",
-      amount: 200,
-      currency: "INR",
-      status: "Pending",
-      method: "UPI",
-      date: "2023-09-12 09:45",
-    },
-    {
-      id: "P003",
-      userId: "U003",
-      name: "Mike Lee",
-      email: "mike@example.com",
-      orderId: "order_555",
-      paymentId: "pay_222",
-      amount: 100,
-      currency: "USD",
-      status: "Failed",
-      method: "NetBanking",
-      date: "2023-09-13 18:30",
-    },
-    {
-      id: "P004",
-      userId: "U004",
-      name: "Sarah Wilson",
-      email: "sarah@example.com",
-      orderId: "order_666",
-      paymentId: "pay_333",
-      amount: 75,
-      currency: "EUR",
-      status: "Success",
-      method: "PayPal",
-      date: "2023-09-14 11:15",
-    },
-    {
-      id: "P005",
-      userId: "U005",
-      name: "David Brown",
-      email: "david@example.com",
-      orderId: "order_777",
-      paymentId: "pay_444",
-      amount: 300,
-      currency: "GBP",
-      status: "Pending",
-      method: "Card",
-      date: "2023-09-15 16:45",
-    },
-  ];
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/paymentstatus`,
+          { withCredentials: true }
+        );
+        setPayments(response.data);
+      } catch (err) {
+        setError(err.response?.data?.error || "Failed to fetch payments.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPayments();
+  }, []);
 
   const filteredPayments = payments.filter((p) => {
     const matchStatus = statusFilter === "All" || p.status === statusFilter;
     const matchUser =
       !userFilter ||
-      p.name.toLowerCase().includes(userFilter.toLowerCase()) ||
+      (p.user?.name || "").toLowerCase().includes(userFilter.toLowerCase()) ||
       p.email.toLowerCase().includes(userFilter.toLowerCase()) ||
-      p.userId.toLowerCase().includes(userFilter.toLowerCase());
+      p.user?._id.toLowerCase().includes(userFilter.toLowerCase());
     const matchDate =
       (!dateFilter.from || new Date(p.date) >= new Date(dateFilter.from)) &&
       (!dateFilter.to || new Date(p.date) <= new Date(dateFilter.to));
@@ -103,6 +57,14 @@ const Payment = () => {
     setDateFilter({ from: "", to: "" });
     setUserFilter("");
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="md:p-6">
@@ -262,14 +224,14 @@ const Payment = () => {
                     key={payment.id}
                     className="hover:bg-slate-50 transition-colors"
                   >
-                    <td className="px-2 sm:px-4 lg:px-6 py-3 lg:py-4 font-medium text-slate-900 text-xs sm:text-sm">
-                      {payment.id}
+                    <td className="px-2 sm:px-4 lg:px-6 py-3 lg:py-4 font-medium text-slate-900 text-xs sm:text-sm truncate max-w-24">
+                      {payment.razorpayPaymentId}
                     </td>
                     <td className="px-2 sm:px-4 lg:px-6 py-3 lg:py-4">
                       <div className="text-xs sm:text-sm font-semibold text-slate-900">
-                        {payment.name}
+                        {payment.user?.name || "N/A"}
                       </div>
-                      <div className="text-xs text-slate-500">{payment.userId}</div>
+                      <div className="text-xs text-slate-500">{payment.user?._id}</div>
                       <div className="text-xs text-slate-500 sm:hidden truncate max-w-24">
                         {payment.email}
                       </div>
@@ -280,11 +242,11 @@ const Payment = () => {
                     <td className="px-2 sm:px-4 lg:px-6 py-3 lg:py-4 hidden sm:table-cell text-xs sm:text-sm text-slate-600">
                       {payment.email}
                     </td>
-                    <td className="px-2 sm:px-4 lg:px-6 py-3 lg:py-4 hidden md:table-cell text-xs sm:text-sm text-slate-600">
+                    <td className="px-2 sm:px-4 lg:px-6 py-3 lg:py-4 hidden md:table-cell text-xs sm:text-sm text-slate-600 truncate max-w-24">
                       {payment.orderId}
                     </td>
                     <td className="px-2 sm:px-4 lg:px-6 py-3 lg:py-4 text-xs sm:text-sm font-medium text-slate-900">
-                      <div>{payment.amount}</div>
+                      <div>{(payment.amount / 100).toFixed(2)}</div>
                       <div className="text-xs text-slate-500">{payment.currency}</div>
                     </td>
                     <td className="px-2 sm:px-4 lg:px-6 py-3 lg:py-4">
@@ -313,6 +275,13 @@ const Payment = () => {
         </div>
 
         {/* Empty State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+            <h3 className="text-lg font-medium text-red-800 mb-2">An Error Occurred</h3>
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
+
         {filteredPayments.length === 0 && (
           <div className="bg-white border border-slate-200 rounded-xl p-8 text-center">
             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -346,7 +315,7 @@ const Payment = () => {
                       Payment Details
                     </h2>
                     <p className="text-sm text-slate-500">
-                      {selectedPayment.name} ({selectedPayment.userId})
+                      {selectedPayment.user?.name} ({selectedPayment.user?._id})
                     </p>
                   </div>
                 </div>
@@ -369,7 +338,7 @@ const Payment = () => {
                       <label className="text-xs font-medium text-slate-500 uppercase">
                         Payment ID
                       </label>
-                      <p className="text-sm text-slate-900 font-mono">{selectedPayment.id}</p>
+                      <p className="text-sm text-slate-900 font-mono">{selectedPayment.razorpayPaymentId}</p>
                     </div>
                     <div>
                       <label className="text-xs font-medium text-slate-500 uppercase">
@@ -384,7 +353,7 @@ const Payment = () => {
                         Amount
                       </label>
                       <p className="text-lg font-bold text-slate-900">
-                        {selectedPayment.amount} {selectedPayment.currency}
+                        {(selectedPayment.amount / 100).toFixed(2)} {selectedPayment.currency}
                       </p>
                     </div>
                     <div>
@@ -412,7 +381,7 @@ const Payment = () => {
                         Date & Time
                       </label>
                       <p className="text-sm text-slate-900">
-                        {selectedPayment.date}
+                        {new Date(selectedPayment.createdAt).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -428,7 +397,7 @@ const Payment = () => {
                         Name
                       </label>
                       <p className="text-sm text-slate-900">
-                        {selectedPayment.name}
+                        {selectedPayment.user?.name}
                       </p>
                     </div>
                     <div>
@@ -436,7 +405,7 @@ const Payment = () => {
                         User ID
                       </label>
                       <p className="text-sm text-slate-900 font-mono">
-                        {selectedPayment.userId}
+                        {selectedPayment.user?._id}
                       </p>
                     </div>
                     <div className="sm:col-span-2">

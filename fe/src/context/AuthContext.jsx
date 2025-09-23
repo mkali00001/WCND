@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUsers = async () => {
   try {
-    const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/users`, { withCredentials: true });
+    const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/users`, { withCredentials: true });
     setUsers(res.data);
     console.log(res.data);
     return res.data;

@@ -157,13 +157,3 @@ exports.recordPayment = async (req, res) => {
   }
 };
 
-exports.get_payment_status = async (req, res) => {
-  try {
-    const payment = await Payment.find()
-      .populate("user", "name") // Populate user's name
-      .sort({ createdAt: -1 }); // Sort by most recent
-    res.status(200).json(payment);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-}

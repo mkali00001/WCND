@@ -37,7 +37,6 @@ export default function Signup() {
     const fd = new FormData(e.currentTarget);
     const name = fd.get("name")?.trim();
     const email = fd.get("email")?.trim();
-    const mobile = fd.get("mobile")?.trim();
 
     // --- Validation ---
     if (!name) {
@@ -46,10 +45,6 @@ export default function Signup() {
     }
     if (!email) {
       toast.error("Please enter your email address");
-      return;
-    }
-    if (!mobile) {
-      toast.error("Please enter your phone number");
       return;
     }
     if (!captchaInput) {
@@ -61,7 +56,7 @@ export default function Signup() {
       return;
     }
 
-    const payload = { name, email, mobile, captchaInput };
+    const payload = { name, email, captchaInput };
 
     try {
       setLoading(true);
@@ -122,38 +117,34 @@ export default function Signup() {
               className="h-[66px] w-full rounded-[10px] border border-[#EAEAEA] px-4 text-base text-[#333] placeholder:text-[#B0A9A9] focus:outline-none focus:ring-2 focus:ring-[#972620]"
             />
 
-            {/* Mobile */}
-            <input
-              id="mobile"
-              name="mobile"
-              type="tel"
-              inputMode="tel"
-              required
-              placeholder="Phone Number"
-              className="h-[66px] w-full rounded-[10px] border border-[#EAEAEA] px-4 text-base text-[#333] placeholder:text-[#B0A9A9] focus:outline-none focus:ring-2 focus:ring-[#972620]"
-            />
-
             {/* Captcha */}
-            <div className="flex items-center gap-2">
-              <div
-                dangerouslySetInnerHTML={{ __html: captchaSvg }}
-                className="flex-shrink-0"
-              />
-              <input
-                type="text"
-                value={captchaInput}
-                onChange={(e) => setCaptchaInput(e.target.value)}
-                placeholder="Enter captcha"
-                className="h-[50px] flex-1 rounded-[10px] border border-[#EAEAEA] px-4"
-              />
-              <button
-                type="button"
-                onClick={fetchCaptcha}
-                className="p-2 rounded-[10px] border border-[#972620] text-[#972620] hover:bg-[#972620] hover:text-white transition-colors"
-              >
-                <RefreshCcw className="w-5 h-5" />
-              </button>
-            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm w-full max-w-lg">
+  {/* Captcha Box */}
+  <div
+    dangerouslySetInnerHTML={{ __html: captchaSvg }}
+    className="flex-shrink-0 w-full sm:w-[120px] h-[60px] flex items-center justify-center bg-white border border-gray-300 rounded-lg shadow-inner"
+  />
+
+  {/* Input + Button (stack on mobile, inline on desktop) */}
+  <div className="flex w-full gap-2">
+    <input
+      type="text"
+      value={captchaInput}
+      onChange={(e) => setCaptchaInput(e.target.value)}
+      placeholder="Enter captcha"
+      className="h-[50px] flex-1 rounded-lg border border-gray-300 px-4 focus:ring-2 focus:ring-[#972620] focus:outline-none text-gray-700 placeholder-gray-400"
+    />
+
+    <button
+      type="button"
+      onClick={fetchCaptcha}
+      className="p-3 rounded-lg border border-[#972620] text-[#972620] hover:bg-[#972620] hover:text-white transition-all shadow-sm"
+    >
+      <RefreshCcw className="w-5 h-5" />
+    </button>
+  </div>
+</div>
+
 
             {/* Terms & Conditions */}
             <div className="flex items-center gap-2">

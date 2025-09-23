@@ -12,7 +12,7 @@ export const Payement = () => {
     const fetchRegistration = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/my-registration`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/my-registration`,
           { withCredentials: true }
         );
         setRegistration(response.data);
@@ -38,7 +38,7 @@ export const Payement = () => {
       const amountInPaise = Number(amount) * 100;
 
       const orderResponse = await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/create-order`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/create-order`,
         { amount: amountInPaise },
         { withCredentials: true }
       );
@@ -55,7 +55,7 @@ export const Payement = () => {
         handler: async function (response) {
           try {
             await axios.post(
-              `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/record-payment`,
+              `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/record-payment`,
               {
                 razorpayPaymentId: response.razorpay_payment_id,
                 razorpayOrderId: response.razorpay_order_id,

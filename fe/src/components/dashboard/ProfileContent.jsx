@@ -27,7 +27,7 @@ export default function ProfileContent() {
     const fetchRegistration = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/my-registration`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/my-registration`,
           { withCredentials: true }
         );
         setRegistration(res.data);

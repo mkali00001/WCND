@@ -297,7 +297,7 @@ const RegistrationForm = () => {
     try {
       console.log("Submitting Data:", formData)
       const response = await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/register`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/register`,
         formData,
         {
           headers: { "Content-Type": "application/json" },

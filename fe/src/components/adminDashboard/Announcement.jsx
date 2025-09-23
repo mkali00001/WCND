@@ -1,40 +1,13 @@
 import { useState, useEffect } from "react";
 import { Pencil, Trash2, Send } from "lucide-react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-const Announcement = () => {
-  const [announcements, setAnnouncements] = useState([
-    { 
-      id: 1, 
-      title: "System Maintenance Scheduled", 
-      audience: "All Users", 
-      sentBy: "Admin", 
-      sentDate: "2025-09-01", 
-      status: "Sent", 
-      body: "We will be performing scheduled maintenance." 
-    },
-    { 
-      id: 2, 
-      title: "Annual Conference Registration Open", 
-      audience: "Registered", 
-      sentBy: "Admin", 
-      sentDate: "2025-09-10", 
-      status: "Draft", 
-      body: "Registration is now open for the annual conference." 
-    },
-    { 
-      id: 3, 
-      title: "New Feature Release", 
-      audience: "Premium", 
-      sentBy: "Product Team", 
-      sentDate: "2025-09-15", 
-      status: "Sent", 
-      body: "We are excited to announce our new feature!" 
-    },
-  ]);
-
+const Announcement = ({ initialAnnouncements, setAnnouncements }) => {
   const [form, setForm] = useState({ id: null, title: "", body: "", audience: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [loading, setLoading] = useState(false);
 
   // Handle window resize
   useEffect(() => {
@@ -43,42 +16,59 @@ const Announcement = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (isEditing) {
-      // Update announcement
-      setAnnouncements(
-        announcements.map((a) =>
-          a.id === form.id ? { ...a, title: form.title, body: form.body, audience: form.audience } : a
-        )
-      );
-      setIsEditing(false);
-    } else {
-      // Create new announcement
-      const newAnnouncement = {
-        id: Math.max(...announcements.map((a) => a.id), 0) + 1,
-        title: form.title,
-        body: form.body,
-        audience: form.audience,
-        sentBy: "Admin",
-        sentDate: new Date().toISOString().split("T")[0],
-        status: "Draft",
-      };
-      setAnnouncements([newAnnouncement, ...announcements]);
+    try {
+      if (isEditing) {
+        // NOTE: Update logic is not implemented on the backend yet.
+        // This will just update the local state for now.
+        toast.info("Editing is a local-only demo feature for now.");
+        setAnnouncements((prev) =>
+          prev.map((a) =>
+            a._id === form._id ? { ...a, title: form.title, body: form.body, audience: form.audience } : a
+          )
+        );
+        setIsEditing(false);
+      } else {
+        // Create new announcement
+        const res = await axios.post(
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/announcements/create-announcement`,
+          { title: form.title, body: form.body, audience: form.audience },
+          { withCredentials: true }
+        );
+        setAnnouncements((prev) => [res.data, ...prev]);
+        toast.success("Announcement created successfully!");
+      }
+      setForm({ id: null, title: "", body: "", audience: "" });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create announcement");
+    } finally {
+      setLoading(false);
     }
-
-    setForm({ id: null, title: "", body: "", audience: "" });
   };
 
   const handleDelete = (id) => {
-    setAnnouncements(announcements.filter((a) => a.id !== id));
+    // NOTE: Delete logic is not implemented on the backend yet.
+    toast.info("Deleting is a local-only demo feature for now.");
+    setAnnouncements((prev) => prev.filter((a) => a._id !== id));
   };
 
-  const handleResend = (id) => {
-    setAnnouncements(
-      announcements.map((a) => (a.id === id ? { ...a, status: "Sent" } : a))
-    );
+  const handleResend = async (id) => {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/announcements/send-announcement/${id}`,
+        {},
+        { withCredentials: true }
+      );
+      setAnnouncements((prev) =>
+        prev.map((a) => (a._id === id ? res.data : a))
+      );
+      toast.success("Announcement sent successfully!");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to send announcement");
+    }
   };
 
   const handleEdit = (announcement) => {
@@ -88,9 +78,9 @@ const Announcement = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Sent":
+      case "sent":
         return "bg-green-100 text-green-700 border-green-200";
-      case "Draft":
+      case "draft":
         return "bg-yellow-100 text-yellow-700 border-yellow-200";
       default:
         return "bg-blue-100 text-blue-700 border-blue-200";
@@ -113,21 +103,21 @@ const Announcement = () => {
       <p className="text-sm text-gray-600">{announcement.body}</p>
 
       <div className="flex items-center justify-between text-xs text-gray-400">
-        <span>By {announcement.sentBy}</span>
-        <span>{announcement.sentDate}</span>
+        <span>By {announcement.sentBy?.name || 'Admin'}</span>
+        <span>{new Date(announcement.createdAt).toLocaleDateString()}</span>
       </div>
 
       <div className="flex items-center gap-2 pt-2">
-        {announcement.status !== "Sent" && (
+        {announcement.status !== "sent" && (
           <button
-            onClick={() => handleResend(announcement.id)}
+            onClick={() => handleResend(announcement._id)}
             className="flex-1 h-8 px-3 bg-blue-600 hover:bg-blue-700  text-sm rounded-md border border-gray-600 transition-colors flex items-center justify-center gap-2"
           >
             <Send className="h-3 w-3" />
             Send
           </button>
         )}
-        {announcement.status === "Draft" && (
+        {announcement.status === "draft" && (
           <button
             onClick={() => handleEdit(announcement)}
             className="h-8 px-3 bg-gray-100 hover:bg-gray-600 text-gray-300 text-sm rounded-md border border-gray-600 transition-colors"
@@ -136,7 +126,7 @@ const Announcement = () => {
           </button>
         )}
         <button
-          onClick={() => handleDelete(announcement.id)}
+          onClick={() => handleDelete(announcement._id)}
           className="h-8 px-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 text-sm rounded-md border border-red-600/20 transition-colors"
         >
           <Trash2 className="h-3 w-3" />
@@ -207,9 +197,10 @@ const Announcement = () => {
               <div className="flex gap-2">
                 <button
                   type="submit"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded-md transition-colors font-medium"
+                  disabled={loading}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded-md transition-colors font-medium disabled:bg-blue-400 disabled:cursor-not-allowed"
                 >
-                  {isEditing ? "Save Changes" : "Create Announcement"}
+                  {loading ? (isEditing ? "Saving..." : "Creating...") : (isEditing ? "Save Changes" : "Create Announcement")}
                 </button>
                 {isEditing && (
                   <button
@@ -233,8 +224,8 @@ const Announcement = () => {
           <div className="p-0 md:p-6">
             {isMobile ? (
               <div className="space-y-4 p-4">
-                {announcements.map((announcement) => (
-                  <AnnouncementCard key={announcement.id} announcement={announcement} />
+                {initialAnnouncements.map((announcement) => (
+                  <AnnouncementCard key={announcement._id} announcement={announcement} />
                 ))}
               </div>
             ) : (
@@ -242,7 +233,7 @@ const Announcement = () => {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-300">
-                      <th className="text-left py-3 px-4 font-medium w-16">ID</th>
+                      <th className="text-left py-3 px-4 font-medium w-24">ID</th>
                       <th className="text-left py-3 px-4 font-medium">Title</th>
                       <th className="text-left py-3 px-4 font-medium hidden sm:table-cell">Audience</th>
                       <th className="text-left py-3 px-4 font-medium hidden md:table-cell">Sent By</th>
@@ -252,20 +243,20 @@ const Announcement = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {announcements.map((announcement) => (
-                      <tr key={announcement.id} className="border-b border-gray-300 hover:bg-gray-100">
-                        <td className="py-3 px-4 font-medium">{announcement.id}</td>
+                    {initialAnnouncements.map((announcement) => (
+                      <tr key={announcement._id} className="border-b border-gray-300 hover:bg-gray-100">
+                        <td className="py-3 px-4 font-medium text-xs text-gray-500">{announcement._id}</td>
                         <td className="py-3 px-4">
                           <div className="space-y-1">
                             <div className="font-medium">{announcement.title}</div>
                             <div className="text-xs text-gray-400 sm:hidden">
-                              {announcement.audience} • {announcement.sentDate}
+                              {announcement.audience} • {new Date(announcement.createdAt).toLocaleDateString()}
                             </div>
                           </div>
                         </td>
                         <td className="py-3 px-4 hidden sm:table-cell">{announcement.audience}</td>
-                        <td className="py-3 px-4 hidden md:table-cell">{announcement.sentBy}</td>
-                        <td className="py-3 px-4 hidden lg:table-cell">{announcement.sentDate}</td>
+                        <td className="py-3 px-4 hidden md:table-cell">{announcement.sentBy?.name || 'Admin'}</td>
+                        <td className="py-3 px-4 hidden lg:table-cell">{new Date(announcement.createdAt).toLocaleDateString()}</td>
                         <td className="py-3 px-4">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(announcement.status)}`}>
                             {announcement.status}
@@ -273,15 +264,15 @@ const Announcement = () => {
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-1">
-                            {announcement.status !== "Sent" && (
+                            {announcement.status !== "sent" && (
                               <button
-                                onClick={() => handleResend(announcement.id)}
+                                onClick={() => handleResend(announcement._id)}
                                 className="h-8 w-8 p-0 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-md border border-gray-600 transition-colors flex items-center justify-center"
                               >
                                 <Send className="h-3 w-3" />
                               </button>
                             )}
-                            {announcement.status === "Draft" && (
+                            {announcement.status === "draft" && (
                               <button
                                 onClick={() => handleEdit(announcement)}
                                 className="h-8 w-8 p-0 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-md border border-gray-600 transition-colors flex items-center justify-center"
@@ -290,7 +281,7 @@ const Announcement = () => {
                               </button>
                             )}
                             <button
-                              onClick={() => handleDelete(announcement.id)}
+                              onClick={() => handleDelete(announcement._id)}
                               className="h-8 w-8 p-0 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-md border border-red-600/20 transition-colors flex items-center justify-center"
                             >
                               <Trash2 className="h-3 w-3" />

@@ -1,5 +1,6 @@
 import { CreditCard, FileText, HelpCircle, LayoutDashboard, LogOut, Megaphone, User } from "lucide-react"
 import { useAuth } from "../../context/AuthContext"
+import { Navigate } from "react-router-dom"
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen, activePage, setActivePage }) {
   const { logout } = useAuth()
@@ -20,6 +21,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePage, setAc
 
     if (label === "Logout") {
       logout()
+      Navigate("/login")
     }
   }
 

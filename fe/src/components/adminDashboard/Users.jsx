@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Eye, Edit, RefreshCw, XCircle, X, Users as UsersIcon, Loader2 } from "lucide-react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const UserManagement = () => {
   const [userList, setUserList] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, limit: 10 });
+
+  // State for modal data
+  const [registrationData, setRegistrationData] = useState(null);
+  const [detailError, setDetailError] = useState(null);
+  const [modalPage, setModalPage] = useState(1);
 
   // Fetch paginated users
   const fetchUsers = async (page = 1, limit = 10) => {
@@ -18,6 +24,7 @@ const UserManagement = () => {
         params: { page, limit },
         withCredentials: true,
       });
+      console.log(res.data.users);
       setUserList(res.data.users);
       setPagination({
         currentPage: res.data.pagination.currentPage,
@@ -26,7 +33,7 @@ const UserManagement = () => {
       });
     } catch (err) {
       console.error("Error fetching users:", err);
-      alert("Failed to load users.");
+      toast.error("Failed to load users.");
     } finally {
       setLoading(false);
     }
@@ -34,19 +41,26 @@ const UserManagement = () => {
 
   useEffect(() => {
     fetchUsers(pagination.currentPage, pagination.limit);
-  }, []);
+  }, [pagination.currentPage]);
 
   // Pagination handlers
   const goToPage = (page) => {
     if (page < 1 || page > pagination.totalPages) return;
-    fetchUsers(page, pagination.limit);
+    setPagination(prev => ({ ...prev, currentPage: page }));
   };
 
   // Edit/Delete/View handlers remain the same...
   const handleView = (user) => {
     setSelectedUser(user);
     setIsEditing(false);
-    // fetchRegistrationData(user._id); // keep your existing logic
+    setModalPage(1); // Reset to first page on open
+    if (user.registrationData) {
+      setRegistrationData(user.registrationData);
+      setDetailError(null);
+    } else {
+      setRegistrationData(null);
+      setDetailError("No registration data found for this user.");
+    }
   };
 
   const handleEditClick = (user) => {
@@ -55,29 +69,67 @@ const UserManagement = () => {
     setIsEditing(true);
   };
 
+  const handleClose = () => {
+    setSelectedUser(null);
+    setIsEditing(false);
+    setRegistrationData(null);
+  };
+
+  const handleChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    try {
+      const { _id, ...updates } = editForm;
+      const res = await axios.put(
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/edit-user/${_id}`,
+        updates,
+        { withCredentials: true }
+      );
+
+      // Merge registrationData back for consistent local state
+      const updatedUserWithRegData = {
+        ...res.data.updatedUser,
+        registrationData: selectedUser.registrationData,
+      };
+
+      setUserList(userList.map(u => (u._id === _id ? updatedUserWithRegData : u)));
+      setSelectedUser(updatedUserWithRegData);
+      setIsEditing(false);
+      toast.success("User updated successfully!");
+    } catch (err) {
+      console.error("Error saving user:", err);
+      toast.error(err.response?.data?.message || "Failed to save user.");
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await axios.delete(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/delete-user/${id}`, { withCredentials: true });
       setUserList(prev => prev.filter(u => u._id !== id));
       if (selectedUser?._id === id) setSelectedUser(null);
+      toast.success("User deleted successfully.");
     } catch (err) {
       console.error("Error deleting user:", err);
-      alert("Failed to delete user.");
+      toast.error("Failed to delete user.");
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4">
+    <div className="min-h-screen bg-slate-50 p-1 md:p-4 lg:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-6 lg:mb-8">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
               <UsersIcon size={24} />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
+              <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">
+                User Management
+              </h1>
               <p className="text-sm text-slate-600">Manage and monitor user accounts</p>
             </div>
           </div>
@@ -86,57 +138,340 @@ const UserManagement = () => {
         {/* Table */}
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-slate-900 uppercase">User</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-slate-900 uppercase hidden md:table-cell">Contact</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-slate-900 uppercase hidden lg:table-cell">Country</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-slate-900 uppercase">Status</th>
-                  <th className="px-4 py-2 text-center text-xs font-semibold text-slate-900 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
+            <div className="min-w-full">
+              <table className="w-full">
+                <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <td colSpan={5} className="text-center p-4">
-                      <Loader2 className="w-6 h-6 animate-spin mx-auto text-indigo-600" />
-                    </td>
+                    <th className="px-4 lg:px-6 py-4 text-left text-xs font-semibold text-slate-900 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-4 lg:px-6 py-4 text-left text-xs font-semibold text-slate-900 uppercase tracking-wider hidden md:table-cell">
+                      Contact
+                    </th>
+                    <th className="px-4 lg:px-6 py-4 text-left text-xs font-semibold text-slate-900 uppercase tracking-wider hidden lg:table-cell">
+                      Country
+                    </th>
+                    <th className="px-4 lg:px-6 py-4 text-left text-xs font-semibold text-slate-900 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 lg:px-6 py-4 text-center text-xs font-semibold text-slate-900 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ) : (
-                  userList.map(user => (
-                    <tr key={user._id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-2">{user.name}</td>
-                      <td className="px-4 py-2 hidden md:table-cell">{user.email}</td>
-                      <td className="px-4 py-2 hidden lg:table-cell">{user.country}</td>
-                      <td className="px-4 py-2">{user.registrationStatus}</td>
-                      <td className="px-4 py-2 text-center">
-                        <button onClick={() => handleView(user)} className="p-1 bg-blue-50 text-blue-600 rounded-lg mr-1"><Eye size={16} /></button>
-                        <button onClick={() => handleEditClick(user)} className="p-1 bg-yellow-50 text-yellow-600 rounded-lg mr-1"><Edit size={16} /></button>
-                        <button onClick={() => handleDelete(user._id)} className="p-1 bg-red-50 text-red-600 rounded-lg"><XCircle size={16} /></button>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={5} className="text-center p-4">
+                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-indigo-600" />
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    userList.map((user) => (
+                      <tr key={user._id} className="hover:bg-slate-50 transition-colors">
+                        {/* User Info */}
+                        <td className="px-4 lg:px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold text-xs lg:text-sm overflow-hidden">
+                              {user.profileImage ? (
+                                <img
+                                  src={user.profileImage}
+                                  alt={user.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <span>{user.name.split(' ').map(n => n[0]).join('')}</span>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-sm font-semibold text-slate-900 truncate">
+                                {user.name}
+                              </div>
+                              <div className="text-xs text-slate-500 md:hidden truncate">
+                                {user.email}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Contact */}
+                        <td className="px-4 lg:px-6 py-4 hidden md:table-cell">
+                          <div className="text-sm text-slate-900">{user.email}</div>
+                          <div className="text-xs text-slate-500">{user.mobile}</div>
+                        </td>
+
+                        {/* Country */}
+                        <td className="px-4 lg:px-6 py-4 hidden lg:table-cell">
+                          <span className="text-sm text-slate-900">{user.registrationData?.country || "N/A"}</span>
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-4 lg:px-6 py-4">
+                          <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${user.registrationData ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                            {user.registrationData ? "Registered" : "Not Registered"}
+                          </span>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-4 lg:px-6 py-4">
+                          <div className="flex justify-center gap-1 lg:gap-2">
+                            <button
+                              onClick={() => handleView(user)}
+                              className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                              title="View Details"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleEditClick(user)}
+                              className="p-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 transition-colors"
+                              title="Edit User"
+                            >
+                              <Edit size={16} />
+                            </button>
+                            <button
+                              className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                              title="Delete User"
+                              onClick={() => handleDelete(user._id)}
+                            >
+                              <XCircle size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Pagination Controls */}
-          <div className="flex justify-center gap-2 p-4">
-            <button onClick={() => goToPage(pagination.currentPage - 1)} disabled={pagination.currentPage === 1} className="px-3 py-1 bg-slate-100 rounded disabled:opacity-50">Prev</button>
-            {Array.from({ length: pagination.totalPages }, (_, i) => (
-              <button
-                key={i+1}
-                onClick={() => goToPage(i+1)}
-                className={`px-3 py-1 rounded ${pagination.currentPage === i+1 ? 'bg-indigo-600 text-white' : 'bg-slate-100'}`}
-              >
-                {i+1}
-              </button>
-            ))}
-            <button onClick={() => goToPage(pagination.currentPage + 1)} disabled={pagination.currentPage === pagination.totalPages} className="px-3 py-1 bg-slate-100 rounded disabled:opacity-50">Next</button>
-          </div>
+          {pagination.totalPages > 1 && (
+            <div className="flex justify-center gap-2 p-4">
+              <button onClick={() => goToPage(pagination.currentPage - 1)} disabled={pagination.currentPage === 1} className="px-3 py-1 bg-slate-100 rounded disabled:opacity-50">Prev</button>
+              {Array.from({ length: pagination.totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => goToPage(i + 1)}
+                  className={`px-3 py-1 rounded ${pagination.currentPage === i + 1 ? 'bg-indigo-600 text-white' : 'bg-slate-100'}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button onClick={() => goToPage(pagination.currentPage + 1)} disabled={pagination.currentPage === pagination.totalPages} className="px-3 py-1 bg-slate-100 rounded disabled:opacity-50">Next</button>
+            </div>
+          )}
         </div>
+
+        {/* Modal */}
+        {selectedUser && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white border border-slate-200 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 lg:p-6 border-b border-slate-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+                    {selectedUser.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">
+                      {isEditing ? "Edit User" : "User Details"}
+                    </h2>
+                    <p className="text-sm text-slate-500">
+                      {selectedUser.name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleClose}
+                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-slate-900"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+             {/* Content */}
+              <div className="p-4 lg:p-6 space-y-6">
+                {isEditing ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Name</label>
+                      <input name="name" value={editForm.name} onChange={handleChange} className="border p-2 w-full rounded" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Email</label>
+                      <input name="email" value={editForm.email} onChange={handleChange} className="border p-2 w-full rounded" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Phone</label>
+                      <input name="phone" value={editForm.phone} onChange={handleChange} className="border p-2 w-full rounded" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Country</label>
+                      <input name="country" value={editForm.country} onChange={handleChange} className="border p-2 w-full rounded" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Registration Status</label>
+                      <select name="registrationStatus" value={editForm.registrationStatus} onChange={handleChange} className="border p-2 w-full rounded">
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Payment Status</label>
+                      <select name="paymentStatus" value={editForm.paymentStatus} onChange={handleChange} className="border p-2 w-full rounded">
+                        <option value="Success">Success</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Failed">Failed</option>
+                      </select>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    
+                    {detailError && (
+                      <div className="p-4 text-center text-red-600 bg-red-50 rounded-lg">
+                        {detailError}
+                      </div>
+                    )}
+                    {registrationData && (
+                      <div className="space-y-4 text-sm">
+                        {/* Modal Pagination */}
+                        <div className="flex border-b">
+                          <button onClick={() => setModalPage(1)} className={`px-4 py-2 text-sm font-medium ${modalPage === 1 ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500'}`}>Personal</button>
+                          <button onClick={() => setModalPage(2)} className={`px-4 py-2 text-sm font-medium ${modalPage === 2 ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500'}`}>Academic</button>
+                          <button onClick={() => setModalPage(3)} className={`px-4 py-2 text-sm font-medium ${modalPage === 3 ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500'}`}>Logistics</button>
+                          <button onClick={() => setModalPage(4)} className={`px-4 py-2 text-sm font-medium ${modalPage === 4 ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-slate-500'}`}>Payment</button>
+                        </div>
+
+                        {/* Page 1: Personal Info */}
+                        {modalPage === 1 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                            <p><strong>ID:</strong> {registrationData.registrationId}</p>
+                            <p><strong>Full Name:</strong> {registrationData.fullName}</p>
+                            <p><strong>Title:</strong> {registrationData.title}</p>
+                            <p><strong>Pronunciation:</strong> {registrationData.pronunciation || 'N/A'}</p>
+                            <p><strong>Gender:</strong> {registrationData.gender}</p>
+                            <p><strong>Email:</strong> {registrationData.email}</p>
+                            <p><strong>Alternate Email:</strong> {registrationData.altEmail || 'N/A'}</p>
+                            <p><strong>Phone:</strong> {registrationData.phone}</p>
+                            <p><strong>Alternate Phone:</strong> {registrationData.altPhone || 'N/A'}</p>
+                            <p><strong>Nationality:</strong> {registrationData.nationality}</p>
+                            <p><strong>Country:</strong> {registrationData.country}</p>
+                            <p><strong>Participant Type:</strong> {registrationData.participantType}</p>
+                            <p><strong>Mother Tongue:</strong> {registrationData.motherTongue}</p>
+                            <p><strong>Website:</strong> {registrationData.website || 'N/A'}</p>
+                            <p><strong>Date of Birth:</strong> {new Date(registrationData.dateOfBirth).toLocaleDateString()}</p>
+                            {registrationData.participantType === 'International' ? (
+                              <><p><strong>Passport No:</strong> {registrationData.passportNo}</p><p><strong>Passport Expiry:</strong> {new Date(registrationData.passportExpiry).toLocaleDateString()}</p></>
+                            ) : (
+                              <p><strong>Govt ID:</strong> {registrationData.govtId}</p>
+                            )}
+                            <p className="sm:col-span-2"><strong>Address:</strong> {registrationData.address}</p>
+                            <div className="sm:col-span-2 pt-2 border-t mt-2">
+                              <h4 className="font-semibold text-slate-800 mb-1">Emergency Contact</h4>
+                              <p><strong>Name:</strong> {registrationData.emergencyName}</p>
+                              <p><strong>Relation:</strong> {registrationData.emergencyRelation}</p>
+                              <p><strong>Phone:</strong> {registrationData.emergencyPhone}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Page 2: Academic & Participation */}
+                        {modalPage === 2 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                            <p><strong>Designation:</strong> {registrationData.designation}</p>
+                            <p><strong>Qualification:</strong> {registrationData.qualification}</p>
+                            <p className="sm:col-span-2"><strong>Institution:</strong> {registrationData.institution}</p>
+                            <p><strong>Department:</strong> {registrationData.department}</p>
+                            <p><strong>ORCID:</strong> {registrationData.orcid || 'N/A'}</p>
+                            <p><strong>Registration Type:</strong> {registrationData.registrationType}</p>
+                            <p><strong>Previous Conference:</strong> {registrationData.prevConference}</p>
+                          </div>
+                        )}
+
+                        {/* Page 3: Logistics */}
+                        {modalPage === 3 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                            <p><strong>Accommodation:</strong> {registrationData.accommodationRequired}</p>
+                            <p><strong>Travel Assistance:</strong> {registrationData.travelAssistanceRequired}</p>
+                            <p><strong>Visa Support:</strong> {registrationData.requireVisaSupport}</p>
+                            <p><strong>Dietary Preference:</strong> {registrationData.dietaryPreference}</p>
+                            <p><strong>Health Conditions:</strong> {registrationData.healthConditions || 'N/A'}</p>
+                            <p><strong>Allergies:</strong> {registrationData.allergies === 'Yes' ? registrationData.allergyDetails : 'No'}</p>
+                            <p><strong>Travel Insurance:</strong> {registrationData.travelInsuranceStatus}</p>
+                            <p><strong>Willing for Field Trips:</strong> {registrationData.willingForFieldTrips}</p>
+                            {registrationData.requireVisaSupport === 'Yes' && (
+                               <p className="sm:col-span-2"><strong>Nearest Embassy:</strong> {registrationData.nearestEmbassyConsulate}</p>
+                            )}
+                            <p className="sm:col-span-2 pt-2 border-t mt-2"><strong>Arrival:</strong> {registrationData.arrivalDateTime ? new Date(registrationData.arrivalDateTime).toLocaleString() : 'N/A'}</p>
+                            <p className="sm:col-span-2"><strong>Departure:</strong> {registrationData.departureDateTime ? new Date(registrationData.departureDateTime).toLocaleString() : 'N/A'}</p>
+                            <p><strong>Arrival Date&Time:</strong> {registrationData.arrivalDateTime}</p>
+                            <p><strong>Departure Date&Time:</strong> {registrationData.departureDateTime}</p>
+                          </div>
+                        )}
+
+                        {/* Page 4: Payment & Accompanying */}
+                        {modalPage === 4 && (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                              <p><strong>Fee Category:</strong> {registrationData.feeCategory}</p>
+                              <p><strong>Payment Mode:</strong> {registrationData.paymentMode}</p>
+                              <p><strong>Sponsorship:</strong> {registrationData.sponsorship}</p>
+                              <p><strong>Billing Invoice Details:</strong> {registrationData.billingInvoiceDetails}</p>
+                              {registrationData.sponsorship !== 'Self-funded' && (
+                                <p className="sm:col-span-2"><strong>Sponsoring Org:</strong> {registrationData.sponsoringOrganizationDetails}</p>
+                              )}
+                              
+                            </div>
+                            {registrationData.accompanyingPersons?.length > 0 && (
+                              <div className="pt-2 border-t">
+                                <h4 className="font-semibold text-slate-800 mb-1">Accompanying Person(s)</h4>
+                                {registrationData.accompanyingPersons.map((person, i) => (
+                                  <div key={i} className="mt-2 p-2 border rounded-md bg-slate-50">
+                                    <p><strong>Name:</strong> {person.fullName}</p>
+                                    <p><strong>Relation:</strong> {person.relation}</p>
+                                    <p><strong>Nationality:</strong> {person.nationality}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 p-4 lg:p-6 border-t border-slate-200 mt-auto">
+                {isEditing ? (
+                  <button
+                    onClick={handleSave}
+                    className="flex-1 bg-green-600 text-white hover:bg-green-700 font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleEditClick(selectedUser)}
+                    className="flex-1 bg-yellow-500 text-white hover:bg-yellow-600 font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    Edit User
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDelete(selectedUser._id)}
+                  className="flex-1 bg-red-600 text-white hover:bg-red-700 font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Delete User
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

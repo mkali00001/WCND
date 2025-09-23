@@ -14,7 +14,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 export default function AdminDashboard() {
-  const { user, users } = useAuth();
+  const { user } = useAuth();
   const [announcements, setAnnouncements] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activePage, setActivePage] = useState("Dashboard")
@@ -53,9 +53,9 @@ export default function AdminDashboard() {
   const renderPageContent = () => {
     switch (activePage) {
       case "User Management":
-        return <Users users={users} />
+        return <Users />
       case "Dashboard":
-        return <Dashboard users={users} />
+        return <Dashboard />
       case "Payments":
         return <Payment />
       case "Paper Submission":
@@ -63,9 +63,9 @@ export default function AdminDashboard() {
       case "Announcements":
         return <Announcement initialAnnouncements={announcements} setAnnouncements={setAnnouncements} />
       case "Help & Support":
-        return <HelpSupport users={users}/>
+        return <HelpSupport />
       default:
-        return <Dashboard users={users}/>
+        return <Dashboard />
     }
   }
 

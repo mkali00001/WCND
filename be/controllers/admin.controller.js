@@ -139,7 +139,6 @@ const editUser = async (req, res) => {
 
 module.exports = {
     users,
-    users_registration_data,
     deleteUser,
     get_payment_status,
     editUser,

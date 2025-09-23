@@ -2,15 +2,33 @@ import { useState } from "react"
 import Sidebar from "./Sidebar"
 import Header from "./Header"
 import ProfileContent from "./ProfileContent"
-import { DashboardContent } from "./DashboardContent"
-import { Payement }from "./Payement"
+import { Payement } from "./Payement"
 import { PaperSub } from "./PaperSub"
 import { Announcement } from "./Announcement"
 import { HelpSupport } from "./HelpSupport"
+import DashboardContent from "./DashboardContent"
 
 export default function ProfilePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activePage, setActivePage] = useState("Dashboard")
+
+  const mockAnnouncements = [
+    {
+      id: 1,
+      title: "System Maintenance",
+      message: "Our portal will be under maintenance at 10 PM on 25th Sept.",
+      author: "Admin",
+      date: "2025-09-23",
+    },
+    {
+      id: 2,
+      title: "New Event Announced",
+      message: "Join our webinar next week on Modern React Patterns.",
+      author: "Admin",
+      date: "2025-09-21",
+    },
+  ];
+
 
   const renderPageContent = () => {
     switch (activePage) {
@@ -23,7 +41,7 @@ export default function ProfilePage() {
       case "Paper Submission":
         return <PaperSub />
       case "Announcements":
-        return <Announcement />
+        return <Announcement announcements={mockAnnouncements} />
       case "Help & Support":
         return <HelpSupport />
       default:

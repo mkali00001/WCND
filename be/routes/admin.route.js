@@ -11,7 +11,7 @@ adminRouter.use(authMiddleware, roleMiddleware(["admin"]));
 
 adminRouter.patch('/edit-user/:id',  editUser)
 adminRouter.get("/users",  users)
-adminRouter.get("/users-registration/:id",  users_registration_data)
+// adminRouter.get("/users-registration/:id",  users_registration_data)
 adminRouter.delete("/delete-user/:id",  deleteUser)
 adminRouter.get("/paymentstatus", get_payment_status)
 

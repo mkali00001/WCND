@@ -47,20 +47,20 @@ const users = async (req, res) => {
 
 
 
-const users_registration_data = async (req, res) => {
-  const userId = req.params.id;
+// const users_registration_data = async (req, res) => {
+//   const userId = req.params.id;
 
-  try {
-    const registrationData = await RegisteredUser.findOne({ user: userId });
-    if (!registrationData) {
-      return res.status(404).json({ error: "No registration data found for this user." });
-    }
-    res.json(registrationData);
-  } catch (error) {
-    console.log("Error in fetching users registration:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-};
+//   try {
+//     const registrationData = await RegisteredUser.findOne({ user: userId });
+//     if (!registrationData) {
+//       return res.status(404).json({ error: "No registration data found for this user." });
+//     }
+//     res.json(registrationData);
+//   } catch (error) {
+//     console.log("Error in fetching users registration:", error);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// };
 
 const deleteUser = async (req, res) => {
     const { id } = req.params

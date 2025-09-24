@@ -8,6 +8,7 @@ const registerRouter = require('./routes/registration.route');
 const adminRouter = require('./routes/admin.route');
 const announcementRouter = require('./routes/announcement.route');
 const { errorHandler } = require('./middleware/error.middleware');
+const queryRouter = require('./routes/query.route');
 
 
 const app = express();
@@ -30,6 +31,8 @@ app.use("/api/payment",paymentRouter)
 app.use("/api/registeration",registerRouter)
 app.use("/api/admin",adminRouter)
 app.use("/api/announcements", announcementRouter);
+app.use("/api/query", queryRouter)
+
 
 
 

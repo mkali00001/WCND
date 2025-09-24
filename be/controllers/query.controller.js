@@ -44,7 +44,6 @@ const createQuery = async (req, res) => {
         }
     });
 
-
     res.status(201).json({ query })
 }
 
@@ -53,14 +52,14 @@ const sendQueryResponse = async (req, res) => {
         const { id } = req.params;
         const { queryResponse } = req.body;
 
-        const query = await Query.findOneAndUpdate(
-            { user: id },
+        const query = await Query.findByIdAndUpdate(
+            id,
             { $set: { queryResponse } },
             { new: true }
         );
 
         if (!query) {
-            return res.status(404).json({ error: "Query not found for this user" });
+            return res.status(404).json({ error: "Query not found" });
         }
 
         const mailOptions = {
@@ -78,12 +77,18 @@ const sendQueryResponse = async (req, res) => {
             }
         });
 
-        res.status(200).json({ queryResponse: "Query Response saved!", query });
+        res.status(200).json({ message: "Query Response saved!", query });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
 
 
+const allQueries = async (req, res) => {
+    const queries = await Query.find();
+    res.status(200).json(queries);
+}
 
-module.exports = { createQuery, sendQueryResponse }
+
+
+module.exports = { createQuery, sendQueryResponse, allQueries }

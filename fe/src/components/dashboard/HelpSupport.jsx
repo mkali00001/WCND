@@ -1,16 +1,33 @@
 import React, { useState } from "react";
-
+import axios from "axios";
 export const HelpSupport = () => {
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (query.trim() !== "") {
-      setSubmitted(true);
-      
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/query/create-query`,
+          { querydata: query },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+
+        console.log("Query submitted:", res.data);
+        setSubmitted(true);
+      } catch (err) {
+        console.error("Error submitting query:", err.response?.data || err.message);
+      }
     }
   };
+
 
   return (
     <div className=" lg:bg-[#faeae9] rounded-2xl mt-7 flex flex-col items-center justify-center px-4 py-16 lg:py-36">

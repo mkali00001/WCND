@@ -10,12 +10,12 @@ const {
     getPaymentCategorie
 } = require('../controllers/payment.controller');
 
-paymentRouter.post("/paymentcategory", getPaymentCategorie)
+paymentRouter.use(authMiddleware);
 
 paymentRouter.post("/create-order", createOrder)
 paymentRouter.post("/record-payment", recordPayment)
 paymentRouter.post('/create-payment',  createPayment)
 paymentRouter.get('/get-payment',  getPayments)
-paymentRouter.get("/paymentcategory",getPaymentCategories)
+paymentRouter.post("/paymentcategory",getPaymentCategorie)
 
 module.exports = paymentRouter;

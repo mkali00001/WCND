@@ -9,42 +9,41 @@ const Step5 = ({ formData, handleInputChange, errors }) => {
 
 
 
-// Fetch payment category on mount
+  // Fetch payment category on mount
   useEffect(() => {
-    const fetchPaymentCategory = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.post(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/paymentcategory`,
-          { category: formData.participantType },
-          { withCredentials: true }
-        );
+  if (!formData.participantType) return;
 
-        const dataArray = res.data.data.data; // this is an array
-if (dataArray && dataArray.length > 0) {
-  const data = dataArray[0]; // first (and only) element
-  setCategory(data);
+  const fetchPaymentCategory = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/paymentcategory`,
+        { category: formData.participantType },
+        { withCredentials: true }
+      );
 
-  const amount = formData.participantType === "International"
-    ? data.feeUSD
-    : data.feeINR;
+      const dataArray = res.data.data.data; // array
+      if (dataArray && dataArray.length > 0) {
+        const data = dataArray[0];
+        setCategory(data);
 
-  handleInputChange("feeAmount", amount);
-  handleInputChange("feeCategory", formData.participantType);
-}
-
-
-        setError(null);
-      } catch (err) {
-        setError("Failed to load payment category.");
-        console.error(err);
-      } finally {
-        setLoading(false);
+        const amount = formData.participantType === "International" ? data.feeUSD : data.feeINR;
+        handleInputChange("feeAmount", amount);
+        handleInputChange("feeCategory", formData.participantType);
       }
-    };
 
-    fetchPaymentCategory();
-  }, []);
+      setError(null);
+    } catch (err) {
+      setError("Failed to load payment category.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPaymentCategory();
+}, [formData.participantType]);
+
 
   const getFee = () => {
     if (!category) return "N/A";

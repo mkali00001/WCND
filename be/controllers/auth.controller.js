@@ -43,12 +43,12 @@ const signup = async (req, res,next) => {
     const storedCaptcha = req.cookies?.captcha_text;
 
     if (!storedCaptcha) {
-      return res.status(400).json({ message: "Captcha missing or expired" });
+      sendResponse(res,STATUS.BAD_REQUEST,"Captcha not found")
     }
     // console.log(storedCaptcha);
     if (!captchaInput || captchaInput.trim().toLowerCase() !== storedCaptcha.toLowerCase()) {
       res.clearCookie("captcha_text");
-      return res.status(400).json({ message: "Captcha verification failed! Please enter valid captcha" });
+      sendResponse(res,STATUS.BAD_REQUEST,"Captcha verification failed! Please enter valid captcha")  
     }
     res.clearCookie("captcha_text");
 
@@ -56,7 +56,7 @@ const signup = async (req, res,next) => {
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       const message = "User with this email already exists. Please Login.";
-      return res.status(400).json({ message });
+      sendResponse(res, STATUS.CONFLICT, message);
     }
 
     // --- generate password ---
@@ -100,7 +100,7 @@ const signup = async (req, res,next) => {
 
 
     } catch (mailError) {
-      console.error("Email send error:", mailError);
+      next(mailError)
     }
 
     // --- create JWT cookie ---
@@ -115,29 +115,29 @@ const signup = async (req, res,next) => {
     sendResponse(res, STATUS.CREATED, "User created successfully", {registrationId});
 
   } catch (error) {
-    next(error);
+    sendResponse(res, STATUS.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res,next) => {
   try {
     const { email, password } = req.body;
 
     // Check empty fields
     if (!email || !password) {
-      return res.status(400).json({ message: "Please provide email and password" });
+      sendResponse(res, STATUS.BAD_REQUEST, "Please provide email and password");
     }
 
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      sendResponse(res, STATUS.NOT_FOUND, "User not found");
     }
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials please check your email or password" });
+      sendResponse(res, STATUS.UNAUTHORIZED, "Invalid credentials");
     }
 
     // Generate JWT
@@ -165,22 +165,18 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Server error" });
+    next(error)
   }
 };
 
-const changePassword = async (req, res) => {
+const changePassword = async (req, res,next) => {
   try {
     const userId = req.user.id;
     const { newPassword } = req.body;
 
     // validation
     if (!newPassword || newPassword.length < 8) {
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 8 characters long" });
-    }
+      sendResponse(res, STATUS.BAD_REQUEST, "New password must be at least 8 characters long");    }
 
     // hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -188,22 +184,21 @@ const changePassword = async (req, res) => {
     // update in DB
     await User.findByIdAndUpdate(userId, { password: hashedPassword });
 
-    res.status(200).json({ message: "Password changed successfully" });
+    sendResponse(res, STATUS.OK, "Password changed successfully");
   } catch (err) {
-    console.error("Change password error:", err.message);
-    res.status(500).json({ message: "Server error" });
+    next(err)
   }
 };
 
 // Forgot Password API
-const forgotPassword = async (req, res) => {
+const forgotPassword = async (req, res,next) => {
   try {
     const { email } = req.body;
 
     // Step 1: check user exist
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      sendResponse(res, STATUS.NOT_FOUND, "User not found");
     }
 
     // Step 2: generate new random password (same as signup)
@@ -224,47 +219,49 @@ const forgotPassword = async (req, res) => {
       text: `Hello ${user.name},\n\nYour new password is: ${newPassword}\n\nLogin link: http://localhost:5173/login`
     });
 
-    res.status(200).json({ message: "New password generated & sent to your email" });
+    sendResponse(res, STATUS.OK, "New password sent to your email");
 
   } catch (err) {
-    console.error("Forgot password error:", err.message);
-    res.status(500).json({ message: "Server error" });
+    next(err) 
   }
 };
 
 
 
-const logout = (req, res) => {
+const logout = (req, res, next) => {
   res.clearCookie("auth_token", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
   });
 
-  return res.status(200).json({ message: "Logged out" });
+  sendResponse(res, STATUS.OK, "Logout successful");
 }
 
 
-const emailVerification = async (req, res) => {
+const emailVerification = async (req, res, next) => {
   try {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ message: "Email is required" });
+      sendResponse(res, STATUS.BAD_REQUEST, "Email is required");
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      sendResponse(res, STATUS.NOT_FOUND, "User not found");
+    }
+
+    if (user.isVerified) {
+      sendResponse(res, STATUS.BAD_REQUEST, "Email already verified");
     }
     user.isVerified = true;
     await user.save();
 
-    res.status(200).json({ message: "Email verified" });
+    sendResponse(res, STATUS.OK, "Email verified successfully");
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    next(error)
   }
 }
 

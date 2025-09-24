@@ -10,8 +10,9 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, activePage, setAc
     { icon: CreditCard, label: "Payments" },
     { icon: FileText, label: "Paper Submission" },
     { icon: Megaphone, label: "Announcements" },
+    {icon: CreditCard, label: "Payment Categories"},
     { icon: HelpCircle, label: "Help & Support" },
-    { icon: LogOut, label: "Logout" },
+    { icon: LogOut, label: "Logout" }
   ]
 
   const handleMenuClick = (label) => {

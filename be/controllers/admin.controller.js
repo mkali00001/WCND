@@ -1,8 +1,11 @@
 const Payment = require("../models/paymentModel")
 const RegisteredUser = require("../models/registeredUserModel")
 const userModel = require("../models/userModel")
+const PaymentCategory = require("../models/paymentCategoryModel")
+const { sendResponse } = require("../utils/sendResponse")
+const { STATUS } = require("../constant/statusCodes")
 
-const users = async (req, res) => {
+const users = async (req, res, next) => {
   try {
     // Pagination params
     let { page = 1, limit = 10 } = req.query;
@@ -40,45 +43,26 @@ const users = async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server Error" });
+    next(err)
   }
 };
 
-
-
-// const users_registration_data = async (req, res) => {
-//   const userId = req.params.id;
-
-//   try {
-//     const registrationData = await RegisteredUser.findOne({ user: userId });
-//     if (!registrationData) {
-//       return res.status(404).json({ error: "No registration data found for this user." });
-//     }
-//     res.json(registrationData);
-//   } catch (error) {
-//     console.log("Error in fetching users registration:", error);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// };
-
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res, next) => {
     const { id } = req.params
     try {
         const deletedUser = await userModel.findByIdAndDelete(id);
 
         if (!deletedUser) {
-            return res.status(404).json({ message: "User not found" });
+            sendResponse(res, STATUS.NOT_FOUND, "User not found");
         }
 
-        res.json({ message: "User deleted successfully", deletedUser });
+        sendResponse(res, STATUS.OK, "User deleted successfully");
     } catch (error) {
-        console.error("Delete error:", error);
-        res.status(500).json({ message: "Server error" });
+        next(error)
     }
 }
 
-const get_payment_status = async (req, res) => {
+const get_payment_status = async (req, res, next) => {
   try {
     let { page = 1, limit = 10, status, from, to, user } = req.query;
     page = parseInt(page);
@@ -111,11 +95,11 @@ const get_payment_status = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error)
   }
 };
 
-const editUser = async (req, res) => {
+const editUser = async (req, res, next) => {
   const { id } = req.params;   
   const updates = req.body;  
 
@@ -127,13 +111,62 @@ const editUser = async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
+      sendResponse(res, STATUS.NOT_FOUND, "User not found");
     }
 
-    res.json({ message: "User updated successfully", updatedUser });
+    sendResponse(res, STATUS.OK, "User updated successfully", updatedUser);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    next(err)
+  }
+};
+
+const getPaymentCategories = async (req, res, next) => {
+  try {
+    const categories = await PaymentCategory.find().sort({ type: 1, name: 1 });
+    sendResponse(res, STATUS.OK, "Payment categories fetched successfully", { data: categories });
+  } catch (error) {
+    next(error)
+  }
+};
+
+const createPaymentCategory = async (req, res, next) => {
+  try {
+    const { type, feeINR, feeUSD } = req.body;
+    if (!type) {
+      sendResponse(res, STATUS.BAD_REQUEST, "Type is required")
+    }
+    const newCategory = new PaymentCategory({ type, feeINR, feeUSD });
+    await newCategory.save();
+    sendResponse(res, STATUS.CREATED, "Category created successfully", newCategory);
+  } catch (error) {
+    next(error)
+  }
+};
+
+const updatePaymentCategory = async (req, res,next) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    const updatedCategory = await PaymentCategory.findByIdAndUpdate(id, updates, { new: true });
+    if (!updatedCategory) {
+      sendResponse(res, STATUS.NOT_FOUND, "Category not found.");
+    }
+    res.status(200).json(updatedCategory);
+  } catch (error) {
+    next(error)
+  }
+};
+
+const deletePaymentCategory = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const deletedCategory = await PaymentCategory.findByIdAndDelete(id);
+    if (!deletedCategory) {
+      sendResponse(res, STATUS.NOT_FOUND, "Category not found.");
+    }
+    sendResponse(res, STATUS.OK, "Category deleted successfully.");
+  } catch (error) {
+    next(error)
   }
 };
 
@@ -142,4 +175,8 @@ module.exports = {
     deleteUser,
     get_payment_status,
     editUser,
+    getPaymentCategories,
+    createPaymentCategory,
+    updatePaymentCategory,
+    deletePaymentCategory,
 }

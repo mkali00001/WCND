@@ -5,6 +5,7 @@ import Users from "./Users";
 import Dashboard from "./Dashboard";
 import Payment from "./Payment";
 import PaperSubmission from "./PaperSubmission";
+import PaymentCategories from "./PaymentCategories";
 import Announcement from "./Announcement";
 import HelpSupport from "./HelpSupport";
 import Header from "./Header";
@@ -38,7 +39,7 @@ export default function AdminDashboard() {
     }
   }, [user]);
 
-  if (!users || !announcements) {
+  if ( !announcements) {
     return <div className="flex items-center justify-center h-screen">
       <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
     </div>
@@ -58,10 +59,14 @@ export default function AdminDashboard() {
         return <Dashboard />
       case "Payments":
         return <Payment />
+      case "Payment Categories":
+        return <PaymentCategories />
       case "Paper Submission":
-        return <PaperSubmission users={users}/>
+        return <PaperSubmission />
       case "Announcements":
         return <Announcement initialAnnouncements={announcements} setAnnouncements={setAnnouncements} />
+      case "Payment Categories":
+        return <PaymentCategories />
       case "Help & Support":
         return <HelpSupport />
       default:

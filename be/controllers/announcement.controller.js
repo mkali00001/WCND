@@ -2,6 +2,10 @@ const Announcement = require("../models/announcementModel");
 const User = require("../models/userModel");
 const nodemailer = require('nodemailer');
 require('dotenv').config();
+const { sendResponse } = require('../utils/sendResponse');
+const AppError = require('../utils/AppError');
+const { STATUS } = require('../constant/statusCodes');
+
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -12,12 +16,12 @@ const transporter = nodemailer.createTransport({
 });
 
 
-const createAnnouncement = async (req, res) => {
+const createAnnouncement = async (req, res, next) => {
   try {
     const { title, body, audience } = req.body;
 
     if (!title || !body || !audience) {
-      return res.status(400).json({ message: "Please provide all required fields" });
+      sendResponse(res, STATUS.BAD_REQUEST, "All fields are required");
     }
 
     const announcement = new Announcement({
@@ -31,10 +35,9 @@ const createAnnouncement = async (req, res) => {
     const createdAnnouncement = await announcement.save();
     await createdAnnouncement.populate("sentBy", "name");
 
-    res.status(201).json(createdAnnouncement);
+    sendResponse(res, STATUS.CREATED, "Announcement created successfully", createdAnnouncement);
   } catch (error) {
-    console.error("Error creating announcement:", error);
-    res.status(500).json({ message: "Server error" });
+    
   }
 };
 

@@ -202,7 +202,7 @@ const UserManagement = () => {
 
                         {/* Country */}
                         <td className="px-4 lg:px-6 py-4 hidden lg:table-cell">
-                          <span className="text-sm text-slate-900">{user.registrationData?.country || "N/A"}</span>
+                          <span className="text-sm text-slate-900">{user.registrationData?.country || "INDIA"}</span>
                         </td>
 
                         {/* Status */}

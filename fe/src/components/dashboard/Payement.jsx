@@ -5,7 +5,6 @@ export const Payement = () => {
   const [registration, setRegistration] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [amount, setAmount] = useState("");
   const [paying, setPaying] = useState(false);
 
   useEffect(() => {
@@ -15,7 +14,7 @@ export const Payement = () => {
           `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/my-registration`,
           { withCredentials: true }
         );
-        setRegistration(response.data);
+        setRegistration(response.data); // registration.feeAmount should be present here
       } catch (err) {
         setError(err.response?.data?.error || err.message);
       } finally {
@@ -26,16 +25,13 @@ export const Payement = () => {
   }, []);
 
   const handlePayment = async () => {
-    if (!registration) return;
-    if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      alert("Please enter a valid amount");
-      return;
-    }
+    if (!registration || !registration.feeAmount) return;
 
     setPaying(true);
 
     try {
-      const amountInPaise = Number(amount) * 100;
+      // Amount in paise for Razorpay
+      const amountInPaise = Number(registration.feeAmount) * 100;
 
       const orderResponse = await axios.post(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/create-order`,
@@ -77,7 +73,6 @@ export const Payement = () => {
         theme: { color: "#3399cc" },
       };
 
-
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
@@ -87,7 +82,6 @@ export const Payement = () => {
       setPaying(false);
     }
   };
-
 
   if (loading) return <p className="text-center py-10">Loading...</p>;
   if (error) return <p className="text-red-500 text-center py-10">{error}</p>;
@@ -101,6 +95,9 @@ export const Payement = () => {
           <div>
             <p className="mb-2">
               <span className="font-semibold">Fee Category:</span> {registration.feeCategory || "N/A"}
+            </p>
+            <p className="mb-2">
+              <span className="font-semibold">Amount:</span> ₹{registration.feeAmount || "N/A"}
             </p>
             <p className="mb-2">
               <span className="font-semibold">Payment Mode:</span> {registration.paymentMode || "N/A"}
@@ -125,24 +122,13 @@ export const Payement = () => {
       {/* Make a Payment Card */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-6">Make a Payment</h3>
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label className="font-medium text-gray-700">Enter Amount (₹):</label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-40 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#972620] focus:border-[#972620] outline-none"
-            />
-          </div>
-          <button
-            onClick={handlePayment}
-            disabled={paying}
-            className="px-6 py-3 bg-[#972620] text-white rounded-lg hover:bg-[#a95551] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold"
-          >
-            {paying ? "Processing..." : "Pay Now"}
-          </button>
-        </div>
+        <button
+          onClick={handlePayment}
+          disabled={paying}
+          className="px-6 py-3 bg-[#972620] text-white rounded-lg hover:bg-[#a95551] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold"
+        >
+          {paying ? "Processing..." : `Pay ₹${registration.feeAmount}`}
+        </button>
       </div>
     </div>
   );

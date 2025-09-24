@@ -9,6 +9,9 @@ require('dotenv').config();
 const { sendResponse } = require('../utils/sendResponse');
 const AppError = require('../utils/AppError');
 const { STATUS } = require('../constant/statusCodes');
+
+
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -35,20 +38,20 @@ const getCaptcha = (req, res) => {
   res.status(200).send(captcha.data);
 };
 
-const signup = async (req, res,next) => {
+const signup = async (req, res, next) => {
   try {
     const { name, email, captchaInput } = req.body;
 
     // --- CAPTCHA verification (cookie-based) ---
-    const storedCaptcha = req.cookies?.captcha_text;
+    const storedCaptcha = req.cookies.captcha_text;
 
     if (!storedCaptcha) {
-      sendResponse(res,STATUS.BAD_REQUEST,"Captcha not found")
+      return sendResponse(res, STATUS.BAD_REQUEST, "Captcha not found");
     }
     // console.log(storedCaptcha);
     if (!captchaInput || captchaInput.trim().toLowerCase() !== storedCaptcha.toLowerCase()) {
       res.clearCookie("captcha_text");
-      sendResponse(res,STATUS.BAD_REQUEST,"Captcha verification failed! Please enter valid captcha")  
+      return sendResponse(res, STATUS.BAD_REQUEST, "Captcha verification failed! Please enter valid captcha");
     }
     res.clearCookie("captcha_text");
 
@@ -56,88 +59,95 @@ const signup = async (req, res,next) => {
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       const message = "User with this email already exists. Please Login.";
-      sendResponse(res, STATUS.CONFLICT, message);
+      return sendResponse(res, STATUS.CONFLICT, message);
     }
 
-    // --- generate password ---
-    const plainPassword = uuidv4().slice(0, 8);
-    const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
-    // --- generate registrationId ---
-    const registrationId = "REG" + nanoid(8).toUpperCase();
     // --- create user ---
     const user = new User({
       name,
       email: email.toLowerCase(),
-      password: hashedPassword,
       role: "user",
-      registrationId
+      password: "0",
     });
     await user.save();
 
     // --- send email ---
     try {
-      transporter.sendMail({
+      const info = await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: email,
         subject: "WCND 2026 INDIA — Confirm Your Registration",
         html: `
-    <p>Dear Participant,</p>
-    <p>Welcome to the <strong>World Congress of Natural Democracy 2026 India</strong>.</p>
-   
+      <p>Dear Participant,</p>
+      <p>Welcome to the <strong>World Congress of Natural Democracy 2026 India</strong>.</p>
 
-    <h4>Your Login Credentials</h4>
-    <p><strong>Email:</strong> ${email}</p>
-    <p><strong>Password:</strong> ${plainPassword}</p>
+      <p>To complete your registration, please verify your email address by clicking the secure link below:</p>
+      <p><a href="http://localhost:5173/verify-email" style="color:#972620; font-weight:bold; text-decoration:none;">[Verify My WCND Account]</a></p>
 
-    <h4>Security Note</h4>
-    
-    <br/>
-    <p>We look forward to your active participation in the inaugural <strong>World Congress of Natural Democracy</strong> — a historic global gathering.</p>
-    <p>Warm regards,<br/>WCND 2026 India Secretariat</p>
-  `,
+      <h4><strong>Security Note</strong></h4>
+      <p>This verification link and password will expire within 24 hours.</p>
+      <p>If you did not initiate this registration, please disregard this message.</p>
+
+      <h4><strong>Closing</strong></h4>
+      <p>We look forward to your active participation in the inaugural <strong>World Congress of Natural Democracy</strong> — a historic global gathering.</p>
+
+      <p>Warm regards,<br/><strong>WCND 2026 India Secretariat</strong></p>
+    `,
       });
 
-
+      console.log("Verification email sent:", info.messageId);
     } catch (mailError) {
-      next(mailError)
+      console.error("Failed to send verification email:", mailError);
+      return next(
+        new AppError(
+          "Could not send verification email. Please try again later.",
+          STATUS.INTERNAL_SERVER_ERROR
+        )
+      );
     }
 
-    // --- create JWT cookie ---
-    const token = generateToken(user._id, user.role);
-    res.cookie("auth_token", token, {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
 
-    sendResponse(res, STATUS.CREATED, "User created successfully", {registrationId});
+
+    // --- create JWT cookie ---
+    // const token = generateToken(user._id, user.role);
+    // res.cookie("auth_token", token, {
+    //   httpOnly: true,
+    //   sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    //   secure: process.env.NODE_ENV === "production",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000
+    // });
+
+    sendResponse(res, STATUS.CREATED, "User created successfully and verification email sent. Please verify your email.", {});
 
   } catch (error) {
     sendResponse(res, STATUS.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
-const login = async (req, res,next) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     // Check empty fields
     if (!email || !password) {
-      sendResponse(res, STATUS.BAD_REQUEST, "Please provide email and password");
+      return sendResponse(res, STATUS.BAD_REQUEST, "Please provide email and password");
     }
 
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      sendResponse(res, STATUS.NOT_FOUND, "User not found");
+      return sendResponse(res, STATUS.NOT_FOUND, "User not found");
+    }
+
+    if (!user.isVerified) {
+      return sendResponse(res, STATUS.UNAUTHORIZED, "Please verify your email");
     }
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      sendResponse(res, STATUS.UNAUTHORIZED, "Invalid credentials");
+      return sendResponse(res, STATUS.UNAUTHORIZED, "Invalid credentials");
     }
 
     // Generate JWT
@@ -154,29 +164,21 @@ const login = async (req, res,next) => {
     // Set cookie
     res.cookie("auth_token", token, cookieOptions);
 
-    res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        mobile: user.mobile,
-        role: user.role,
-      },
-    });
+    sendResponse(res, STATUS.OK, "Login successful", { user });
   } catch (error) {
-    next(error)
+    sendResponse(res, STATUS.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
-const changePassword = async (req, res,next) => {
+const changePassword = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { newPassword } = req.body;
 
     // validation
     if (!newPassword || newPassword.length < 8) {
-      sendResponse(res, STATUS.BAD_REQUEST, "New password must be at least 8 characters long");    }
+      return sendResponse(res, STATUS.BAD_REQUEST, "New password must be at least 8 characters long");
+    }
 
     // hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -191,14 +193,14 @@ const changePassword = async (req, res,next) => {
 };
 
 // Forgot Password API
-const forgotPassword = async (req, res,next) => {
+const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
     // Step 1: check user exist
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      sendResponse(res, STATUS.NOT_FOUND, "User not found");
+      return sendResponse(res, STATUS.NOT_FOUND, "User not found");
     }
 
     // Step 2: generate new random password (same as signup)
@@ -222,7 +224,7 @@ const forgotPassword = async (req, res,next) => {
     sendResponse(res, STATUS.OK, "New password sent to your email");
 
   } catch (err) {
-    next(err) 
+    next(err)
   }
 };
 
@@ -238,32 +240,72 @@ const logout = (req, res, next) => {
   sendResponse(res, STATUS.OK, "Logout successful");
 }
 
-
 const emailVerification = async (req, res, next) => {
   try {
     const { email } = req.body;
 
     if (!email) {
-      sendResponse(res, STATUS.BAD_REQUEST, "Email is required");
+      return sendResponse(res, STATUS.BAD_REQUEST, "Email is required");
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-      sendResponse(res, STATUS.NOT_FOUND, "User not found");
+      return sendResponse(res, STATUS.NOT_FOUND, "User not found");
     }
 
     if (user.isVerified) {
-      sendResponse(res, STATUS.BAD_REQUEST, "Email already verified");
+      return sendResponse(res, STATUS.BAD_REQUEST, "Email already verified");
     }
+
+    // --- generate password ---
+    const plainPassword = uuidv4().slice(0, 8);
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
+    // --- generate registrationId ---
+    const registrationId = "REG" + nanoid(8).toUpperCase();
+
+    // --- update user ---
     user.isVerified = true;
+    user.password = hashedPassword;
+    user.registrationId = registrationId;
     await user.save();
 
-    sendResponse(res, STATUS.OK, "Email verified successfully");
+    // --- send credentials email ---
+    try {
+      transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: "WCND 2026 INDIA — Your Login Credentials",
+        html: `
+          <p>Dear Participant,</p>
+          <p>Your email has been successfully verified.</p>
+
+          <h4>Your Login Credentials</h4>
+          <p><strong>Registration ID:</strong> ${registrationId}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Password:</strong> ${plainPassword}</p>
+
+          <h4><strong>Security Note</strong></h4>
+          <p>Please keep your credentials safe. You can change your password after logging in.</p>
+
+          <h4><strong>Closing</strong></h4>
+          <p>We look forward to your active participation in the inaugural 
+          <strong>World Congress of Natural Democracy</strong> — a historic global gathering.</p>
+
+          <p>Warm regards,<br/><strong>WCND 2026 India Secretariat</strong></p>
+        `,
+      });
+    } catch (mailError) {
+      return next(mailError);
+    }
+
+    sendResponse(res, STATUS.OK, "Email verified successfully. Credentials sent.");
   } catch (error) {
-    next(error)
+    sendResponse(res, STATUS.INTERNAL_SERVER_ERROR, error.message);
   }
-}
+};
+
 
 module.exports = {
   getCaptcha,

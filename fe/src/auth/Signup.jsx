@@ -32,49 +32,52 @@ export default function Signup() {
 
   // --- Form submit ---
   async function handleSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const fd = new FormData(e.currentTarget);
-    const name = fd.get("name")?.trim();
-    const email = fd.get("email")?.trim();
+  const fd = new FormData(e.currentTarget);
+  const name = fd.get("name")?.trim();
+  const email = fd.get("email")?.trim();
 
-    // --- Validation ---
-    if (!name) {
-      toast.error("Please enter your full name");
-      return;
-    }
-    if (!email) {
-      toast.error("Please enter your email address");
-      return;
-    }
-    if (!captchaInput) {
-      toast.error("Please enter the captcha");
-      return;
-    }
-    if (!acceptedTnC) {
-      toast.error("Please accept the Terms & Conditions to continue");
-      return;
-    }
-
-    const payload = { name, email, captchaInput };
-
-    try {
-      setLoading(true);
-      const res = await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/signup`,
-        payload,
-        { withCredentials: true }
-      );
-      setUserEmail(email);
-      setShowModal(true);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong");
-      fetchCaptcha();
-    } finally {
-      setLoading(false);
-      setCaptchaInput("");
-    }
+  // --- Validation ---
+  if (!name) {
+    toast.error("Please enter your full name");
+    return;
   }
+  if (!email) {
+    toast.error("Please enter your email address");
+    return;
+  }
+  if (!captchaInput) {
+    toast.error("Please enter the captcha");
+    return;
+  }
+  if (!acceptedTnC) {
+    toast.error("Please accept the Terms & Conditions to continue");
+    return;
+  }
+
+  const payload = { name, email, captchaInput };
+
+  try {
+    setLoading(true);
+    const res = await axios.post(
+      `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/signup`,
+      payload,
+      { withCredentials: true }
+    );
+
+    // ✅ Only show modal if signup was successful
+    toast.success(res.data?.message || "Signup successful!");
+    setUserEmail(email);
+    setShowModal(true);
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Something went wrong");
+    fetchCaptcha();
+  } finally {
+    setLoading(false);
+    setCaptchaInput("");
+  }
+}
 
 
   const closeModal = () => {
@@ -186,50 +189,35 @@ export default function Signup() {
       </main>
 
       {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-xl border border-[#EAEAEA]">
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 border-2 border-[#972620] rounded-full flex items-center justify-center bg-white">
-                <svg
-                  className="w-8 h-8 text-[#972620]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-            </div>
+{showModal && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+    <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-xl border border-[#EAEAEA]">
+      <h2 className="text-xl font-semibold text-[#972620] mb-4">
+        Thank you for signing up for WCND 2026 India
+      </h2>
+      <p className="text-gray-600 mb-4">
+        A confirmation link has been sent to your email address.
+      </p>
+      <p className="text-gray-600 mb-6">
+        Didn’t receive it?{' '}
+        <button
+          // onClick={resendConfirmationLink}
+          onClick={closeModal}
+          className="text-[#972620] font-medium hover:underline"
+        >
+          Resend Confirmation Link
+        </button>
+      </p>
+      <button
+        onClick={closeModal}
+        className="w-full bg-[#972620] text-white py-3 rounded-lg font-medium hover:bg-[#a95551] transition-colors"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
 
-            <h2 className="text-xl font-semibold text-[#972620] mb-3">
-              Check Your Email
-            </h2>
-            <p className="text-gray-600 mb-2">
-              We have sent login credentials to
-            </p>
-            <p className="font-medium text-[#2b2a28] mb-4 break-words">
-              {userEmail}
-            </p>
-            <p className="text-sm text-gray-500 mb-6">
-              If you don't see the email in your inbox, please check your spam folder.
-            </p>
-
-            <Link
-              to="/login"
-              onClick={closeModal}
-              className="w-full block bg-[#972620] text-white py-3 rounded-lg font-medium hover:bg-[#a95551] transition-colors"
-            >
-              Return to Login
-            </Link>
-          </div>
-        </div>
-      )}
     </>
   );
 }

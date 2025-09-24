@@ -26,7 +26,9 @@
     "nanoid": "^5.1.5",
     "nodemailer": "^7.0.6",
     "nodemon": "^3.1.10",
+    "pdfkit": "^0.17.2",
     "razorpay": "^2.9.6",
+    "stream-buffers": "^3.0.3",
     "svg-captcha": "^1.4.0",
     "uuid": "^11.1.0"
   }

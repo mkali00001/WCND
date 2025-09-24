@@ -8,6 +8,7 @@ import Step5 from "./steps/Step5"
 import SuccessPage from "./steps/SuccessPage"
 import logo from "../../assets/logo.jpg"
 import axios from "axios"
+import { Link } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
 import { toast } from "react-toastify"
 
@@ -293,10 +294,11 @@ const RegistrationForm = () => {
     if (currentStep > 0) setCurrentStep(currentStep - 1)
   }
 
-  const handleSubmit = async () => {
+  const handleSubmitAndPay = async () => {
+    // 1. First, submit the registration data
     try {
       console.log("Submitting Data:", formData)
-      const response = await axios.post(
+      const registrationResponse = await axios.post(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/register`,
         formData,
         {
@@ -304,9 +306,62 @@ const RegistrationForm = () => {
           withCredentials: true,
         }
       )
-      console.log("Response:", response.data)
-      await fetchUserData()
-      setIsCompleted(true)
+      console.log("Registration Response:", registrationResponse.data)
+
+      // 2. If registration is successful, proceed to payment
+      const amountInPaise = Number(formData.feeAmount) * 100
+      if (amountInPaise > 0) {
+        const orderResponse = await axios.post(
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/create-order`,
+          { amount: amountInPaise },
+          { withCredentials: true }
+        )
+        const order = orderResponse.data
+
+        const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+          amount: order.amount,
+          currency: order.currency,
+          name: "WCND 2026 Registration",
+          description: `${formData.feeCategory} Fee`,
+          order_id: order.id,
+          handler: async function (response) {
+            try {
+              await axios.post(
+                `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/record-payment`,
+                {
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpaySignature: response.razorpay_signature,
+                  amount: order.amount,
+                },
+                { withCredentials: true }
+              )
+              toast.success("Payment Successful! Registration complete.")
+              setIsCompleted(true) // Move to success page
+            } catch (err) {
+              toast.error("Payment verification failed. Please contact support.")
+              console.error(err)
+            }
+          },
+          prefill: {
+            email: formData.email || "",
+            contact: formData.phone || "",
+            name: formData.fullName || "",
+          },
+          theme: { color: "#972620" },
+        }
+
+        const rzp = new window.Razorpay(options)
+        rzp.open()
+        rzp.on("payment.failed", function (response) {
+          toast.error(`Payment Failed: ${response.error.description}`)
+        })
+      } else {
+        // If no payment is needed
+        toast.success("Registration complete!")
+        setIsCompleted(true)
+      }
     } catch (error) {
       console.error("Error submitting form:", error.response?.data || error.message)
       toast.error(error.response?.data?.error || "Something went wrong!")
@@ -421,7 +476,7 @@ const RegistrationForm = () => {
 
                     {currentStep === 5 ? (
                       <button
-                        onClick={handleSubmit}
+                        onClick={handleSubmitAndPay}
                         disabled={!formData.valuesAffirmation}
                         className="px-5 sm:px-6 py-2 bg-[#972620] text-white rounded-md hover:bg-[#972620] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                       >

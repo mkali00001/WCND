@@ -19,7 +19,7 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(
+      await axios.post(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/login`,
         {
           email: formData.email,
@@ -41,10 +41,13 @@ export default function Login() {
     }
   }
 
-
   useEffect(() => {
     if (user) {
-      navigate("/dashboard");
+      if (!user.isRegistered) {
+        navigate("/registered"); // not verified yet
+      } else {
+        navigate("/dashboard"); // verified, go to dashboard
+      }
     }
   }, [user, navigate]);
 

@@ -32,7 +32,7 @@ const VerifyEmail = () => {
 
       await fetchUserData();
 
-      navigate("/registration");
+      navigate("/login");
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
     } finally {

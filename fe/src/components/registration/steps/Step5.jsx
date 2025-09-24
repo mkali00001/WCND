@@ -7,43 +7,44 @@ const Step5 = ({ formData, handleInputChange, errors }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-
   // Fetch payment category on mount
   useEffect(() => {
-  if (!formData.participantType) return;
+    if (!formData.participantType) return;
 
-  const fetchPaymentCategory = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/paymentcategory`,
-        { category: formData.participantType },
-        { withCredentials: true }
-      );
+    const fetchPaymentCategory = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.post(
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/paymentcategory`,
+          { category: formData.participantType },
+          { withCredentials: true }
+        );
 
-      const dataArray = res.data.data.data; // array
-      if (dataArray && dataArray.length > 0) {
-        const data = dataArray[0];
-        setCategory(data);
+        const dataArray = res.data.data.data; // array
+        if (dataArray && dataArray.length > 0) {
+          const data = dataArray[0];
+          setCategory(data);
 
-        const amount = formData.participantType === "International" ? data.feeUSD : data.feeINR;
-        handleInputChange("feeAmount", amount);
-        handleInputChange("feeCategory", formData.participantType);
+          const amount =
+            formData.participantType === "International"
+              ? data.feeUSD
+              : data.feeINR;
+
+          handleInputChange("feeAmount", amount);
+          handleInputChange("feeCategory", formData.participantType);
+        }
+
+        setError(null);
+      } catch (err) {
+        setError("Failed to load payment category.");
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      setError(null);
-    } catch (err) {
-      setError("Failed to load payment category.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchPaymentCategory();
-}, [formData.participantType]);
-
+    fetchPaymentCategory();
+  }, [formData.participantType]);
 
   const getFee = () => {
     if (!category) return "N/A";
@@ -52,10 +53,11 @@ const Step5 = ({ formData, handleInputChange, errors }) => {
       : `₹${category.feeINR}`;
   };
 
-
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-[#972620]">Payment Information</h2>
+      <h2 className="text-xl font-semibold text-[#972620]">
+        Payment Information
+      </h2>
 
       {loading && (
         <div className="flex items-center gap-2 text-gray-600">
@@ -68,6 +70,7 @@ const Step5 = ({ formData, handleInputChange, errors }) => {
 
       {!loading && !error && (
         <>
+          {/* Fee Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="pt-1">
               <p className="text-sm text-gray-600">Fee Category:</p>
@@ -81,11 +84,14 @@ const Step5 = ({ formData, handleInputChange, errors }) => {
             </div>
           </div>
 
+          {/* Sponsorship */}
           <div>
             <label className="block text-sm mb-1">Sponsorship</label>
             <select
               value={formData.sponsorship}
-              onChange={(e) => handleInputChange("sponsorship", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("sponsorship", e.target.value)
+              }
               className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
             >
               <option value="Self-funded">Self-funded</option>
@@ -101,7 +107,10 @@ const Step5 = ({ formData, handleInputChange, errors }) => {
               <textarea
                 value={formData.sponsoringOrganizationDetails}
                 onChange={(e) =>
-                  handleInputChange("sponsoringOrganizationDetails", e.target.value)
+                  handleInputChange(
+                    "sponsoringOrganizationDetails",
+                    e.target.value
+                  )
                 }
                 rows={3}
                 className="w-full px-3 py-2 border border-[#CCCCCC] rounded-lg"
@@ -164,5 +173,3 @@ const Step5 = ({ formData, handleInputChange, errors }) => {
 };
 
 export default Step5;
-
-

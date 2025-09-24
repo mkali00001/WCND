@@ -23,6 +23,8 @@ const AppRoutes = () => {
           <Route index element={<Access />} />
           <Route path="signup" element={<Signup />} />
           <Route path="login" element={<Login />} />
+          <Route path="verify-email" element={<VerifyEmail />}
+        />
           <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>
 
@@ -60,14 +62,7 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="verify-email"
-          element={
-            <ProtectedRoute>
-              <VerifyEmail />
-            </ProtectedRoute>
-          }
-        />
+        
       </Route>
     </Routes>
   );

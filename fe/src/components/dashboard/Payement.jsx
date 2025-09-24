@@ -1,110 +1,80 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 export const Payement = () => {
   const [registration, setRegistration] = useState(null);
+  const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [paying, setPaying] = useState(false);
+  const [invoiceUrl, setInvoiceUrl] = useState("");
 
   useEffect(() => {
-    const fetchRegistration = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
+        const regResponse = await axios.get(
           `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/my-registration`,
           { withCredentials: true }
         );
-        setRegistration(response.data); // registration.feeAmount should be present here
+        setRegistration(regResponse.data);
+
+        const payResponse = await axios.get(
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/my-payment`,
+          { withCredentials: true }
+        );
+        setPayment(payResponse.data);
       } catch (err) {
-        setError(err.response?.data?.error || err.message);
+        toast.error(err.response?.data?.error || err.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchRegistration();
+
+    fetchData();
   }, []);
 
-  const handlePayment = async () => {
-    if (!registration || !registration.feeAmount) return;
-
-    setPaying(true);
+  const handleInvoice = async () => {
+    if (!registration) return;
 
     try {
-      // Amount in paise for Razorpay
-      const amountInPaise = Number(registration.feeAmount) * 100;
-
-      const orderResponse = await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/create-order`,
-        { amount: amountInPaise },
+      const res = await axios.post(
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/invoice`,
+        {}, // You can pass any extra info if needed
         { withCredentials: true }
       );
 
-      const order = orderResponse.data;
-
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: "Conference Registration",
-        description: registration.feeCategory + " Fee",
-        order_id: order.id,
-        handler: async function (response) {
-          try {
-            await axios.post(
-              `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/record-payment`,
-              {
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpayOrderId: response.razorpay_order_id,
-                razorpaySignature: response.razorpay_signature,
-                amount: order.amount,
-              },
-              { withCredentials: true }
-            );
-            alert("Payment Successful! 🎉");
-          } catch (err) {
-            alert("Payment record failed. Check backend.");
-            console.error(err);
-          }
-        },
-        prefill: {
-          email: registration.email,
-          contact: registration.phone,
-        },
-        theme: { color: "#3399cc" },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+      setInvoiceUrl(res.data.invoiceUrl);
+      toast.success("Invoice generated successfully!");
     } catch (err) {
-      console.error("Error creating order:", err);
-      alert("Failed to initiate payment.");
-    } finally {
-      setPaying(false);
+      toast.error("Failed to generate invoice.");
+      console.error(err);
     }
   };
 
   if (loading) return <p className="text-center py-10">Loading...</p>;
-  if (error) return <p className="text-red-500 text-center py-10">{error}</p>;
+  if (!registration) return <p className="text-center py-10">No registration found.</p>;
 
   return (
     <div className="pt-20 p-4 lg:p-12 max-w-7xl mx-auto mb-12">
-      {/* Payment Information Card */}
+      {/* Payment Info */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Payment Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
           <div>
+            <p className={`mb-2 font-semibold ${payment ? "text-green-600" : "text-orange-500"}`}>
+              Status: {payment ? "Paid" : "Pending Payment"}
+            </p>
             <p className="mb-2">
               <span className="font-semibold">Fee Category:</span> {registration.feeCategory || "N/A"}
             </p>
             <p className="mb-2">
-              <span className="font-semibold">Amount:</span> ₹{registration.feeAmount || "N/A"}
+              <span className="font-semibold">Amount:</span> {registration.participantType === "International" ? "$" : "₹"}{registration.feeAmount || "N/A"}
             </p>
             <p className="mb-2">
               <span className="font-semibold">Payment Mode:</span> {registration.paymentMode || "N/A"}
             </p>
             <p>
-              <span className="font-semibold">Billing/Invoice Details:</span>{" "}
-              {registration.billingInvoiceDetails || "N/A"}
+              <span className="font-semibold">Billing/Invoice Details:</span> {registration.billingInvoiceDetails || "N/A"}
             </p>
           </div>
           <div>
@@ -112,23 +82,32 @@ export const Payement = () => {
               <span className="font-semibold">Sponsorship:</span> {registration.sponsorship || "Self-funded"}
             </p>
             <p>
-              <span className="font-semibold">Sponsoring Organization:</span>{" "}
-              {registration.sponsoringOrganizationDetails || "N/A"}
+              <span className="font-semibold">Sponsoring Organization:</span> {registration.sponsoringOrganizationDetails || "N/A"}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Make a Payment Card */}
+      {/* Invoice Section */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-6">Make a Payment</h3>
-        <button
-          onClick={handlePayment}
-          disabled={paying}
-          className="px-6 py-3 bg-[#972620] text-white rounded-lg hover:bg-[#a95551] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold"
-        >
-          {paying ? "Processing..." : `Pay ₹${registration.feeAmount}`}
-        </button>
+        <h3 className="text-xl font-bold text-gray-900 mb-4">Invoice</h3>
+        {invoiceUrl ? (
+          <a
+            href={invoiceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+          >
+            📄 Download Invoice
+          </a>
+        ) : (
+          <button
+            onClick={handleInvoice}
+            className="px-6 py-3 bg-[#972620] text-white rounded-lg hover:bg-[#a95551] font-semibold"
+          >
+            Generate Invoice
+          </button>
+        )}
       </div>
     </div>
   );

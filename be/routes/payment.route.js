@@ -6,11 +6,11 @@ const {
     getPayments, 
     createOrder, 
     recordPayment, 
-    get_payment_status 
+    get_payment_status, 
+    getPaymentCategorie
 } = require('../controllers/payment.controller');
-const { getPaymentCategories } = require('../controllers/admin.controller');
 
-paymentRouter.use(authMiddleware);
+paymentRouter.post("/paymentcategory", getPaymentCategorie)
 
 paymentRouter.post("/create-order", createOrder)
 paymentRouter.post("/record-payment", recordPayment)

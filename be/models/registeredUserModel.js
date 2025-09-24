@@ -74,6 +74,7 @@ const registeredUserSchema = new mongoose.Schema(
     // Step5: Payment & Declarations
     feeCategory: String,
     paymentMode: String,
+    feeAmount:Number,
     billingInvoiceDetails: String,
     sponsorship: { type: String, default: "Self-funded" },
     sponsoringOrganizationDetails: String,

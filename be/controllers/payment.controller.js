@@ -3,6 +3,10 @@ const Payment = require("../models/paymentModel");
 const Razorpay = require('razorpay');
 const RegisteredUser = require("../models/registeredUserModel");
 const crypto = require("crypto");
+const paymentCategory = require("../models/paymentCategoryModel");
+const { sendResponse } = require("../utils/sendResponse");
+const { STATUS } = require("../constant/statusCodes");
+
 
 
 
@@ -157,3 +161,12 @@ exports.recordPayment = async (req, res) => {
   }
 };
 
+exports.getPaymentCategorie = async (req, res, next) => {
+  try {
+    const { category } = req.body
+    const categories = await paymentCategory.find({type : category}).sort({ type: 1, name: 1 })
+    sendResponse(res, STATUS.OK, "Payment categories fetched successfully", { data: categories });
+  } catch (error) {
+    next(error)
+  }
+};

@@ -62,7 +62,7 @@ const signup = async (req, res, next) => {
     sendEmail({
       to: email,
       subject: 'WCND 2026 INDIA — Confirm Your Registration',
-      html: verifyemail("http://localhost:5173/verify-email"),
+      html: verifyemail("https://conference-reg-wcnd.vercel.app/verify-email"),
     });
 
     await user.save();

@@ -14,7 +14,7 @@ const Step5 = ({ formData, handleInputChange, errors }) => {
     const fetchPaymentCategory = async () => {
       try {
         setLoading(true);
-        const res = await axios.post(
+        const res = await axios.get(
           `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/paymentcategory`,
           { category: formData.participantType },
           { withCredentials: true }

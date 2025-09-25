@@ -11,12 +11,12 @@ const {
   generateInvoice,
   downloadInvoice,
 } = require('../controllers/payment.controller');
-paymentRouter.post('/paymentcategory', getPaymentCategorie);
-
-paymentRouter.use(authMiddleware);
 
 paymentRouter.post('/create-order', createOrder);
 paymentRouter.post('/record-payment', recordPayment);
+paymentRouter.use(authMiddleware);
+
+
 
 paymentRouter.post('/create-payment', createPayment);
 paymentRouter.get('/get-payment', getPayments);

@@ -4,37 +4,34 @@ const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
 const { generateToken } = require('../utils/jwt');
 const { nanoid } = require('nanoid');
-const svgCaptcha = require("svg-captcha");
+const svgCaptcha = require('svg-captcha');
 require('dotenv').config();
-const { sendResponse } = require('../utils/sendResponse');
+const sendResponse = require('../utils/sendResponse');
 const AppError = require('../utils/AppError');
-const { STATUS } = require('../constant/statusCodes');
-
-
+const STATUS = require('../constant/statusCodes');
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
+    pass: process.env.EMAIL_PASS,
+  },
 });
-
 
 const getCaptcha = (req, res) => {
   const captcha = svgCaptcha.create({
     size: 6,
-    ignoreChars: "0o1i",
+    ignoreChars: '0o1i',
   });
 
-  res.cookie("captcha_text", captcha.text, {
+  res.cookie('captcha_text', captcha.text, {
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 5 * 60 * 1000,
   });
 
-  res.type("svg");
+  res.type('svg');
   res.status(200).send(captcha.data);
 };
 
@@ -46,29 +43,28 @@ const signup = async (req, res, next) => {
     const storedCaptcha = req.cookies.captcha_text;
 
     if (!storedCaptcha) {
-      return sendResponse(res, STATUS.BAD_REQUEST, "Captcha not found");
+      return next(new AppError('captcha', STATUS.BAD_REQUEST));
     }
     // console.log(storedCaptcha);
     if (!captchaInput || captchaInput.trim().toLowerCase() !== storedCaptcha.toLowerCase()) {
-      res.clearCookie("captcha_text");
-      return sendResponse(res, STATUS.BAD_REQUEST, "Captcha verification failed! Please enter valid captcha");
+      res.clearCookie('captcha_text');
+      return next(new AppError('captcha', STATUS.BAD_REQUEST));
     }
-    res.clearCookie("captcha_text");
+    res.clearCookie('captcha_text');
 
     // --- check existing user ---
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-      const message = "User with this email already exists. Please Login.";
-      return sendResponse(res, STATUS.CONFLICT, message);
+      const message = 'User with this email already exists. Please Login.';
+      return next(new AppError(message, STATUS.BAD_REQUEST));
     }
-
 
     // --- create user ---
     const user = new User({
       name,
       email: email.toLowerCase(),
-      role: "user",
-      password: "0",
+      role: 'user',
+      password: '0',
     });
     await user.save();
 
@@ -77,7 +73,7 @@ const signup = async (req, res, next) => {
       const info = await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: email,
-        subject: "WCND 2026 INDIA — Confirm Your Registration",
+        subject: 'WCND 2026 INDIA — Confirm Your Registration',
         html: `
       <p>Dear Participant,</p>
       <p>Welcome to the <strong>World Congress of Natural Democracy 2026 India</strong>.</p>
@@ -96,32 +92,20 @@ const signup = async (req, res, next) => {
     `,
       });
 
-      console.log("Verification email sent:", info.messageId);
+      console.log('Verification email sent:', info.messageId);
     } catch (mailError) {
-      console.error("Failed to send verification email:", mailError);
-      return next(
-        new AppError(
-          "Could not send verification email. Please try again later.",
-          STATUS.INTERNAL_SERVER_ERROR
-        )
-      );
+      console.error('Failed to send verification email:', mailError);
+      return next(new AppError(mailError.message, STATUS.INTERNAL_SERVER_ERROR));
     }
 
-
-
-    // --- create JWT cookie ---
-    // const token = generateToken(user._id, user.role);
-    // res.cookie("auth_token", token, {
-    //   httpOnly: true,
-    //   sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-    //   secure: process.env.NODE_ENV === "production",
-    //   maxAge: 7 * 24 * 60 * 60 * 1000
-    // });
-
-    sendResponse(res, STATUS.CREATED, "User created successfully and verification email sent. Please verify your email.", {});
-
+    sendResponse(
+      res,
+      STATUS.CREATED,
+      'User created successfully and verification email sent. Please verify your email.',
+      {}
+    );
   } catch (error) {
-    sendResponse(res, STATUS.INTERNAL_SERVER_ERROR, error.message);
+    next(error);
   }
 };
 
@@ -131,23 +115,23 @@ const login = async (req, res, next) => {
 
     // Check empty fields
     if (!email || !password) {
-      return sendResponse(res, STATUS.BAD_REQUEST, "Please provide email and password");
+      return next(new AppError('All fields are required', STATUS.BAD_REQUEST));
     }
 
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return sendResponse(res, STATUS.NOT_FOUND, "User not found");
+      return next(new AppError('Invalid credentials', STATUS.UNAUTHORIZED));
     }
 
     if (!user.isVerified) {
-      return sendResponse(res, STATUS.UNAUTHORIZED, "Please verify your email");
+      return next(new AppError('Email not verified', STATUS.UNAUTHORIZED));
     }
 
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return sendResponse(res, STATUS.UNAUTHORIZED, "Invalid credentials");
+      return next(new AppError('Invalid credentials', STATUS.UNAUTHORIZED));
     }
 
     // Generate JWT
@@ -156,17 +140,17 @@ const login = async (req, res, next) => {
     // Cookie options
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // prod = true, dev = false
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      secure: process.env.NODE_ENV === 'production', // prod = true, dev = false
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     };
 
     // Set cookie
-    res.cookie("auth_token", token, cookieOptions);
+    res.cookie('auth_token', token, cookieOptions);
 
-    sendResponse(res, STATUS.OK, "Login successful", { user });
+    sendResponse(res, STATUS.OK, 'Login successful', { user });
   } catch (error) {
-    sendResponse(res, STATUS.INTERNAL_SERVER_ERROR, error.message);
+    next(error);
   }
 };
 
@@ -177,7 +161,7 @@ const changePassword = async (req, res, next) => {
 
     // validation
     if (!newPassword || newPassword.length < 8) {
-      return sendResponse(res, STATUS.BAD_REQUEST, "New password must be at least 8 characters long");
+      return next(new AppError('Password must be at least 8 characters long', STATUS.BAD_REQUEST));
     }
 
     // hash new password
@@ -186,9 +170,9 @@ const changePassword = async (req, res, next) => {
     // update in DB
     await User.findByIdAndUpdate(userId, { password: hashedPassword });
 
-    sendResponse(res, STATUS.OK, "Password changed successfully");
+    sendResponse(res, STATUS.OK, 'Password changed successfully');
   } catch (err) {
-    next(err)
+    next(err);
   }
 };
 
@@ -200,7 +184,7 @@ const forgotPassword = async (req, res, next) => {
     // Step 1: check user exist
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return sendResponse(res, STATUS.NOT_FOUND, "User not found");
+      return next(new AppError('User not found', STATUS.NOT_FOUND));
     }
 
     // Step 2: generate new random password (same as signup)
@@ -214,48 +198,45 @@ const forgotPassword = async (req, res, next) => {
     await user.save();
 
     // Step 5: send mail with new password
-    await transporter.sendMail({
-      from: "kaif.tryidoltech@gmail.com",
+    transporter.sendMail({
+      from: 'kaif.tryidoltech@gmail.com',
       to: email,
-      subject: "Your New Password",
-      text: `Hello ${user.name},\n\nYour new password is: ${newPassword}\n\nLogin link: http://localhost:5173/login`
+      subject: 'Your New Password',
+      text: `Hello ${user.name},\n\nYour new password is: ${newPassword}\n\nLogin link: http://localhost:5173/login`,
     });
 
-    sendResponse(res, STATUS.OK, "New password sent to your email");
-
+    sendResponse(res, STATUS.OK, 'New password sent to your email');
   } catch (err) {
-    next(err)
+    next(err);
   }
 };
 
-
-
 const logout = (req, res, next) => {
-  res.clearCookie("auth_token", {
+  res.clearCookie('auth_token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
   });
 
-  sendResponse(res, STATUS.OK, "Logout successful");
-}
+  sendResponse(res, STATUS.OK, 'Logout successful');
+};
 
 const emailVerification = async (req, res, next) => {
   try {
     const { email } = req.body;
 
     if (!email) {
-      return sendResponse(res, STATUS.BAD_REQUEST, "Email is required");
+      return next(new AppError('Email is required', STATUS.BAD_REQUEST));
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-      return sendResponse(res, STATUS.NOT_FOUND, "User not found");
+      return next(new AppError('User not found', STATUS.NOT_FOUND));
     }
 
     if (user.isVerified) {
-      return sendResponse(res, STATUS.BAD_REQUEST, "Email already verified");
+      return sendResponse(res, STATUS.BAD_REQUEST, 'Email already verified');
     }
 
     // --- generate password ---
@@ -263,7 +244,7 @@ const emailVerification = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
     // --- generate registrationId ---
-    const registrationId = "REG" + nanoid(8).toUpperCase();
+    const registrationId = 'REG' + nanoid(8).toUpperCase();
 
     // --- update user ---
     user.isVerified = true;
@@ -276,7 +257,7 @@ const emailVerification = async (req, res, next) => {
       transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: user.email,
-        subject: "WCND 2026 INDIA — Your Login Credentials",
+        subject: 'WCND 2026 INDIA — Your Login Credentials',
         html: `
           <p>Dear Participant,</p>
           <p>Your email has been successfully verified.</p>
@@ -300,12 +281,11 @@ const emailVerification = async (req, res, next) => {
       return next(mailError);
     }
 
-    sendResponse(res, STATUS.OK, "Email verified successfully. Credentials sent.");
+    sendResponse(res, STATUS.OK, 'Email verified successfully. Credentials sent.');
   } catch (error) {
-    sendResponse(res, STATUS.INTERNAL_SERVER_ERROR, error.message);
+    next(error);
   }
 };
-
 
 module.exports = {
   getCaptcha,

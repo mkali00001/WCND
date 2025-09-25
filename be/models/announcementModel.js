@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const announcementSchema = new mongoose.Schema(
   {
@@ -13,16 +13,16 @@ const announcementSchema = new mongoose.Schema(
     },
     audience: {
       type: String,
-      required: true, 
+      required: true,
     },
     status: {
       type: String,
-      enum: ["draft", "sent", "deleted"],
-      default: "draft",
+      enum: ['draft', 'sent', 'deleted'],
+      default: 'draft',
     },
     sentBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", 
+      ref: 'User',
     },
     sentDate: {
       type: Date,
@@ -31,4 +31,4 @@ const announcementSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Announcement", announcementSchema);
+module.exports = mongoose.model('Announcement', announcementSchema);

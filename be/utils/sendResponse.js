@@ -4,7 +4,7 @@
  * No more scattered response formats throughout my codebase!
  */
 
-import { STATUS } from "../constant/statusCodes.js";
+const STATUS = require('../constant/statusCodes');
 
 // import { STATUS } from "../constants/statusCodes.js";
 
@@ -16,12 +16,7 @@ import { STATUS } from "../constant/statusCodes.js";
  * @param {String} message - User-friendly message
  * @param {Any} data - Optional payload data
  */
-export const sendResponse = (
-  res,
-  statusCode = STATUS.OK,
-  message = "Success",
-  data,
-) => {
+const sendResponse = (res, statusCode = STATUS.OK, message = 'Success', data) => {
   return res.status(statusCode).json({
     success: statusCode >= 200 && statusCode < 300,
     message,
@@ -29,3 +24,5 @@ export const sendResponse = (
     status: statusCode,
   });
 };
+
+module.exports = sendResponse;

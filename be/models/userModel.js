@@ -8,8 +8,8 @@ const userSchema = new mongoose.Schema({
   role: { type: String, default: 'user' },
   isRegistered: { type: Boolean, default: false },
   registrationId: { type: String, unique: true },
-  profileImage: { type: String, default: "" },
-  isVerified: { type: Boolean, default: false }
+  profileImage: { type: String, default: '' },
+  isVerified: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const accompanyingPersonSchema = new mongoose.Schema({
   fullName: String,
@@ -13,14 +13,14 @@ const accompanyingPersonSchema = new mongoose.Schema({
 
 const registeredUserSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
     // Step1
     guidelinesAccepted: { type: Boolean, default: false },
     humanBeingAccepted: { type: Boolean, default: false },
 
     // Step2: Personal Info
-    participantType: { type: String, enum: ["Domestic", "International"] },
+    participantType: { type: String, enum: ['Domestic', 'International'] },
     country: String,
     otherCountry: String,
     fullName: String,
@@ -43,7 +43,7 @@ const registeredUserSchema = new mongoose.Schema(
     emergencyName: String,
     emergencyRelation: String,
     emergencyPhone: String,
-    accompanying: { type: String, default: "no" },
+    accompanying: { type: String, default: 'no' },
     accompanyingCount: { type: Number, default: 0 },
     accompanyingPersons: [accompanyingPersonSchema],
     registrationId: String,
@@ -69,14 +69,14 @@ const registeredUserSchema = new mongoose.Schema(
     allergyDetails: String,
     travelInsuranceStatus: String,
     healthConditions: String,
-    willingForFieldTrips: { type: String, default: "No" },
+    willingForFieldTrips: { type: String, default: 'No' },
 
     // Step5: Payment & Declarations
     feeCategory: String,
     paymentMode: String,
-    feeAmount:Number,
+    feeAmount: Number,
     billingInvoiceDetails: String,
-    sponsorship: { type: String, default: "Self-funded" },
+    sponsorship: { type: String, default: 'Self-funded' },
     sponsoringOrganizationDetails: String,
 
     agreeCodeOfConduct: { type: Boolean, default: false },
@@ -86,4 +86,4 @@ const registeredUserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("RegisteredUser", registeredUserSchema);
+module.exports = mongoose.model('RegisteredUser', registeredUserSchema);

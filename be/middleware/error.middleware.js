@@ -5,19 +5,20 @@
  * It also protects sensitive stack traces in production.
  */
 
-import { STATUS } from "../constant/statusCodes.js";
-import AppError from "../utils/AppError.js";
+const STATUS = require('../constant/statusCodes');
+const AppError = require('../utils/AppError.js');
 
-export const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
   // Smart status code detection - use my AppError codes or default to 500
-  const statusCode =
-    err instanceof AppError ? err.statusCode : STATUS.INTERNAL_ERROR;
+  const statusCode = err instanceof AppError ? err.statusCode : STATUS.INTERNAL_ERROR;
 
   res.status(statusCode).json({
     success: false,
-    message: err.message || "Something went wrong", // User-friendly message
+    message: err.message || 'Something went wrong', // User-friendly message
     status: statusCode,
     // Security first - only expose stack traces during development
-    stack: process.env.NODE_ENV === "production" ? undefined : err.stack,
+    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
   });
 };
+
+module.exports = errorHandler;

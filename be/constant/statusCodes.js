@@ -4,7 +4,7 @@
  * Now I can use meaningful names instead of magic numbers throughout my code!
  */
 
-export const STATUS = {
+const STATUS = {
   // Success responses - when everything goes right
   OK: 200, // Standard success for GET/PUT
   CREATED: 201, // Successfully created something new (POST)
@@ -26,3 +26,5 @@ export const STATUS = {
   NOT_IMPLEMENTED: 501, // Feature not built yet
   SERVICE_UNAVAILABLE: 503, // Server is down or under maintenance
 };
+
+module.exports = STATUS;

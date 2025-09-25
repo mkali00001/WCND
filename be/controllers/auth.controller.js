@@ -43,12 +43,12 @@ const signup = async (req, res, next) => {
     const storedCaptcha = req.cookies.captcha_text;
 
     if (!storedCaptcha) {
-      return next(new AppError('captcha', STATUS.BAD_REQUEST));
+      return next(new AppError('Captcha Not Found', STATUS.BAD_REQUEST));
     }
     // console.log(storedCaptcha);
     if (!captchaInput || captchaInput.trim().toLowerCase() !== storedCaptcha.toLowerCase()) {
       res.clearCookie('captcha_text');
-      return next(new AppError('captcha', STATUS.BAD_REQUEST));
+      return next(new AppError('Please Enter Valid Captcha', STATUS.BAD_REQUEST));
     }
     res.clearCookie('captcha_text');
 
@@ -70,7 +70,7 @@ const signup = async (req, res, next) => {
 
     // --- send email ---
     try {
-      const info = await transporter.sendMail({
+      transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'WCND 2026 INDIA — Confirm Your Registration',
@@ -92,7 +92,7 @@ const signup = async (req, res, next) => {
     `,
       });
 
-      console.log('Verification email sent:', info.messageId);
+      console.log('Verification email sent to:', email);
     } catch (mailError) {
       console.error('Failed to send verification email:', mailError);
       return next(new AppError(mailError.message, STATUS.INTERNAL_SERVER_ERROR));

@@ -11,6 +11,7 @@ const {
   generateInvoice,
   downloadInvoice,
 } = require('../controllers/payment.controller');
+paymentRouter.post('/paymentcategory', getPaymentCategorie);
 
 paymentRouter.use(authMiddleware);
 
@@ -19,7 +20,6 @@ paymentRouter.post('/record-payment', recordPayment);
 
 paymentRouter.post('/create-payment', createPayment);
 paymentRouter.get('/get-payment', getPayments);
-paymentRouter.post('/paymentcategory', getPaymentCategorie);
 paymentRouter.get('/my-payment', getMyPayment);
 paymentRouter.post('/invoice', generateInvoice);
 paymentRouter.get('/download-invoice', downloadInvoice);

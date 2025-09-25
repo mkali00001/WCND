@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, default: 'user' },
   isRegistered: { type: Boolean, default: false },
-  registrationId: { type: String, unique: true },
+  registrationId: { type: String },
   profileImage: { type: String, default: '' },
   isVerified: { type: Boolean, default: false },
 });

@@ -5,11 +5,12 @@ const User = require("../models/userModel");
 const RegisteredUser = require("../models/registeredUserModel");
 const crypto = require("crypto");
 const paymentCategory = require("../models/paymentCategoryModel");
-const { sendResponse } = require("../utils/sendResponse");
-const { STATUS } = require("../constant/statusCodes");
+const sendResponse = require("../utils/sendResponse");
+const STATUS = require("../constant/statusCodes");
 const PDFDocument = require("pdfkit");
 const nodemailer = require('nodemailer');
 const streamBuffers = require("stream-buffers");
+const { sendEmail, paymentConfirmationEmail} = require("../services/mail");
 const cloudinary = require("cloudinary").v2;
 
 
@@ -169,29 +170,13 @@ exports.recordPayment = async (req, res) => {
     await payment.save();
 
     // Send confirmation email
-    try {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: registration.email,
-        subject: "WCND 2026 INDIA — Payment Confirmation & Registration Receipt",
-        html: `
-          <p>Dear ${registration.fullName},</p>
-          <p>Your registration fee for WCND 2026 has been successfully received. Thank you for your payment.</p>
-          <p>Your registration is now complete. You can access your dashboard to manage submissions and view event details.</p>
-          
-          <h4>Payment Details:</h4>
-          <p><strong>Invoice Number:</strong> WCND-INV-2026-${payment.systemPaymentId.slice(-6)}</p>
-          <p><strong>Amount Paid:</strong> ${payment.currency} ${payment.amount / 100}</p>
-          <p><strong>Payment Date:</strong> ${new Date(payment.createdAt).toLocaleDateString("en-GB")}</p>
+    sendEmail({
+      from: process.env.EMAIL_USER,
+      to: registration.email,
+      subject: "WCND 2026 INDIA — Payment Confirmation & Registration Receipt",
+      html: paymentConfirmationEmail(registration, payment),
+    });
 
-          <p>We have attached the official invoice to this email for your records.</p>
-          <p>Warm regards,<br/><strong>WCND 2026 India Secretariat</strong></p>
-        `,
-      });
-    } catch (mailError) {
-      console.error("Failed to send payment confirmation email:", mailError);
-      // Do not block the main response for this, just log it.
-    }
 
     res.status(201).json({ success: true, payment });
   } catch (err) {
@@ -204,7 +189,7 @@ exports.getPaymentCategorie = async (req, res, next) => {
   try {
     const { category } = req.body
     const categories = await paymentCategory.find({ type: category }).sort({ type: 1, name: 1 })
-    sendResponse(res, STATUS.OK, "Payment categories fetched successfully", { data: categories });
+    return sendResponse(res, STATUS.OK, "Payment categories fetched successfully", { data: categories });
   } catch (error) {
     next(error)
   }
@@ -331,7 +316,7 @@ exports.downloadInvoice = async (req, res) => {
 
     const axios = require('axios');
     const fileUrl = registration.billingInvoiceDetails;
-    
+
     try {
       const response = await axios({
         method: 'GET',
@@ -342,14 +327,14 @@ exports.downloadInvoice = async (req, res) => {
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="WCND_Invoice_${registration.fullName || 'invoice'}.pdf"`);
       res.setHeader('Content-Length', response.headers['content-length']);
-      
+
       response.data.pipe(res);
-      
+
     } catch (fetchError) {
       console.error('Error fetching PDF from Cloudinary:', fetchError);
       return res.status(500).json({ error: "Failed to fetch PDF file" });
     }
-    
+
   } catch (err) {
     console.error("Error downloading invoice:", err);
     res.status(500).json({ error: "Server error" });

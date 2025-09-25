@@ -15,7 +15,8 @@ export const Announcement = () => {
           `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/announcements/my`,
           { withCredentials: true }
         );
-        setAnnouncements(res.data);
+        console.log('Announcements:', res.data.data);
+        setAnnouncements(res.data.data);
       } catch (err) {
         toast.error(err.response?.data?.message || 'Failed to load announcements.');
       } finally {

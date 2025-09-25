@@ -28,7 +28,8 @@ export default function AdminDashboard() {
           `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/announcements/get-announcements`,
           { withCredentials: true }
         );
-        setAnnouncements(res.data);
+        console.log(res.data.data);
+        setAnnouncements(res.data.data);
       } catch (err) {
         toast.error("Failed to load announcements.");
       }
@@ -64,7 +65,7 @@ export default function AdminDashboard() {
       case "Paper Submission":
         return <PaperSubmission />
       case "Announcements":
-        return <Announcement initialAnnouncements={announcements} setAnnouncements={setAnnouncements} />
+        return <Announcement  />
       case "Payment Categories":
         return <PaymentCategories />
       case "Help & Support":

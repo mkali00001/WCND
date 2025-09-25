@@ -9,14 +9,10 @@ require('dotenv').config();
 const sendResponse = require('../utils/sendResponse');
 const AppError = require('../utils/AppError');
 const STATUS = require('../constant/statusCodes');
+const { sendEmail, verifyemail, forgotPasswordEmail, credentialsEmail } = require('../services/mail');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+
+
 
 const getCaptcha = (req, res) => {
   const captcha = svgCaptcha.create({
@@ -39,75 +35,43 @@ const signup = async (req, res, next) => {
   try {
     const { name, email, captchaInput } = req.body;
 
-    // --- CAPTCHA verification (cookie-based) ---
     const storedCaptcha = req.cookies.captcha_text;
-
     if (!storedCaptcha) {
       return next(new AppError('Captcha Not Found', STATUS.BAD_REQUEST));
     }
-    // console.log(storedCaptcha);
     if (!captchaInput || captchaInput.trim().toLowerCase() !== storedCaptcha.toLowerCase()) {
       res.clearCookie('captcha_text');
       return next(new AppError('Please Enter Valid Captcha', STATUS.BAD_REQUEST));
     }
     res.clearCookie('captcha_text');
 
-    // --- check existing user ---
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-      const message = 'User with this email already exists. Please Login.';
-      return next(new AppError(message, STATUS.BAD_REQUEST));
+      return next(new AppError('User with this email already exists. Please Login.', STATUS.BAD_REQUEST));
     }
 
-    // --- create user ---
     const user = new User({
       name,
       email: email.toLowerCase(),
       role: 'user',
       password: '0',
     });
+    
+
+    // --- send email via Brevo ---
+    sendEmail({
+      to: email,
+      subject: 'WCND 2026 INDIA — Confirm Your Registration',
+      html: verifyemail("http://localhost:5173/verify-email"),
+    });
+
     await user.save();
-
-    // --- send email ---
-    try {
-      transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'WCND 2026 INDIA — Confirm Your Registration',
-        html: `
-      <p>Dear Participant,</p>
-      <p>Welcome to the <strong>World Congress of Natural Democracy 2026 India</strong>.</p>
-
-      <p>To complete your registration, please verify your email address by clicking the secure link below:</p>
-      <p><a href="http://localhost:5173/verify-email" style="color:#972620; font-weight:bold; text-decoration:none;">[Verify My WCND Account]</a></p>
-
-      <h4><strong>Security Note</strong></h4>
-      <p>This verification link and password will expire within 24 hours.</p>
-      <p>If you did not initiate this registration, please disregard this message.</p>
-
-      <h4><strong>Closing</strong></h4>
-      <p>We look forward to your active participation in the inaugural <strong>World Congress of Natural Democracy</strong> — a historic global gathering.</p>
-
-      <p>Warm regards,<br/><strong>WCND 2026 India Secretariat</strong></p>
-    `,
-      });
-
-      console.log('Verification email sent to:', email);
-    } catch (mailError) {
-      console.error('Failed to send verification email:', mailError);
-      return next(new AppError(mailError.message, STATUS.INTERNAL_SERVER_ERROR));
-    }
-
-    sendResponse(
-      res,
-      STATUS.CREATED,
-      'User created successfully and verification email sent. Please verify your email.',
-      {}
-    );
+    sendResponse(res, STATUS.CREATED, 'User created successfully and verification email sent. Please verify your email.', {});
   } catch (error) {
     next(error);
   }
 };
+
 
 const login = async (req, res, next) => {
   try {
@@ -198,12 +162,12 @@ const forgotPassword = async (req, res, next) => {
     await user.save();
 
     // Step 5: send mail with new password
-    transporter.sendMail({
-      from: 'kaif.tryidoltech@gmail.com',
+    sendEmail({
       to: email,
-      subject: 'Your New Password',
-      text: `Hello ${user.name},\n\nYour new password is: ${newPassword}\n\nLogin link: http://localhost:5173/login`,
+      subject: 'WCND 2026 INDIA — Your New Password',
+      html: forgotPasswordEmail(user.name, newPassword),
     });
+
 
     sendResponse(res, STATUS.OK, 'New password sent to your email');
   } catch (err) {
@@ -253,33 +217,12 @@ const emailVerification = async (req, res, next) => {
     await user.save();
 
     // --- send credentials email ---
-    try {
-      transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: user.email,
-        subject: 'WCND 2026 INDIA — Your Login Credentials',
-        html: `
-          <p>Dear Participant,</p>
-          <p>Your email has been successfully verified.</p>
+    sendEmail({
+      to: email,
+      subject: 'WCND 2026 INDIA — Email Verified Successfully',
+      html: credentialsEmail(registrationId, email, plainPassword),
+    });
 
-          <h4>Your Login Credentials</h4>
-          <p><strong>Registration ID:</strong> ${registrationId}</p>
-          <p><strong>Email:</strong> ${user.email}</p>
-          <p><strong>Password:</strong> ${plainPassword}</p>
-
-          <h4><strong>Security Note</strong></h4>
-          <p>Please keep your credentials safe. You can change your password after logging in.</p>
-
-          <h4><strong>Closing</strong></h4>
-          <p>We look forward to your active participation in the inaugural 
-          <strong>World Congress of Natural Democracy</strong> — a historic global gathering.</p>
-
-          <p>Warm regards,<br/><strong>WCND 2026 India Secretariat</strong></p>
-        `,
-      });
-    } catch (mailError) {
-      return next(mailError);
-    }
 
     sendResponse(res, STATUS.OK, 'Email verified successfully. Credentials sent.');
   } catch (error) {

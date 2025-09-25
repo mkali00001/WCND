@@ -2,9 +2,9 @@ const Announcement = require('../models/announcementModel');
 const User = require('../models/userModel');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
-const { sendResponse } = require('../utils/sendResponse');
 const AppError = require('../utils/AppError');
-const { STATUS } = require('../constant/statusCodes');
+const  STATUS  = require('../constant/statusCodes');
+const sendResponse = require('../utils/sendResponse');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',

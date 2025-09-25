@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, Loader2, DollarSign } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-// Modal for create/edit category (NO NAME FIELD)
+// Modal component for creating/editing categories
 const CategoryModal = ({ category, onClose, onSave }) => {
   const [form, setForm] = useState(
     category || { type: 'Domestic', feeINR: 0, feeUSD: 0 }
@@ -11,7 +11,7 @@ const CategoryModal = ({ category, onClose, onSave }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
@@ -30,7 +30,6 @@ const CategoryModal = ({ category, onClose, onSave }) => {
         </div>
         <form onSubmit={handleSubmit}>
           <div className="p-6 space-y-4">
-            {/* Only show type when creating a new category */}
             {!category && (
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Type</label>
@@ -92,9 +91,14 @@ const PaymentCategories = () => {
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/paymentcategory`,
         { withCredentials: true }
       );
-      setCategories(res.data);
+
+      // Ensure categories is always an array
+      const data = res.data.data;
+      console.log(data);
+      setCategories(data);
     } catch (err) {
       toast.error("Failed to load categories.");
+      setCategories([]);
     } finally {
       setLoading(false);
     }
@@ -114,7 +118,10 @@ const PaymentCategories = () => {
           categoryData,
           { withCredentials: true }
         );
-        setCategories(categories.map(c => c._id === res.data._id ? res.data : c));
+        const updatedCategory = res.data?.data || res.data;
+        setCategories((prev) =>
+          prev.map((c) => (c._id === updatedCategory._id ? updatedCategory : c))
+        );
         toast.success("Category updated!");
       } else {
         // POST create
@@ -123,7 +130,8 @@ const PaymentCategories = () => {
           categoryData,
           { withCredentials: true }
         );
-        setCategories([...categories, res.data]);
+        const newCategory = res.data?.data || res.data;
+        setCategories((prev) => [...prev, newCategory]);
         toast.success("Category created!");
       }
       setModalOpen(false);
@@ -141,7 +149,7 @@ const PaymentCategories = () => {
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/deletepaymentcategory/${id}`,
         { withCredentials: true }
       );
-      setCategories(categories.filter(c => c._id !== id));
+      setCategories((prev) => prev.filter((c) => c._id !== id));
       toast.success("Category deleted.");
     } catch (err) {
       toast.error("Failed to delete category.");
@@ -157,6 +165,7 @@ const PaymentCategories = () => {
           onSave={handleSave}
         />
       )}
+
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg"><DollarSign size={24} /></div>
@@ -191,8 +200,8 @@ const PaymentCategories = () => {
                     <Loader2 className="w-6 h-6 animate-spin mx-auto" />
                   </td>
                 </tr>
-              ) : (
-                categories.map(cat => (
+              ) : categories.length > 0 ? (
+                categories.map((cat) => (
                   <tr key={cat._id} className="hover:bg-slate-50">
                     <td className="px-6 py-4">{cat.type}</td>
                     <td className="px-6 py-4">{cat.feeINR?.toLocaleString('en-IN')}</td>
@@ -213,6 +222,12 @@ const PaymentCategories = () => {
                     </td>
                   </tr>
                 ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="text-center p-4 text-gray-500">
+                    No categories found.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

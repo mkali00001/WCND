@@ -3,11 +3,33 @@ import { Pencil, Trash2, Send } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const Announcement = ({ initialAnnouncements, setAnnouncements }) => {
+const Announcement = () => {
   const [form, setForm] = useState({ id: null, title: "", body: "", audience: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [loading, setLoading] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
+
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/announcements/get-announcements`,
+          { withCredentials: true }
+        );
+
+        // ✅ ensure always an array
+        setAnnouncements(res.data.data || []);
+      } catch (err) {
+        console.error("Error fetching announcements:", err);
+        toast.error("Failed to load announcements.");
+        setAnnouncements([]); // fallback
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
 
   // Handle window resize
   useEffect(() => {
@@ -38,6 +60,7 @@ const Announcement = ({ initialAnnouncements, setAnnouncements }) => {
           { title: form.title, body: form.body, audience: form.audience },
           { withCredentials: true }
         );
+        console.log(res.data.data);
         setAnnouncements((prev) => [res.data, ...prev]);
         toast.success("Announcement created successfully!");
       }
@@ -224,7 +247,7 @@ const Announcement = ({ initialAnnouncements, setAnnouncements }) => {
           <div className="p-0 md:p-6">
             {isMobile ? (
               <div className="space-y-4 p-4">
-                {initialAnnouncements.map((announcement) => (
+                {announcements.map((announcement) => (
                   <AnnouncementCard key={announcement._id} announcement={announcement} />
                 ))}
               </div>
@@ -243,7 +266,7 @@ const Announcement = ({ initialAnnouncements, setAnnouncements }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {initialAnnouncements.map((announcement) => (
+                    {announcements.map((announcement) => (
                       <tr key={announcement._id} className="border-b border-gray-300 hover:bg-gray-100">
                         <td className="py-3 px-4 font-medium text-xs text-gray-500">{announcement._id}</td>
                         <td className="py-3 px-4">

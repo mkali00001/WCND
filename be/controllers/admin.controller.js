@@ -2,8 +2,9 @@ const Payment = require('../models/paymentModel');
 const RegisteredUser = require('../models/registeredUserModel');
 const userModel = require('../models/userModel');
 const PaymentCategory = require('../models/paymentCategoryModel');
-const { sendResponse } = require('../utils/sendResponse');
-const { STATUS } = require('../constant/statusCodes');
+const  sendResponse  = require('../utils/sendResponse');
+const  STATUS  = require('../constant/statusCodes');
+const AppError = require('../utils/AppError');
 
 const users = async (req, res, next) => {
   try {
@@ -123,7 +124,7 @@ const editUser = async (req, res, next) => {
 const getPaymentCategories = async (req, res, next) => {
   try {
     const categories = await PaymentCategory.find().sort({ type: 1, name: 1 });
-    sendResponse(res, STATUS.OK, 'Payment categories fetched successfully', { data: categories });
+    sendResponse(res, STATUS.OK, 'Payment categories fetched successfully', categories );
   } catch (error) {
     next(error);
   }

@@ -50,36 +50,40 @@ const sendQueryResponse = async (req, res) => {
     const { id } = req.params;
     const { queryResponse } = req.body;
 
-    const query = await Query.findByIdAndUpdate(id, { $set: { queryResponse } }, { new: true });
+    const query = await Query.findByIdAndUpdate(
+      id,
+      { $set: { queryResponse } },
+      { new: true }
+    );
 
     if (!query) {
-      return res.status(404).json({ error: 'Query not found' });
+      return res.status(404).json({ error: "Query not found" });
     }
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: query.userEmail,
-      subject: 'Response to your query',
-      text: `Hi ${query.userName},\n\nAdmin has responded to your query:\n\n${queryResponse}`,
-    };
+    // ✅ Send email using sendEmail
+    try {
+      await sendEmail({
+        to: query.userEmail,
+        subject: "WCND 2026 - Response to Your Query",
+        html: `
+          <p>Hi ${query.userName},</p>
+          <p>Thank you for reaching out to us.</p>
+          <p><strong>Our Response:</strong></p>
+          <p>${queryResponse.replace(/\n/g, "<br/>")}</p>
+          <br/>
+          <p>Warm regards,<br/><strong>WCND 2026 India Secretariat</strong></p>
+        `,
+      });
 
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.error('Error sending mail to user:', err.message);
-      } else {
-        console.log('Mail sent to user:', info.response);
-      }
-    });
+      console.log("Mail sent to user successfully");
+    } catch (error) {
+      console.error("Error sending mail to user:", error.message);
+    }
 
-    res.status(200).json({ message: 'Query Response saved!', query });
+    res.status(200).json({ message: "Query Response saved!", query });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
-
-const allQueries = async (req, res) => {
-  const queries = await Query.find();
-  res.status(200).json(queries);
 };
 
 module.exports = { createQuery, sendQueryResponse, allQueries };

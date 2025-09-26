@@ -9,6 +9,7 @@ const adminRouter = require('./routes/admin.route');
 const announcementRouter = require('./routes/announcement.route');
 const errorHandler = require('./middleware/error.middleware');
 const queryRouter = require('./routes/query.route');
+const path = require("path");
 
 const app = express();
 

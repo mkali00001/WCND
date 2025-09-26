@@ -35,17 +35,18 @@ app.use('/api/registeration', registerRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/announcements', announcementRouter);
 app.use('/api/query', queryRouter);
+app.use('/img', express.static(path.join(__dirname, 'uploads')))
 
-// app.get("/", (req, res) => {
-//   res.json({ msg: "it's working" })
-// })
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../fe/dist")));
 
-  app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../fe/dist/index.html"));
-});
-}
+// if (process.env.NODE_ENV === "production") {
+//   app.use(express.static(path.join(__dirname, "../fe/dist")));
+
+//   app.get(/^\/(?!api).*/, (req, res) => {
+//   res.sendFile(path.join(__dirname, "../fe/dist/index.html"));
+// });
+// }
+
+
 app.use(errorHandler);
 module.exports = app;

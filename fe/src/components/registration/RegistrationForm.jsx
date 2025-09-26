@@ -95,7 +95,7 @@ const RegistrationForm = () => {
     accompanying: "no",
     accompanyingCount: 1,
     accompanyingPersons: [],
-    registrationId: user?.registrationId || "", 
+    registrationId: user?.registrationId || "",
 
     // Step3: Academic + Participation
     designation: "",
@@ -339,6 +339,7 @@ const RegistrationForm = () => {
                 );
                 toast.success("Payment & Registration Successful!");
                 setIsCompleted(true);
+                await fetchUserData();
               } catch (payErr) {
                 toast.error("Registration saved, but payment record failed. Contact support.");
                 console.error(payErr);

@@ -6,9 +6,11 @@ import { toast } from "react-toastify"
 const SuccessPage = () => {
   const [invoiceGenerated, setInvoiceGenerated] = useState(false)
   const [downloadingInvoice, setDownloadingInvoice] = useState(false)
+  const [generating, setGenerating] = useState(false)
 
   // Generate Invoice
   const handleInvoice = async () => {
+    setGenerating(true)
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/invoice`,
@@ -21,6 +23,8 @@ const SuccessPage = () => {
     } catch (err) {
       toast.error("Failed to generate invoice.")
       console.error(err)
+    }finally {
+      setGenerating(false)
     }
   }
 
@@ -96,9 +100,10 @@ const SuccessPage = () => {
         {!invoiceGenerated && (
           <button
             onClick={handleInvoice}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+            disabled={generating}
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Generate Invoice
+            {generating ? "Generating..." : "Generate Invoice"}
           </button>
         )}
 

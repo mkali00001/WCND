@@ -36,9 +36,9 @@ app.use('/api/query', queryRouter);
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../fe/dist")));
 
-  app.get("/:path(*)", (req, res) => {
-    res.sendFile(path.join(__dirname, "../fe/dist/index.html"));
-  });
+  app.get("/:path(.*)", (req, res) => {
+  res.sendFile(path.join(__dirname, "../fe/dist/index.html"));
+});
 }
 
 // app.get("/", (req, res) => {

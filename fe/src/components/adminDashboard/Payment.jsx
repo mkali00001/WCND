@@ -33,7 +33,7 @@ const Payment = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-    `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/paymentstatus`,
+    `${import.meta.env.VITE_ALLOWED_ORIGIN}/admin/paymentstatus`,
     {
       params: {
         page: pagination.currentPage,

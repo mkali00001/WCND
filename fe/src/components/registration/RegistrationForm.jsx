@@ -300,7 +300,7 @@ const RegistrationForm = () => {
       if (amountInPaise > 0) {
         // 1. Create order first
         const orderResponse = await axios.post(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/create-order`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/payment/create-order`,
           { amount: amountInPaise },
           { withCredentials: true }
         );
@@ -318,7 +318,7 @@ const RegistrationForm = () => {
             // 3. On payment success, save registration
             try {
               const registrationResponse = await axios.post(
-                `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/register`,
+                `${import.meta.env.VITE_ALLOWED_ORIGIN}/registeration/register`,
                 formData,
                 {
                   headers: { "Content-Type": "application/json" },
@@ -328,7 +328,7 @@ const RegistrationForm = () => {
               // 4. Record payment after registration is saved
               try {
                 await axios.post(
-                  `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/record-payment`,
+                  `${import.meta.env.VITE_ALLOWED_ORIGIN}/payment/record-payment`,
                   {
                     razorpayPaymentId: response.razorpay_payment_id,
                     razorpayOrderId: response.razorpay_order_id,
@@ -366,7 +366,7 @@ const RegistrationForm = () => {
         // If no payment is needed, submit registration directly
         try {
           const registrationResponse = await axios.post(
-            `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/register`,
+            `${import.meta.env.VITE_ALLOWED_ORIGIN}/registeration/register`,
             formData,
             {
               headers: { "Content-Type": "application/json" },

@@ -10,7 +10,7 @@ const HelpSupport = () => {
     const fetchQueries = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/query/all-queries`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/query/all-queries`,
           { withCredentials: true }
         );
         setQueries(res.data);
@@ -34,7 +34,7 @@ const HelpSupport = () => {
   const handleResponse = async (id) => {
     try {
       await axios.patch(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/query/response-query/${id}`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/query/response-query/${id}`,
         { queryResponse: responses[id] },
         { withCredentials: true }
       );

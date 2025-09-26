@@ -25,7 +25,7 @@ export default function AdminDashboard() {
     const fetchAnnouncements = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/announcements/get-announcements`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/announcements/get-announcements`,
           { withCredentials: true }
         );
         console.log(res.data.data);

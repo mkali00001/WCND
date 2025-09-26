@@ -19,7 +19,7 @@ export default function ChangePasswordCard() {
       try {
         // Call change-password API
         await axios.post(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/change-password`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/change-password`,
           { newPassword: password },
           { withCredentials: true }
         );

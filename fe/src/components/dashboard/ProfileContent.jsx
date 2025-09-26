@@ -27,7 +27,7 @@ export default function ProfileContent() {
     const fetchRegistration = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/my-registration`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/registeration/my-registration`,
           { withCredentials: true }
         );
         setRegistration(res.data);
@@ -64,7 +64,7 @@ export default function ProfileContent() {
         formData.append("profileImage", selectedImage);
 
         const res = await axios.post(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/upload-profile`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/upload-profile`,
           formData,
           { withCredentials: true }
         );

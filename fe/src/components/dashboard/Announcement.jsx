@@ -12,7 +12,7 @@ export const Announcement = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/announcements/my`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/announcements/my`,
           { withCredentials: true }
         );
         console.log('Announcements:', res.data.data);

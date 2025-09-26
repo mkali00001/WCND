@@ -23,7 +23,7 @@ const VerifyEmail = () => {
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/email-verify`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/email-verify`,
         { email },
         { headers: { "Content-Type": "application/json" }, withCredentials: true }
       );

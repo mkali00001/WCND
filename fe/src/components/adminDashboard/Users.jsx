@@ -20,7 +20,7 @@ const UserManagement = () => {
   const fetchUsers = async (page = 1, limit = 10) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/users`, {
+      const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/admin/users`, {
         params: { page, limit },
         withCredentials: true,
       });
@@ -83,7 +83,7 @@ const UserManagement = () => {
     try {
       const { _id, ...updates } = editForm;
       const res = await axios.put(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/edit-user/${_id}`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/admin/edit-user/${_id}`,
         updates,
         { withCredentials: true }
       );
@@ -107,7 +107,7 @@ const UserManagement = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/delete-user/${id}`, { withCredentials: true });
+      await axios.delete(`${import.meta.env.VITE_ALLOWED_ORIGIN}/admin/delete-user/${id}`, { withCredentials: true });
       setUserList(prev => prev.filter(u => u._id !== id));
       if (selectedUser?._id === id) setSelectedUser(null);
       toast.success("User deleted successfully.");

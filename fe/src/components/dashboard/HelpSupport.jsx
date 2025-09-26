@@ -10,7 +10,7 @@ export const HelpSupport = () => {
     if (query.trim() !== "") {
       try {
         const res = await axios.post(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/query/create-query`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/query/create-query`,
           { querydata: query },
           {
             headers: {

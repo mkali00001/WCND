@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserData = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/me`, { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_ALLOWED_ORIGIN}/me`, { withCredentials: true });
       setUser(res.data);
       setLoading(false)
       console.log(res.data)
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     axios
-      .post(`${import.meta.env.VITE_ALLOWED_ORIGIN}/api/logout`, {}, { withCredentials: true })
+      .post(`${import.meta.env.VITE_ALLOWED_ORIGIN}/logout`, {}, { withCredentials: true })
       .then(() => setUser(null));
   };
 

@@ -15,7 +15,7 @@ const Announcement = () => {
     const fetchAnnouncements = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/announcements/get-announcements`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/announcements/get-announcements`,
           { withCredentials: true }
         );
 
@@ -56,7 +56,7 @@ const Announcement = () => {
       } else {
         // Create new announcement
         const res = await axios.post(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/announcements/create-announcement`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/announcements/create-announcement`,
           { title: form.title, body: form.body, audience: form.audience },
           { withCredentials: true }
         );
@@ -81,7 +81,7 @@ const Announcement = () => {
   const handleResend = async (id) => {
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/announcements/send-announcement/${id}`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/announcements/send-announcement/${id}`,
         {},
         { withCredentials: true }
       );

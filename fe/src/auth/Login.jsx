@@ -20,7 +20,7 @@ export default function Login() {
     setLoading(true);
     try {
       await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/login`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/login`,
         {
           email: formData.email,
           password: formData.password,

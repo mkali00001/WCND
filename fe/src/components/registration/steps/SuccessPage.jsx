@@ -13,7 +13,7 @@ const SuccessPage = () => {
     setGenerating(true)
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/invoice`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/payment/invoice`,
         {},
         { withCredentials: true }
       )
@@ -33,7 +33,7 @@ const SuccessPage = () => {
     setDownloadingInvoice(true)
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/download-invoice`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/payment/download-invoice`,
         {
           withCredentials: true,
           responseType: "blob",

@@ -12,13 +12,13 @@ export const Payement = () => {
     const fetchData = async () => {
       try {
         const regResponse = await axios.get(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/my-registration`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/registeration/my-registration`,
           { withCredentials: true }
         );
         setRegistration(regResponse.data);
 
         const payResponse = await axios.get(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/my-payment`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/payment/my-payment`,
           { withCredentials: true }
         );
         setPayment(payResponse.data);
@@ -38,7 +38,7 @@ export const Payement = () => {
     setDownloadingInvoice(true);
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/download-invoice`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/payment/download-invoice`,
         {
           withCredentials: true,
           responseType: "blob", // Important: binary response

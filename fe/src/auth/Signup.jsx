@@ -17,7 +17,7 @@ export default function Signup() {
   const fetchCaptcha = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/captcha`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/captcha`,
         { withCredentials: true }
       );
       setCaptchaSvg(res.data);
@@ -61,7 +61,7 @@ export default function Signup() {
   try {
     setLoading(true);
     const res = await axios.post(
-      `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/signup`,
+      `${import.meta.env.VITE_ALLOWED_ORIGIN}/signup`,
       payload,
       { withCredentials: true }
     );

@@ -88,7 +88,7 @@ const PaymentCategories = () => {
   const fetchCategories = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/paymentcategory`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/admin/paymentcategory`,
         { withCredentials: true }
       );
 
@@ -114,7 +114,7 @@ const PaymentCategories = () => {
       if (categoryData._id) {
         // PATCH update
         const res = await axios.patch(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/updatepaymentcategory/${categoryData._id}`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/admin/updatepaymentcategory/${categoryData._id}`,
           categoryData,
           { withCredentials: true }
         );
@@ -126,7 +126,7 @@ const PaymentCategories = () => {
       } else {
         // POST create
         const res = await axios.post(
-          `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/createpaymentcategory`,
+          `${import.meta.env.VITE_ALLOWED_ORIGIN}/admin/createpaymentcategory`,
           categoryData,
           { withCredentials: true }
         );
@@ -146,7 +146,7 @@ const PaymentCategories = () => {
     if (!window.confirm("Are you sure you want to delete this category?")) return;
     try {
       await axios.delete(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/admin/deletepaymentcategory/${id}`,
+        `${import.meta.env.VITE_ALLOWED_ORIGIN}/admin/deletepaymentcategory/${id}`,
         { withCredentials: true }
       );
       setCategories((prev) => prev.filter((c) => c._id !== id));

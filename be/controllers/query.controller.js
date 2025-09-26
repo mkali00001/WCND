@@ -1,14 +1,8 @@
 const userModel = require('../models/userModel');
 const Query = require('../models/queryModel');
-const nodemailer = require('nodemailer');
+const { sendEmail } = require('../services/mail');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+
 
 const createQuery = async (req, res) => {
   const user = req.user;
@@ -29,7 +23,7 @@ const createQuery = async (req, res) => {
   await query.save();
   console.log(query);
 
-  // Send email using sendEmail
+  //  Send email using sendEmail
   try {
     await sendEmail({
       to: process.env.EMAIL_USER, // Admin receives the query

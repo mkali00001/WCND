@@ -17,10 +17,10 @@ paymentRouter.use(authMiddleware);
 paymentRouter.post("/create-order", createOrder)
 paymentRouter.post("/record-payment", recordPayment)
 
-paymentRouter.post('/create-payment',  createPayment)
-paymentRouter.get('/get-payment',  getPayments)
+
 paymentRouter.post("/paymentcategory",getPaymentCategorie)
-paymentRouter.get('/my-payment', getMyPayment);
+paymentRouter.get('/my-payment', getMyPayment)
+
 paymentRouter.post("/invoice", generateInvoice)
 paymentRouter.get("/download-invoice", downloadInvoice)
 

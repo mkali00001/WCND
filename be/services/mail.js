@@ -68,7 +68,7 @@ const forgotPasswordEmail = (name, newPassword) => {
 return `
   <p>Hello ${name},</p>
   <p>Your new password is: <strong>${newPassword}</strong></p>
-  <p><a href="http://localhost:5173/login">Login here</a></p>
+  <p><a href="https://wcnd.onrender.com/login">Login here</a></p>
   <p>If you did not request this, please ignore this email.</p>
 `;};
 

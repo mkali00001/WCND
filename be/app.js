@@ -9,16 +9,20 @@ const adminRouter = require('./routes/admin.route');
 const announcementRouter = require('./routes/announcement.route');
 const errorHandler = require('./middleware/error.middleware');
 const queryRouter = require('./routes/query.route');
-const path = require("path");
-
+const path = require('path');
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? [process.env.ORIGIN]
+  : ['http://localhost:5173'];
+
 app.use(
   cors({
-    origin: process.env.ORIGIN,
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   })
@@ -32,17 +36,16 @@ app.use('/api/admin', adminRouter);
 app.use('/api/announcements', announcementRouter);
 app.use('/api/query', queryRouter);
 
+// app.get("/", (req, res) => {
+//   res.json({ msg: "it's working" })
+// })
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../fe/dist")));
 
-  app.get("/:path(.*)", (req, res) => {
+  app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "../fe/dist/index.html"));
 });
 }
-
-// app.get("/", (req, res) => {
-//   res.json({ msg: "it's working" })
-// })
 app.use(errorHandler);
 module.exports = app;

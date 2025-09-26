@@ -104,11 +104,22 @@ const paymentConfirmationEmail = (registration, payment) => {
   `;
 };
 
+const announcementEmail = (userName, title, body) => `
+  <p>Dear ${userName || 'Participant'},</p>
+  <br/>
+  <p><strong>${title}</strong></p>
+  <br/>
+  <p>${body.replace(/\n/g, '<br>')}</p>
+  <br/>
+  <p>Warm regards,<br/>WCND 2026 India Secretariat</p>
+`;
+
 
 module.exports = {
   sendEmail,
   verifyemail,
   forgotPasswordEmail,
   credentialsEmail,
-  paymentConfirmationEmail
+  paymentConfirmationEmail,
+  announcementEmail
 };

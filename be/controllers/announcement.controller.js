@@ -5,14 +5,8 @@ require('dotenv').config();
 const AppError = require('../utils/AppError');
 const  STATUS  = require('../constant/statusCodes');
 const sendResponse = require('../utils/sendResponse');
+const { announcementEmail, sendEmail } = require('../services/mail');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 const createAnnouncement = async (req, res, next) => {
   try {
@@ -78,20 +72,12 @@ const sendAnnouncement = async (req, res, next) => {
     // 2. Send emails in parallel
     if (users.length > 0) {
       const emailPromises = users.map((user) => {
-        return transporter.sendMail({
+        return sendEmail({
           from: process.env.EMAIL_USER,
           to: user.email,
-          subject: `Announcement: ${announcement.title}`,
-          html: `
-            <p>Dear ${user.name || 'Participant'},</p>
-            <br/>
-            <p>${announcement.title}</p>
-            <br/>
-            <p>${announcement.body.replace(/\n/g, '<br>')}</p>
-            <br/>
-            <p>Warm regards,<br/>WCND 2026 India Secretariat</p>
-          `,
-        });
+          subject: `WCND 2026 - New Announcement: ${announcement.title}`, // ✅ updated subject
+          html: announcementEmail(user.name, announcement.title, announcement.body),
+        })
       });
       await Promise.all(emailPromises);
     }

@@ -295,29 +295,18 @@ const RegistrationForm = () => {
   }
 
   const handleSubmitAndPay = async () => {
-    // 1. First, submit the registration data
     try {
-      console.log("Submitting Data:", formData)
-      const registrationResponse = await axios.post(
-        `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/register`,
-        formData,
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      )
-      console.log("Registration Response:", registrationResponse.data)
-
-      // 2. If registration is successful, proceed to payment
-      const amountInPaise = Number(formData.feeAmount) * 100
+      const amountInPaise = Number(formData.feeAmount) * 100;
       if (amountInPaise > 0) {
+        // 1. Create order first
         const orderResponse = await axios.post(
           `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/create-order`,
           { amount: amountInPaise },
           { withCredentials: true }
-        )
-        const order = orderResponse.data
+        );
+        const order = orderResponse.data;
 
+        // 2. Open Razorpay payment
         const options = {
           key: import.meta.env.VITE_RAZORPAY_KEY_ID,
           amount: order.amount,
@@ -326,22 +315,37 @@ const RegistrationForm = () => {
           description: `${formData.feeCategory} Fee`,
           order_id: order.id,
           handler: async function (response) {
+            // 3. On payment success, save registration
             try {
-              await axios.post(
-                `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/record-payment`,
+              const registrationResponse = await axios.post(
+                `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/register`,
+                formData,
                 {
-                  razorpayPaymentId: response.razorpay_payment_id,
-                  razorpayOrderId: response.razorpay_order_id,
-                  razorpaySignature: response.razorpay_signature,
-                  amount: order.amount,
-                },
-                { withCredentials: true }
-              )
-              toast.success("Payment Successful! Registration complete.")
-              setIsCompleted(true) // Move to success page
-            } catch (err) {
-              toast.error("Payment verification failed. Please contact support.")
-              console.error(err)
+                  headers: { "Content-Type": "application/json" },
+                  withCredentials: true,
+                }
+              );
+              // 4. Record payment after registration is saved
+              try {
+                await axios.post(
+                  `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/payment/record-payment`,
+                  {
+                    razorpayPaymentId: response.razorpay_payment_id,
+                    razorpayOrderId: response.razorpay_order_id,
+                    razorpaySignature: response.razorpay_signature,
+                    amount: order.amount,
+                  },
+                  { withCredentials: true }
+                );
+                toast.success("Payment & Registration Successful!");
+                setIsCompleted(true);
+              } catch (payErr) {
+                toast.error("Registration saved, but payment record failed. Contact support.");
+                console.error(payErr);
+              }
+            } catch (regErr) {
+              toast.error("Payment succeeded but registration failed. Please contact support.");
+              console.error(regErr);
             }
           },
           prefill: {
@@ -350,21 +354,34 @@ const RegistrationForm = () => {
             name: formData.fullName || "",
           },
           theme: { color: "#972620" },
-        }
+        };
 
-        const rzp = new window.Razorpay(options)
-        rzp.open()
+        const rzp = new window.Razorpay(options);
+        rzp.open();
         rzp.on("payment.failed", function (response) {
-          toast.error(`Payment Failed: ${response.error.description}`)
-        })
+          toast.error(`Payment Failed: ${response.error.description}`);
+        });
       } else {
-        // If no payment is needed
-        toast.success("Registration complete!")
-        setIsCompleted(true)
+        // If no payment is needed, submit registration directly
+        try {
+          const registrationResponse = await axios.post(
+            `${import.meta.env.VITE_ALLOWED_ORIGIN}/api/registeration/register`,
+            formData,
+            {
+              headers: { "Content-Type": "application/json" },
+              withCredentials: true,
+            }
+          );
+          toast.success("Registration complete!");
+          setIsCompleted(true);
+        } catch (error) {
+          console.error("Error submitting form:", error.response?.data || error.message);
+          toast.error(error.response?.data?.error || "Something went wrong!");
+        }
       }
     } catch (error) {
-      console.error("Error submitting form:", error.response?.data || error.message)
-      toast.error(error.response?.data?.error || "Something went wrong!")
+      console.error("Error in payment:", error.response?.data || error.message);
+      toast.error(error.response?.data?.error || "Something went wrong!");
     }
   }
 

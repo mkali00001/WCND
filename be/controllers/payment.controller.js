@@ -106,6 +106,8 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET // Secret key
 });
 
+console.log(process.env.RAZORPAY_KEY_ID, process.env.RAZORPAY_KEY_SECRET )
+
 
 
 exports.createOrder = async (req, res) => {
@@ -116,15 +118,19 @@ exports.createOrder = async (req, res) => {
     if (!amount || amount <= 0) {
       return res.status(400).json({ error: "Amount is required and must be > 0" });
     }
-
+    console.log("amt",amount)
     // Create Razorpay order
-    const order = await razorpay.orders.create({
-      amount,
+    try{
+      const order = await razorpay.orders.create({
+      amount:amount,
       currency: "INR",
       receipt: `receipt_${Date.now()}`
     });
-
+    console.log("1",order)
     res.status(200).json(order);
+    }catch(err){
+      res.status(400).json({error:"Razorpay error"})
+    }
   } catch (err) {
     console.error("Error creating order:", err);
     res.status(500).json({ error: "Server error", details: err.message });

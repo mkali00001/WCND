@@ -29,23 +29,27 @@ const createQuery = async (req, res) => {
   await query.save();
   console.log(query);
 
-  const mailOptions = {
-    from: userData.email,
-    to: process.env.EMAIL_USER,
-    subject: 'New Query Received',
-    text: `New query from ${userData.name} (${userData.email}):\n\n${querydata}`,
-  };
+  // Send email using sendEmail
+  try {
+    await sendEmail({
+      to: process.env.EMAIL_USER, // Admin receives the query
+      subject: "WCND 2026 - New Query Received",
+      html: `
+        <p>New query received:</p>
+        <p><strong>Name:</strong> ${userData.name}</p>
+        <p><strong>Email:</strong> ${userData.email}</p>
+        <p><strong>Query:</strong><br/>${querydata}</p>
+      `,
+    });
 
-  transporter.sendMail(mailOptions, (err, info) => {
-    if (err) {
-      console.error('Error sending mail to admin:', err.message);
-    } else {
-      console.log('Mail sent to admin:', info.response);
-    }
-  });
+    console.log("Mail sent to admin successfully");
+  } catch (err) {
+    console.error("Error sending mail to admin:", err.message);
+  }
 
   res.status(201).json({ query });
 };
+
 
 const sendQueryResponse = async (req, res) => {
   try {

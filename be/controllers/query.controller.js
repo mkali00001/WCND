@@ -86,4 +86,9 @@ const sendQueryResponse = async (req, res) => {
   }
 };
 
+const allQueries = async (req, res) => {
+  const queries = await Query.find();
+  res.status(200).json(queries);
+};
+
 module.exports = { createQuery, sendQueryResponse, allQueries };
